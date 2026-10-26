@@ -52,17 +52,34 @@ KNOWN_SHORTENERS: set = {
     "rebrand.ly", "cutt.ly", "shorturl.at", "tiny.cc", "rb.gy", "bl.ink"
 }
 HIGH_REPUTATION_DOMAINS: set = {
+    # Alphabet / Google
     "google.com", "googleapis.com", "gstatic.com", "googleusercontent.com",
     "youtube.com", "googlevideo.com", "android.com", "googleblog.com",
-    "google.co.in", "google.co.uk", "google.de", "google.fr", "google.ca",
+    "googlesyndication.com", "googletagmanager.com", "google.co.in",
+    "google.co.uk", "google.de", "google.fr", "google.ca",
+    # Microsoft / Azure
     "microsoft.com", "office.com", "azure.com", "live.com", "microsoftonline.com",
     "visualstudio.com", "windows.net", "bing.com", "linkedin.com", "github.com",
+    "t-msedge.net", "spo-msedge.net", "tm-azurefd.net",
+    # Amazon / AWS
     "amazon.com", "amazonaws.com", "aws.amazon.com", "media-amazon.com",
-    "apple.com", "icloud.com",
-    "cloudflare.com", "fastly.com", "akamai.com", "digitalocean.com",
+    # Apple
+    "apple.com", "icloud.com", "icloud-content.com",
+    # CDN / Infrastructure
+    "cloudflare.com", "cloudflare-dns.com", "fastly.com", "fastly-edge.com",
+    "akamai.com", "akamaized.net", "digitalocean.com", "gravatar.com",
+    "openxcdn.net", "gtld-servers.net", "root-servers.net",
+    # Dev / Open Source
     "docker.com", "gitlab.com", "npmjs.com", "pypi.org",
     "mozilla.org", "wikipedia.org", "wikimedia.org", "chatgpt.com", "openai.com",
-    "paypal.com", "stripe.com",
+    "github.io", "githubusercontent.com",
+    # Financial
+    "paypal.com", "stripe.com", "visa.com", "mastercard.com",
+    # Telecom / ISP
+    "t-online.de", "ertelecom.ru",
+    # Standards / Research
+    "3gppnetwork.org", "internet-measurement.com", "exp-tas.com",
+    "dns-parking.com", "root-servers.org",
 }
 
 # v1 16 features (kept for backward compatibility with deployed model)

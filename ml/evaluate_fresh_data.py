@@ -1,3 +1,5 @@
+import warnings
+warnings.filterwarnings('ignore')
 """
 PhishGuard AI - Fresh Data Evaluation Script (Priority 1)
 =========================================================

@@ -1,0 +1,111 @@
+{
+  "evaluation_type": "Fresh External Data (Never Seen During Training)",
+  "phishing_source": "OpenPhish feed / URLhaus fallback",
+  "legit_source": "Tranco Top-1M",
+  "n_phishing": 300,
+  "n_legit": 498,
+  "training_set_metrics": {
+    "accuracy": 0.9923819372630127,
+    "precision": 0.9917327932534281,
+    "recall": 0.9935801483551209,
+    "false_positive_rate": 0.008906535035948062,
+    "f1_score": 0.9926556113123526,
+    "roc_auc": 0.9971126027432624
+  },
+  "fresh_data_metrics": {
+    "acc": 0.39348370927318294,
+    "prec": 0.3826530612244898,
+    "rec": 1.0,
+    "f1": 0.5535055350553506,
+    "auc": 0.9419879518072289,
+    "tn": 14.0,
+    "fp": 484.0,
+    "fn": 0.0,
+    "tp": 300.0,
+    "fpr": 0.9718875502008032,
+    "fnr": 0.0
+  },
+  "top_false_positives": [
+    {
+      "url": "https://3gppnetwork.org",
+      "prob": 0.9853828751546401
+    },
+    {
+      "url": "https://tm-azurefd.net",
+      "prob": 0.9823076319187439
+    },
+    {
+      "url": "https://root-servers.net",
+      "prob": 0.9823076319187439
+    },
+    {
+      "url": "https://fastly-edge.com",
+      "prob": 0.9823076319187439
+    },
+    {
+      "url": "https://t-msedge.net",
+      "prob": 0.9823076319187439
+    },
+    {
+      "url": "https://uni-hamburg.de",
+      "prob": 0.9823076319187439
+    },
+    {
+      "url": "https://cloudflare-dns.com",
+      "prob": 0.9823076319187439
+    },
+    {
+      "url": "https://t-online.de",
+      "prob": 0.9823076319187439
+    },
+    {
+      "url": "https://internet-measurement.com",
+      "prob": 0.9823076319187439
+    },
+    {
+      "url": "https://exp-tas.com",
+      "prob": 0.9823076319187438
+    },
+    {
+      "url": "https://dns-parking.com",
+      "prob": 0.9823076319187438
+    },
+    {
+      "url": "https://spo-msedge.net",
+      "prob": 0.9823076319187438
+    },
+    {
+      "url": "https://icloud-content.com",
+      "prob": 0.9823076319187438
+    },
+    {
+      "url": "https://gtld-servers.net",
+      "prob": 0.9823076319187438
+    },
+    {
+      "url": "https://voodoo-gaming.io",
+      "prob": 0.9823076319187438
+    },
+    {
+      "url": "https://googleusercontent.com",
+      "prob": 0.9821499170463771
+    },
+    {
+      "url": "https://googlesyndication.com",
+      "prob": 0.9821499170463771
+    },
+    {
+      "url": "https://openxcdn.net",
+      "prob": 0.9821499170463771
+    },
+    {
+      "url": "https://ertelecom.ru",
+      "prob": 0.9821499170463771
+    },
+    {
+      "url": "https://gravatar.com",
+      "prob": 0.9821499170463771
+    }
+  ],
+  "top_missed_threats": []
+}
