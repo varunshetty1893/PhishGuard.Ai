@@ -22,22 +22,22 @@ import type { ScanResult } from '../types';
 import { StatusBadge } from '../components/StatusBadge';
 
 export const ResultsPage: React.FC = () => {
-  const { id } = useParams<{ id: string }>();
+  const { scanId } = useParams<{ scanId: string }>();
   const navigate = useNavigate();
   const location = useLocation();
 
   const [result, setResult] = useState<ScanResult | null>(
     (location.state as { result?: ScanResult })?.result || null
   );
-  const [loading, setLoading] = useState<boolean>(!result);
+  const [loading, setLoading] = useState<boolean>(!result && !!scanId);
   const [error, setError] = useState<string>('');
   const [copied, setCopied] = useState<boolean>(false);
 
   useEffect(() => {
-    if (!result && id) {
+    if (!result && scanId) {
       setLoading(true);
       api
-        .getScanById(id)
+        .getScanById(scanId)
         .then((res) => {
           setResult(res);
           setError('');
@@ -48,8 +48,11 @@ export const ResultsPage: React.FC = () => {
         .finally(() => {
           setLoading(false);
         });
+    } else if (!result && !scanId) {
+      setLoading(false);
+      setError('No scan ID provided in URL.');
     }
-  }, [id, result]);
+  }, [scanId, result]);
 
   const handleCopy = () => {
     navigator.clipboard.writeText(window.location.href);
@@ -433,4 +436,6 @@ export const ResultsPage: React.FC = () => {
     </div>
   );
 };
+
+
 
