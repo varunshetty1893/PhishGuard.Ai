@@ -3,8 +3,9 @@ import { Link } from 'react-router-dom';
 import {
   Shield, Eye, Database, AlertTriangle,
   ArrowRight, BookOpen,
-  Info, BarChart2
+  Info
 } from 'lucide-react';
+import { MLLabPage } from './MLLabPage';
 
 export const AboutPage: React.FC = () => {
   return (
@@ -274,11 +275,10 @@ export const AboutPage: React.FC = () => {
               <ArrowRight className="w-4 h-4" />
             </Link>
             <Link
-              to="/ml-lab"
+              to="#detection-details"
               className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded bg-transparent border border-[#292929] text-[#A3A3A3] hover:text-[#F5F5F5] hover:border-[#39FF88]/50 font-medium text-sm transition-all"
             >
-              <BarChart2 className="w-4 h-4" />
-              <span>View Detection Details</span>
+              <span>See How the Detection System Is Tested</span>
             </Link>
           </div>
         </div>
@@ -290,6 +290,11 @@ export const AboutPage: React.FC = () => {
             <strong className="text-[#39FF88]">How we protect you:</strong> PhishGuard AI checks the text of the address without opening or connecting to the submitted website.
           </p>
         </div>
+      </section>
+
+      {/* Detection details are part of How It Works, not a separate page. */}
+      <section id="detection-details" className="border-t border-[#181818]">
+        <MLLabPage />
       </section>
     </div>
   );

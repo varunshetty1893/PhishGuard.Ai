@@ -11,7 +11,6 @@ import { ScannerPage } from './pages/ScannerPage';
 import { ResultsPage } from './pages/ResultsPage';
 import { DashboardPage } from './pages/DashboardPage';
 import { HistoryPage } from './pages/HistoryPage';
-import { MLLabPage } from './pages/MLLabPage';
 import { SettingsPage } from './pages/SettingsPage';
 import { AboutPage } from './pages/AboutPage';
 
@@ -27,7 +26,7 @@ export const App: React.FC = () => {
               <Route path="/" element={<LandingPage />} />
               <Route path="/register" element={<RegisterPage />} />
               <Route path="/login" element={<LoginPage />} />
-              <Route path="/ml-lab" element={<MLLabPage />} />
+              <Route path="/ml-lab" element={<Navigate to="/about#detection-details" replace />} />
               <Route path="/about" element={<AboutPage />} />
 
               {/* Protected Routes (Require Authenticated User Session) */}
