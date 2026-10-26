@@ -63,6 +63,25 @@ export const ScannerPage: React.FC = () => {
       setErrorMessage('URL exceeds maximum permitted limit of 2,048 characters.');
       return;
     }
+    if (/\s/.test(trimmed)) {
+      setErrorMessage('A web address cannot contain spaces. Please check your input.');
+      return;
+    }
+
+    // Validate that the input contains a valid domain, IP, or localhost
+    let domainCandidate = trimmed.replace(/^[a-zA-Z][a-zA-Z0-9+.-]*:\/\//, '').split('/')[0].split('?')[0].split('#')[0];
+    domainCandidate = domainCandidate.replace(/:\d+$/, '');
+
+    const isIp = /^(\d{1,3}\.){3}\d{1,3}$/.test(domainCandidate) || /^\[[0-9a-fA-F:]+\]$/.test(domainCandidate);
+    const isLocalhost = domainCandidate.toLowerCase() === 'localhost';
+    const isDomain = /^[a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?)*\.[a-zA-Z]{2,}$/.test(domainCandidate);
+
+    if (!isIp && !isLocalhost && !isDomain) {
+      setErrorMessage(
+        `"${trimmed}" is not a recognized web address. Please enter a valid URL with a proper domain extension (e.g. example.com or https://company.org).`
+      );
+      return;
+    }
 
     setErrorMessage('');
     setIsLoading(true);

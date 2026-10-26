@@ -80,6 +80,7 @@ ml/data/*.parquet
 # Exception: keep provenance docs
 !ml/data/PROVENANCE.md
 !ml/data/.gitkeep
+!ml/data/dataset.csv
 
 # ------ ML Artifacts (tracked via Git LFS — see .gitattributes) ------
 # These are tracked by LFS, not excluded

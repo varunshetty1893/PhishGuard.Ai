@@ -1,49 +1,53 @@
-import React, { useEffect, useState } from 'react';
-import { useParams, useLocation, Link, useNavigate } from 'react-router-dom';
+﻿import React, { useEffect, useState } from 'react';
+import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
 import {
-  Shield,
   ShieldAlert,
   ShieldCheck,
   AlertTriangle,
+  ArrowLeft,
+  RotateCcw,
   Copy,
   Check,
-  RotateCcw,
   Clock,
-  Layers,
+  Shield,
   CheckCircle2,
   XCircle,
-  ArrowLeft
+  Layers,
+  Info
 } from 'lucide-react';
 import { api } from '../services/api';
 import type { ScanResult } from '../types';
 import { StatusBadge } from '../components/StatusBadge';
 
 export const ResultsPage: React.FC = () => {
-  const { scanId } = useParams<{ scanId: string }>();
-  const location = useLocation();
+  const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [result, setResult] = useState<ScanResult | null>(
-    (location.state as any)?.result || null
+    (location.state as { result?: ScanResult })?.result || null
   );
   const [loading, setLoading] = useState<boolean>(!result);
   const [error, setError] = useState<string>('');
   const [copied, setCopied] = useState<boolean>(false);
 
   useEffect(() => {
-    if (!result && scanId) {
+    if (!result && id) {
       setLoading(true);
-      api.getScanById(scanId)
-        .then((data) => {
-          setResult(data);
-          setLoading(false);
+      api
+        .getScanById(id)
+        .then((res) => {
+          setResult(res);
+          setError('');
         })
         .catch((err) => {
           setError(err.message || 'Failed to retrieve scan report.');
+        })
+        .finally(() => {
           setLoading(false);
         });
     }
-  }, [scanId, result]);
+  }, [id, result]);
 
   const handleCopy = () => {
     navigator.clipboard.writeText(window.location.href);
@@ -68,7 +72,7 @@ export const ResultsPage: React.FC = () => {
         </div>
         <h2 className="text-xl font-bold text-[#F5F5F5]">Scan Record Not Found</h2>
         <p className="text-xs text-[#A3A3A3] max-w-md mx-auto">
-          {error || 'The requested scan ID does not exist or was deleted from the local database.'}
+          {error || 'The requested scan ID does not exist or was deleted.'}
         </p>
         <Link
           to="/scanner"
@@ -81,8 +85,53 @@ export const ResultsPage: React.FC = () => {
     );
   }
 
-  const isPhishing = result.predicted_class === 'Phishing';
+  const isHighRisk = result.risk_level === 'High Risk';
+  const isSuspicious = result.risk_level === 'Suspicious';
+  const isVerifiedDomain = Boolean(result.is_verified_domain || result.extracted_features?.is_verified_domain);
+  const apexDomain = result.apex_domain || result.extracted_features?.apex_domain || '';
+
   const scorePercent = result.model_score !== null ? (result.model_score * 100).toFixed(1) : null;
+  const rawScorePercent = result.raw_ml_score !== null && result.raw_ml_score !== undefined
+    ? (result.raw_ml_score * 100).toFixed(1)
+    : null;
+
+  // Determine cautious, professional headline text
+  let verdictHeadline = 'Legitimate Structure';
+  let verdictSubtext = 'Conforms to expected web address patterns';
+  if (isVerifiedDomain) {
+    verdictHeadline = 'Verified Domain Authority';
+    verdictSubtext = `Authenticated enterprise infrastructure (${apexDomain})`;
+  } else if (isHighRisk) {
+    verdictHeadline = 'Elevated Phishing Risk';
+    verdictSubtext = `Heuristic pattern match (${scorePercent}% statistical probability)`;
+  } else if (isSuspicious) {
+    verdictHeadline = 'Suspicious URL Structure';
+    verdictSubtext = `Anomalous structural attributes detected (${scorePercent}% risk score)`;
+  }
+
+  const bannerTheme = isHighRisk
+    ? 'bg-[#181010] border-[#FF525C]/50'
+    : isSuspicious
+    ? 'bg-[#1A1810] border-[#FFD54A]/50'
+    : 'bg-[#0E1A12] border-[#39FF88]/50';
+
+  const iconTheme = isHighRisk
+    ? 'bg-[#FF525C]/10 border-[#FF525C]/40 text-[#FF525C]'
+    : isSuspicious
+    ? 'bg-[#FFD54A]/10 border-[#FFD54A]/40 text-[#FFD54A]'
+    : 'bg-[#39FF88]/10 border-[#39FF88]/40 text-[#39FF88]';
+
+  const scoreColor = isHighRisk
+    ? 'text-[#FF525C]'
+    : isSuspicious
+    ? 'text-[#FFD54A]'
+    : 'text-[#39FF88]';
+
+  const gaugeBarColor = isHighRisk
+    ? 'bg-[#FF525C]'
+    : isSuspicious
+    ? 'bg-[#FFD54A]'
+    : 'bg-[#39FF88]';
 
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
@@ -128,43 +177,47 @@ export const ResultsPage: React.FC = () => {
 
         <div>
           <label className="text-[10px] uppercase tracking-wider font-semibold text-[#A3A3A3]">
-            Analyzed URL (Untrusted Input)
+            Analyzed Web Address (Untrusted Input)
           </label>
           <div className="mt-1 p-3 rounded bg-[#050505] border border-[#292929] font-mono text-sm text-[#F5F5F5] break-all select-all">
             {result.submitted_url}
           </div>
         </div>
+
+        {isVerifiedDomain && apexDomain && (
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded bg-[#0E1A12] border border-[#39FF88]/40 text-[#39FF88] text-xs">
+            <CheckCircle2 className="w-4 h-4 shrink-0" />
+            <span>
+              <strong>Verified Domain Authority:</strong> This link points to genuine infrastructure under{' '}
+              <strong className="underline">{apexDomain}</strong>.
+            </span>
+          </div>
+        )}
       </div>
 
       {/* Primary Verdict Hero Banner */}
-      <div
-        className={`p-6 sm:p-8 rounded border ${
-          isPhishing
-            ? 'bg-[#181010] border-[#FF525C]/50'
-            : 'bg-[#0E1A12] border-[#39FF88]/50'
-        } space-y-6`}
-      >
+      <div className={`p-6 sm:p-8 rounded border ${bannerTheme} space-y-6`}>
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="space-y-2">
             <div className="flex items-center gap-3">
-              {isPhishing ? (
-                <div className="p-2.5 rounded bg-[#FF525C]/10 border border-[#FF525C]/40 text-[#FF525C]">
+              <div className={`p-2.5 rounded border ${iconTheme}`}>
+                {isHighRisk ? (
                   <ShieldAlert className="w-8 h-8" />
-                </div>
-              ) : (
-                <div className="p-2.5 rounded bg-[#39FF88]/10 border border-[#39FF88]/40 text-[#39FF88]">
+                ) : isSuspicious ? (
+                  <AlertTriangle className="w-8 h-8" />
+                ) : (
                   <ShieldCheck className="w-8 h-8" />
-                </div>
-              )}
+                )}
+              </div>
               <div>
                 <div className="flex items-center gap-2">
                   <h2 className="text-2xl font-bold tracking-tight text-[#F5F5F5]">
-                    {result.predicted_class}
+                    {verdictHeadline}
                   </h2>
                   <StatusBadge type="risk" value={result.risk_level} size="md" />
                 </div>
                 <p className="text-xs text-[#A3A3A3] mt-0.5">
-                  Evaluated by PhishGuard Random Forest Model v{result.model_version}
+                  {verdictSubtext} &bull; Model v{result.model_version}
                 </p>
               </div>
             </div>
@@ -172,31 +225,38 @@ export const ResultsPage: React.FC = () => {
 
           {/* Model Probability Gauge */}
           {scorePercent !== null && (
-            <div className="bg-[#050505] p-4 rounded border border-[#292929] min-w-[200px] space-y-2">
+            <div className="bg-[#050505] p-4 rounded border border-[#292929] min-w-[240px] space-y-2">
               <div className="flex justify-between text-xs">
-                <span className="text-[#A3A3A3]">Phishing Probability</span>
-                <span className={`font-mono font-bold ${isPhishing ? 'text-[#FF525C]' : 'text-[#39FF88]'}`}>
+                <span className="text-[#A3A3A3]">
+                  {isVerifiedDomain ? 'Calibrated Risk Score' : 'Phishing Probability'}
+                </span>
+                <span className={`font-mono font-bold ${scoreColor}`}>
                   {scorePercent}%
                 </span>
               </div>
-              <div className="w-full bg-[#181818] rounded-full h-2 overflow-hidden">
+              <div className="w-full bg-[#181818] rounded-full h-2.5 overflow-hidden">
                 <div
-                  className={`h-full rounded-full transition-all duration-500 ${
-                    isPhishing ? 'bg-[#FF525C]' : 'bg-[#39FF88]'
-                  }`}
-                  style={{ width: `${scorePercent}%` }}
+                  className={`h-full rounded-full transition-all duration-500 ${gaugeBarColor}`}
+                  style={{ width: `${Math.min(100, Math.max(2, Number(scorePercent)))}%` }}
                 />
               </div>
-              <p className="text-[10px] text-[#737373] text-right">
-                Threshold: &gt;= 40.0% elevated
-              </p>
+              <div className="flex justify-between text-[10px] text-[#737373]">
+                <span>Low &lt;45%</span>
+                <span>Suspicious 45-74%</span>
+                <span>High &ge;75%</span>
+              </div>
+              {isVerifiedDomain && rawScorePercent && Number(rawScorePercent) > 50 && (
+                <p className="text-[10px] text-[#A3A3A3] pt-1 border-t border-[#181818]">
+                  * Raw lexical complexity score: {rawScorePercent}%. Calibrated to safe due to verified domain authority.
+                </p>
+              )}
             </div>
           )}
         </div>
 
         {/* Plain Language Interpretation */}
         <div className="pt-4 border-t border-[#292929]/50 text-xs text-[#F5F5F5] leading-relaxed">
-          <strong>Summary Takeaway:</strong> {result.combined_interpretation}
+          <strong>Security Analysis Summary:</strong> {result.combined_interpretation}
         </div>
       </div>
 
@@ -209,7 +269,7 @@ export const ResultsPage: React.FC = () => {
               <Shield className="w-4 h-4 text-[#FFD54A]" />
               External Threat Intelligence
             </h3>
-            <span className="text-[10px] text-[#A3A3A3]">Server-Side Lookup</span>
+            <span className="text-[10px] text-[#A3A3A3]">Third-Party Blacklists</span>
           </div>
 
           <div className="space-y-4">
@@ -246,12 +306,12 @@ export const ResultsPage: React.FC = () => {
             </div>
 
             <p className="text-[11px] text-[#737373] leading-tight pt-1">
-              * Note: A &quot;No Match Reported&quot; result indicates the URL has not been indexed yet; it does not prove a novel zero-day URL is safe.
+              * A &quot;No Match Reported&quot; result indicates the URL has not been indexed in active malware feeds yet; zero-day phishing is detected by lexical ML.
             </p>
           </div>
         </div>
 
-        {/* Explainable Suspicious Heuristics */}
+        {/* Explainable Heuristics & Anomaly Indicators */}
         <div className="p-6 rounded bg-[#111111] border border-[#292929] space-y-4">
           <div className="flex items-center justify-between pb-3 border-b border-[#181818]">
             <h3 className="text-xs font-semibold uppercase tracking-wider text-[#F5F5F5] flex items-center gap-2">
@@ -266,8 +326,19 @@ export const ResultsPage: React.FC = () => {
           {result.suspicious_reasons.length > 0 ? (
             <ul className="space-y-2.5">
               {result.suspicious_reasons.map((reason, idx) => (
-                <li key={idx} className="p-2.5 rounded bg-[#181010] border border-[#FF525C]/20 text-xs text-[#F5F5F5] flex items-start gap-2.5">
-                  <XCircle className="w-4 h-4 text-[#FF525C] shrink-0 mt-0.5" />
+                <li
+                  key={idx}
+                  className={`p-2.5 rounded border text-xs text-[#F5F5F5] flex items-start gap-2.5 ${
+                    isVerifiedDomain
+                      ? 'bg-[#0E1A12] border-[#39FF88]/20'
+                      : 'bg-[#181010] border-[#FF525C]/20'
+                  }`}
+                >
+                  {isVerifiedDomain ? (
+                    <Info className="w-4 h-4 text-[#39FF88] shrink-0 mt-0.5" />
+                  ) : (
+                    <XCircle className="w-4 h-4 text-[#FF525C] shrink-0 mt-0.5" />
+                  )}
                   <span>{reason}</span>
                 </li>
               ))}
@@ -275,9 +346,9 @@ export const ResultsPage: React.FC = () => {
           ) : (
             <div className="p-6 rounded bg-[#0E1A12] border border-[#39FF88]/20 text-center space-y-2">
               <CheckCircle2 className="w-6 h-6 text-[#39FF88] mx-auto" />
-              <p className="text-xs text-[#F5F5F5] font-medium">No Heuristic Flags Detected</p>
+              <p className="text-xs text-[#F5F5F5] font-medium">No Structural Anomalies Detected</p>
               <p className="text-[11px] text-[#A3A3A3]">
-                The URL structure adheres to expected domain formatting without excessive nesting or deceptive keywords.
+                The URL structure adheres to expected domain formatting without deceptive character patterns.
               </p>
             </div>
           )}
@@ -290,7 +361,7 @@ export const ResultsPage: React.FC = () => {
             <ul className="space-y-1.5 text-xs text-[#A3A3A3]">
               {result.recommended_precautions.map((p, idx) => (
                 <li key={idx} className="flex items-start gap-2">
-                  <span className="text-[#39FF88]">•</span>
+                  <span className="text-[#39FF88]">&bull;</span>
                   <span>{p}</span>
                 </li>
               ))}
@@ -305,39 +376,48 @@ export const ResultsPage: React.FC = () => {
           <div>
             <h3 className="text-xs font-semibold uppercase tracking-wider text-[#F5F5F5] flex items-center gap-2">
               <Layers className="w-4 h-4 text-[#39FF88]" />
-              Extracted Feature Matrix (16 Dimensions)
+              Extracted Lexical Feature Matrix (16 Dimensions)
             </h3>
             <p className="text-[11px] text-[#A3A3A3] mt-0.5">
-              Exact numerical vector supplied to the Random Forest model for inference.
+              Exact numerical vector evaluated by the Random Forest decision ensemble.
             </p>
           </div>
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
-          {Object.entries(result.extracted_features).map(([key, val]) => {
-            const isHighlight =
-              (typeof val === 'number' && val > 0 && ['is_ip_address', 'has_at_symbol', 'is_shortened_service', 'has_unusual_port', 'has_suspicious_keywords'].includes(key)) ||
-              (key === 'is_https' && val === 0);
+          {Object.entries(result.extracted_features)
+            .filter(([key]) => !['apex_domain', 'is_verified_domain'].includes(key))
+            .map(([key, val]) => {
+              const isHighlight =
+                (typeof val === 'number' && val > 0 && ['has_ip', 'count_at', 'has_suspicious_keywords'].includes(key)) ||
+                (key === 'is_https' && val === 0) ||
+                (typeof val === 'number' && val >= 3 && ['count_hyphens', 'count_subdomains'].includes(key)) ||
+                (key === 'count_dots' && typeof val === 'number' && val >= 4);
 
-            return (
-              <div
-                key={key}
-                className={`p-3 rounded border ${
-                  isHighlight
-                    ? 'bg-[#181010] border-[#FF525C]/30 text-[#FF525C]'
-                    : 'bg-[#0A0A0A] border-[#181818] text-[#F5F5F5]'
-                }`}
-              >
-                <div className="text-[10px] text-[#A3A3A3] font-mono truncate" title={key}>
-                  {key}
+              return (
+                <div
+                  key={key}
+                  className={`p-3 rounded border ${
+                    isHighlight
+                      ? 'bg-[#181010] border-[#FF525C]/30 text-[#FF525C]'
+                      : 'bg-[#0A0A0A] border-[#181818] text-[#F5F5F5]'
+                  }`}
+                >
+                  <div className="text-[10px] text-[#A3A3A3] font-mono truncate" title={key}>
+                    {key}
+                  </div>
+                  <div className="text-base font-bold font-mono mt-1">
+                    {typeof val === 'number' ? val : String(val)}
+                  </div>
                 </div>
-                <div className="text-base font-bold font-mono mt-1">
-                  {typeof val === 'number' ? val : String(val)}
-                </div>
-              </div>
-            );
-          })}
+              );
+            })}
         </div>
+
+        {/* Responsible Disclaimer */}
+        <p className="text-[11px] text-[#737373] leading-relaxed pt-3 border-t border-[#181818]">
+          <strong className="text-[#A3A3A3]">Methodology Note:</strong> PhishGuard AI evaluates lexical and structural features without downloading or rendering untrusted web content. Automated probability scores serve as statistical guidance and do not guarantee the presence or absence of novel threats.
+        </p>
       </div>
     </div>
   );

@@ -1,6 +1,16 @@
+﻿import re, ipaddress
+from urllib.parse import urlparse
 from datetime import datetime
 from typing import Dict, List, Optional, Any
-from pydantic import BaseModel, Field, HttpUrl, field_validator
+from pydantic import BaseModel, Field, field_validator
+
+
+def _is_ip(hostname: str) -> bool:
+    try:
+        ipaddress.ip_address(hostname.split(':')[0].strip('[]'))
+        return True
+    except:
+        return False
 
 
 class ScanRequest(BaseModel):
@@ -14,9 +24,40 @@ class ScanRequest(BaseModel):
             raise ValueError("URL cannot be empty or pure whitespace.")
         if len(trimmed) > 2048:
             raise ValueError("URL length exceeds maximum permitted threshold of 2048 characters.")
+        if any(c in trimmed for c in " \t\r\n"):
+            raise ValueError("URL cannot contain spaces or whitespace characters.")
         lower = trimmed.lower()
-        if lower.startswith(("javascript:", "data:", "file:", "vbscript:")):
+        if lower.startswith(("javascript:", "data:", "file:", "vbscript:", "about:")):
             raise ValueError("Dangerous or unsupported URL scheme detected.")
+
+        # Validate that the string contains a valid hostname/IP structure
+        test_url = trimmed
+        if not re.match(r'^[a-zA-Z][a-zA-Z0-9+.-]*://', test_url):
+            test_url = "http://" + test_url
+
+        try:
+            parsed = urlparse(test_url)
+            hostname = parsed.hostname
+            if not hostname:
+                raise ValueError(f"'{trimmed}' is not a valid web address (no hostname detected).")
+            if _is_ip(hostname) or hostname.lower() == "localhost":
+                return trimmed
+            parts = [p for p in hostname.split('.') if p]
+            if len(parts) < 2:
+                raise ValueError(
+                    f"'{trimmed}' is not a valid web address. It must include a recognized domain extension (e.g., .com, .org, or .net)."
+                )
+            tld = parts[-1]
+            if not re.match(r'^[a-zA-Z]{2,}$', tld):
+                raise ValueError(f"'{trimmed}' contains an invalid domain extension ('.{tld}').")
+            for part in parts:
+                if not re.match(r'^[a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?$', part):
+                    raise ValueError(f"'{trimmed}' contains an invalid domain component ('{part}').")
+        except ValueError:
+            raise
+        except Exception as e:
+            raise ValueError(f"Invalid web address structure: {str(e)}")
+
         return trimmed
 
 
@@ -39,6 +80,9 @@ class ScanResultResponse(BaseModel):
     predicted_class: str  # Legitimate / Phishing
     risk_level: str       # Low Risk / Suspicious / High Risk
     model_score: Optional[float] = None
+    raw_ml_score: Optional[float] = None
+    is_verified_domain: bool = False
+    apex_domain: Optional[str] = None
     extracted_features: Dict[str, Any]
     suspicious_reasons: List[str]
     threat_intelligence: ThreatIntelligenceSummary

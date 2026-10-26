@@ -122,6 +122,9 @@ async def scan_url(
         predicted_class=scan_record.predicted_class,
         risk_level=scan_record.risk_level,
         model_score=scan_record.model_score,
+        raw_ml_score=ml_result.get("raw_ml_score"),
+        is_verified_domain=ml_result.get("is_verified_domain", False),
+        apex_domain=ml_result.get("apex_domain"),
         extracted_features=scan_record.extracted_features,
         suspicious_reasons=scan_record.suspicious_reasons,
         threat_intelligence=threat_summary,
@@ -254,6 +257,10 @@ def get_scan_detail(
         precautions.append("Standard browsing precautions apply.")
         precautions.append("While the URL displays legitimate structural patterns, remain alert if prompted for unexpected passwords.")
 
+    feats = record.extracted_features or {}
+    apex_dom = feats.get("apex_domain")
+    is_ver = bool(feats.get("is_verified_domain", 0))
+
     return ScanResultResponse(
         scan_id=record.scan_id,
         submitted_url=record.submitted_url,
@@ -261,6 +268,9 @@ def get_scan_detail(
         predicted_class=record.predicted_class,
         risk_level=record.risk_level,
         model_score=record.model_score,
+        raw_ml_score=feats.get("raw_ml_score", record.model_score),
+        is_verified_domain=is_ver,
+        apex_domain=apex_dom,
         extracted_features=record.extracted_features,
         suspicious_reasons=record.suspicious_reasons,
         threat_intelligence=threat_summary,

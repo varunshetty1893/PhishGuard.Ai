@@ -2,19 +2,22 @@ export interface ExtractedFeatures {
   url_length: number;
   hostname_length: number;
   path_length: number;
-  query_length: number;
   count_dots: number;
   count_hyphens: number;
-  count_subdomains: number;
+  count_at: number;
+  count_question: number;
+  count_equal: number;
+  count_slash: number;
   count_digits: number;
-  count_special_chars: number;
-  is_ip_address: number;
+  count_subdomains: number;
+  has_ip: number;
   is_https: number;
-  has_at_symbol: number;
-  has_suspicious_encoding: number;
-  is_shortened_service: number;
-  has_unusual_port: number;
   has_suspicious_keywords: number;
+  digit_ratio: number;
+  special_char_ratio: number;
+  apex_domain?: string;
+  is_verified_domain?: number;
+  [key: string]: any;
 }
 
 export interface ThreatProviderResult {
@@ -36,6 +39,9 @@ export interface ScanResult {
   predicted_class: 'Legitimate' | 'Phishing';
   risk_level: 'Low Risk' | 'Suspicious' | 'High Risk';
   model_score: number | null;
+  raw_ml_score?: number | null;
+  is_verified_domain?: boolean;
+  apex_domain?: string | null;
   extracted_features: ExtractedFeatures;
   suspicious_reasons: string[];
   threat_intelligence: ThreatIntelligenceSummary;
