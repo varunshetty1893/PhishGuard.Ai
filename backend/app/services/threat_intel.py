@@ -1,21 +1,17 @@
-"""
-PhishGuard AI - Threat Intelligence Integration Services
-Independent adapters for Google Safe Browsing v4 and abuse.ch URLhaus.
-Provides graceful fallbacks (Not Configured, No Match Reported, Threat Reported, Unavailable).
-"""
-
+import time
+import httpx
 import logging
 from typing import Dict, Any, Optional
-import httpx
 from app.core.config import settings
 
 logger = logging.getLogger("phishguard.threat_intel")
 
 
 class ThreatProviderResult:
+    """Standardized representation of external threat feed response."""
     def __init__(
         self,
-        status: str,
+        status: str,  # 'Threat Reported', 'No Match Reported', 'Not Configured', 'Unavailable', 'Inconclusive'
         threat_found: bool = False,
         category: Optional[str] = None,
         details: Optional[str] = None,
@@ -125,6 +121,34 @@ class GoogleSafeBrowsingAdapter:
                 error_message=str(e)
             )
 
+    @classmethod
+    def probe_sync(cls) -> str:
+        """Verifies API key validity with a synchronous test query."""
+        api_key = settings.GOOGLE_SAFE_BROWSING_API_KEY.strip()
+        if not api_key:
+            return "Not Configured"
+
+        endpoint = f"https://safebrowsing.googleapis.com/v4/threatMatches:find?key={api_key}"
+        payload = {
+            "client": {"clientId": "phishguard-ai", "clientVersion": settings.VERSION},
+            "threatInfo": {
+                "threatTypes": ["MALWARE"],
+                "platformTypes": ["ANY_PLATFORM"],
+                "threatEntryTypes": ["URL"],
+                "threatEntries": [{"url": "https://testsafebrowsing.appspot.com/s/malware.html"}]
+            }
+        }
+        try:
+            with httpx.Client(timeout=4.0) as client:
+                r = client.post(endpoint, json=payload)
+                if r.status_code == 200:
+                    return "Active"
+                elif r.status_code in (400, 403):
+                    return "Invalid API Key"
+                return f"Unavailable (HTTP {r.status_code})"
+        except Exception:
+            return "Unavailable"
+
 
 class URLhausAdapter:
     """Adapter for abuse.ch URLhaus API."""
@@ -175,6 +199,24 @@ class URLhausAdapter:
                             details=f"URLhaus reported status: {query_status}",
                             raw_response=str(data)
                         )
+                elif resp.status_code == 403:
+                    try:
+                        err_data = resp.json()
+                        if err_data.get("query_status") == "unknown_auth_key":
+                            return ThreatProviderResult(
+                                status="Unavailable",
+                                threat_found=False,
+                                details="Invalid URLhaus Auth-Key: abuse.ch returned 'unknown_auth_key'. Verify your Auth-Key at https://urlhaus.abuse.ch/api/.",
+                                error_message="HTTP 403: unknown_auth_key"
+                            )
+                    except Exception:
+                        pass
+                    return ThreatProviderResult(
+                        status="Unavailable",
+                        threat_found=False,
+                        details="Access forbidden by URLhaus (HTTP 403). Check your Auth-Key credentials.",
+                        error_message="HTTP 403"
+                    )
                 else:
                     return ThreatProviderResult(
                         status="Unavailable",
@@ -199,9 +241,40 @@ class URLhausAdapter:
                 error_message=str(e)
             )
 
+    @classmethod
+    def probe_sync(cls) -> str:
+        """Verifies Auth-Key validity with a synchronous test query."""
+        auth_key = settings.URLHAUS_AUTH_KEY.strip()
+        if not auth_key:
+            return "Not Configured"
+
+        try:
+            with httpx.Client(timeout=4.0) as client:
+                r = client.post(cls.ENDPOINT, data={"url": "https://google.com"}, headers={"Auth-Key": auth_key})
+                if r.status_code == 200:
+                    data = r.json()
+                    if data.get("query_status") in ("ok", "no_results"):
+                        return "Active"
+                    return f"Inconclusive ({data.get('query_status')})"
+                elif r.status_code == 403:
+                    try:
+                        err_data = r.json()
+                        if err_data.get("query_status") == "unknown_auth_key":
+                            return "Invalid Auth Key"
+                    except Exception:
+                        pass
+                    return "Forbidden (403)"
+                return f"Unavailable (HTTP {r.status_code})"
+        except Exception:
+            return "Unavailable"
+
 
 class ThreatIntelAggregator:
     """Dispatches independent lookups across all configured threat providers."""
+
+    _cached_status: Optional[Dict[str, str]] = None
+    _last_probe_time: float = 0.0
+    PROBE_TTL_SECONDS: float = 300.0  # 5 minutes
 
     @classmethod
     async def evaluate_url(cls, url: str) -> Dict[str, ThreatProviderResult]:
@@ -209,16 +282,49 @@ class ThreatIntelAggregator:
         gsb_result = await GoogleSafeBrowsingAdapter.check_url(url)
         urlhaus_result = await URLhausAdapter.check_url(url)
 
+        # Dynamically refresh cached status based on live lookups
+        if cls._cached_status is None:
+            cls._cached_status = {}
+
+        if gsb_result.status == "Not Configured":
+            cls._cached_status["google_safe_browsing"] = "Not Configured"
+        elif gsb_result.status in ("Threat Reported", "No Match Reported"):
+            cls._cached_status["google_safe_browsing"] = "Active"
+        elif "Invalid" in (gsb_result.details or ""):
+            cls._cached_status["google_safe_browsing"] = "Invalid API Key"
+
+        if urlhaus_result.status == "Not Configured":
+            cls._cached_status["urlhaus"] = "Not Configured"
+        elif urlhaus_result.status in ("Threat Reported", "No Match Reported"):
+            cls._cached_status["urlhaus"] = "Active"
+        elif "unknown_auth_key" in (urlhaus_result.error_message or ""):
+            cls._cached_status["urlhaus"] = "Invalid Auth Key"
+
         return {
             "google_safe_browsing": gsb_result,
             "urlhaus": urlhaus_result
         }
 
     @classmethod
-    def get_provider_status(cls) -> Dict[str, str]:
-        gsb_status = "Active" if settings.GOOGLE_SAFE_BROWSING_API_KEY else "Not Configured"
-        urlhaus_status = "Active" if settings.URLHAUS_AUTH_KEY else "Not Configured"
-        return {
-            "google_safe_browsing": gsb_status,
-            "urlhaus": urlhaus_status
+    def get_provider_status(cls, force_probe: bool = False) -> Dict[str, str]:
+        """
+        Returns accurate provider status.
+        Does NOT report 'Active' merely because a key is present.
+        Runs live validation probes with TTL caching.
+        """
+        now = time.time()
+        if (
+            not force_probe
+            and cls._cached_status is not None
+            and (now - cls._last_probe_time) < cls.PROBE_TTL_SECONDS
+        ):
+            return dict(cls._cached_status)
+
+        # Run live synchronous probe
+        status_map = {
+            "google_safe_browsing": GoogleSafeBrowsingAdapter.probe_sync(),
+            "urlhaus": URLhausAdapter.probe_sync()
         }
+        cls._cached_status = status_map
+        cls._last_probe_time = now
+        return dict(status_map)

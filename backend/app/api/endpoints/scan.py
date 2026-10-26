@@ -1,4 +1,4 @@
-﻿import uuid
+import uuid
 from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
@@ -342,7 +342,10 @@ def get_scan_detail(
     feats = record.extracted_features or {}
     apex_dom = feats.get("apex_domain")
     is_ver = bool(feats.get("is_verified_domain", 0))
-    raw_score = float(feats.get("raw_ml_score", record.model_score or 0.0))
+    raw_val = feats.get("raw_ml_score")
+    if raw_val is None:
+        raw_val = record.model_score if record.model_score is not None else 0.0
+    raw_score = float(raw_val)
     threat_found = any(t.threat_found for t in record.threat_logs)
 
     return ScanResultResponse(

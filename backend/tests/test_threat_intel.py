@@ -4,26 +4,27 @@ from app.services.threat_intel import (
     URLhausAdapter,
     ThreatIntelAggregator
 )
+from app.core.config import settings
 
 
-@pytest.mark.asyncio
-async def test_google_safe_browsing_not_configured():
-    # When GOOGLE_SAFE_BROWSING_API_KEY is not set or empty
+@pytest.mark.anyio
+async def test_google_safe_browsing_not_configured(monkeypatch):
+    monkeypatch.setattr(settings, "GOOGLE_SAFE_BROWSING_API_KEY", "")
     res = await GoogleSafeBrowsingAdapter.check_url("https://example.com")
     assert res.status == "Not Configured"
     assert res.threat_found is False
     assert "not provided" in res.details
 
 
-@pytest.mark.asyncio
-async def test_urlhaus_not_configured():
-    # When URLHAUS_AUTH_KEY is empty
+@pytest.mark.anyio
+async def test_urlhaus_not_configured(monkeypatch):
+    monkeypatch.setattr(settings, "URLHAUS_AUTH_KEY", "")
     res = await URLhausAdapter.check_url("https://example.com")
     assert res.status == "Not Configured"
     assert res.threat_found is False
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_threat_aggregator_safe_fallback():
     # Verify aggregator evaluates cleanly without raising exceptions
     results = await ThreatIntelAggregator.evaluate_url("https://example.com/test")

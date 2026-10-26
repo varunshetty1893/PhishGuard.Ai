@@ -1,4 +1,4 @@
-﻿export interface ExtractedFeatures {
+export interface ExtractedFeatures {
   url_length: number;
   hostname_length: number;
   path_length: number;
@@ -140,6 +140,10 @@ export interface HealthData {
   database: string;
   ml_model_loaded: boolean;
   model_version: string;
+  threat_providers?: {
+    google_safe_browsing: string;
+    urlhaus: string;
+  };
   timestamp: string;
 }
 

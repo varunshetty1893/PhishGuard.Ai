@@ -46,6 +46,8 @@ def run_tests():
 
     # 3. Test Rejections: Localhost, Internal IP, Malformed, Route, Non-HTTP
     rejection_cases = [
+        ("shettybvarun@gmail.com", "Plain email address"),
+        ("@shettybvarun", "Social handle"),
         ("jhsahjvahvhasvkhgksghewvfv", "Malformed string without TLD/domain"),
         ("http://localhost:5173", "Localhost with dev port"),
         ("http://localhost/admin", "Localhost path"),
@@ -124,5 +126,7 @@ def run_tests():
 
 if __name__ == "__main__":
     run_tests()
+
+
 
 
