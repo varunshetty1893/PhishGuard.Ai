@@ -1,4 +1,4 @@
-import json
+﻿import json
 from datetime import datetime, timezone
 from sqlalchemy import (
     Column,
@@ -19,11 +19,15 @@ def utc_now():
 
 
 class ScanHistory(Base):
-    """Stores every URL scanned by users."""
+    """Stores every URL scanned by users, strictly linked to an authenticated user."""
     __tablename__ = "scan_history"
 
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     scan_id = Column(String(36), unique=True, index=True, nullable=False)
+    
+    # Ownership: Every scan is strictly bound to the authenticated user's account
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), index=True, nullable=True)
+
     submitted_url = Column(Text, nullable=False)
     normalized_url = Column(Text, nullable=False)
     predicted_class = Column(String(20), nullable=False)  # Legitimate / Phishing
@@ -35,9 +39,11 @@ class ScanHistory(Base):
     suspicious_reasons_json = Column(Text, nullable=True)
     
     combined_interpretation = Column(Text, nullable=False)
-    model_version = Column(String(20), nullable=False, default="1.0.0")
+    model_version = Column(String(20), nullable=False, default="2.1.0")
     created_at = Column(DateTime, default=utc_now, index=True, nullable=False)
 
+    # Relationships
+    user = relationship("User", back_populates="scans")
     threat_logs = relationship("ThreatCheckLog", back_populates="scan", cascade="all, delete-orphan")
 
     @property
@@ -70,7 +76,7 @@ class ThreatCheckLog(Base):
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     scan_id = Column(String(36), ForeignKey("scan_history.scan_id", ondelete="CASCADE"), index=True, nullable=False)
     provider_name = Column(String(50), nullable=False)
-    check_status = Column(String(30), nullable=False)  # Not Configured, No Match Reported, Threat Reported, Unavailable, Inconclusive
+    check_status = Column(String(30), nullable=False)
     threat_found = Column(Boolean, default=False, nullable=False)
     threat_category = Column(String(100), nullable=True)
     raw_response = Column(Text, nullable=True)

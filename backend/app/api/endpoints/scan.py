@@ -1,4 +1,4 @@
-import uuid
+﻿import uuid
 from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
@@ -6,6 +6,7 @@ from sqlalchemy import desc
 
 from app.db.session import get_db
 from app.models.scan import ScanHistory, ThreatCheckLog
+from app.models.user import User
 from app.schemas.scan import (
     ScanRequest,
     ScanResultResponse,
@@ -16,16 +17,28 @@ from app.schemas.scan import (
 )
 from app.services.ml_inference import MLInferenceService
 from app.services.threat_intel import ThreatIntelAggregator
+from app.api.deps import get_current_user, verify_csrf
 
 router = APIRouter()
 
 
-@router.post("/scan", response_model=ScanResultResponse, status_code=status.HTTP_200_OK, summary="Analyze Untrusted URL")
-async def scan_url(request: ScanRequest, db: Session = Depends(get_db)):
+@router.post(
+    "/scan",
+    response_model=ScanResultResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Analyze Untrusted URL"
+)
+async def scan_url(
+    request: ScanRequest,
+    current_user: User = Depends(get_current_user),
+    _csrf: None = Depends(verify_csrf),
+    db: Session = Depends(get_db)
+):
     """
     Ingests untrusted URL input, performs deterministic offline feature extraction,
     runs ML model inference, dispatches optional threat-intelligence checks,
-    persists scan record to SQLite, and returns comprehensive security report.
+    persists scan record bound to the authenticated user, and returns comprehensive report.
+    Never accepts trusted user_id from frontend.
     """
     raw_url = request.url
 
@@ -47,9 +60,10 @@ async def scan_url(request: ScanRequest, db: Session = Depends(get_db)):
     # 3. Create Unique Scan ID
     scan_id = str(uuid.uuid4())
 
-    # 4. Persist Scan Record
+    # 4. Persist Scan Record Strictly Bound to Authenticated User
     scan_record = ScanHistory(
         scan_id=scan_id,
+        user_id=current_user.id,
         submitted_url=ml_result["submitted_url"],
         normalized_url=ml_result["normalized_url"],
         predicted_class=ml_result["predicted_class"],
@@ -62,7 +76,7 @@ async def scan_url(request: ScanRequest, db: Session = Depends(get_db)):
     scan_record.suspicious_reasons = ml_result["suspicious_reasons"]
     db.add(scan_record)
 
-    # Persist Threat Logs
+    # 5. Persist Threat Logs tied to this scan
     gsb_log = ThreatCheckLog(
         scan_id=scan_id,
         provider_name="Google Safe Browsing",
@@ -118,7 +132,11 @@ async def scan_url(request: ScanRequest, db: Session = Depends(get_db)):
     )
 
 
-@router.get("/scans", response_model=ScanListResponse, summary="Query Paginated Scan History")
+@router.get(
+    "/scans",
+    response_model=ScanListResponse,
+    summary="Query User's Paginated Scan History"
+)
 def list_scans(
     page: int = Query(1, ge=1, description="Page number"),
     page_size: int = Query(10, ge=1, le=100, description="Items per page"),
@@ -126,9 +144,13 @@ def list_scans(
     predicted_class: Optional[str] = Query(None, description="Filter by class ('Legitimate' or 'Phishing')"),
     risk_level: Optional[str] = Query(None, description="Filter by risk tier ('Low Risk', 'Suspicious', 'High Risk')"),
     threat_status: Optional[str] = Query(None, description="Filter by threat match ('Threat Found', 'No Match', 'All')"),
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    query = db.query(ScanHistory)
+    """
+    Retrieves paginated scan records strictly isolated to the authenticated user.
+    """
+    query = db.query(ScanHistory).filter(ScanHistory.user_id == current_user.id)
 
     if search:
         query = query.filter(ScanHistory.submitted_url.ilike(f"%{search.strip()}%"))
@@ -176,11 +198,30 @@ def list_scans(
     )
 
 
-@router.get("/scans/{scan_id}", response_model=ScanResultResponse, summary="Retrieve Individual Scan Detail")
-def get_scan_detail(scan_id: str, db: Session = Depends(get_db)):
-    record = db.query(ScanHistory).filter(ScanHistory.scan_id == scan_id).first()
+@router.get(
+    "/scans/{scan_id}",
+    response_model=ScanResultResponse,
+    summary="Retrieve Individual Scan Detail"
+)
+def get_scan_detail(
+    scan_id: str,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Retrieves individual scan report.
+    Returns 404 if record doesn't exist OR if it belongs to another user (anti-IDOR).
+    """
+    record = (
+        db.query(ScanHistory)
+        .filter(ScanHistory.scan_id == scan_id, ScanHistory.user_id == current_user.id)
+        .first()
+    )
     if not record:
-        raise HTTPException(status_code=404, detail="Scan record not found.")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Scan record not found or access denied."
+        )
 
     gsb_log = next((t for t in record.threat_logs if t.provider_name == "Google Safe Browsing"), None)
     urlhaus_log = next((t for t in record.threat_logs if t.provider_name == "URLhaus"), None)
@@ -200,7 +241,6 @@ def get_scan_detail(scan_id: str, db: Session = Depends(get_db)):
         )
     )
 
-    # Reconstruct recommendations based on risk level
     precautions = []
     if record.risk_level == "High Risk":
         precautions.append("DO NOT click this link or submit personal or financial credentials.")
@@ -231,19 +271,58 @@ def get_scan_detail(scan_id: str, db: Session = Depends(get_db)):
     )
 
 
-@router.delete("/scans/{scan_id}", status_code=status.HTTP_200_OK, summary="Delete Individual Scan Record")
-def delete_scan(scan_id: str, db: Session = Depends(get_db)):
-    record = db.query(ScanHistory).filter(ScanHistory.scan_id == scan_id).first()
+@router.delete(
+    "/scans/{scan_id}",
+    status_code=status.HTTP_200_OK,
+    summary="Delete Individual Scan Record"
+)
+def delete_scan(
+    scan_id: str,
+    current_user: User = Depends(get_current_user),
+    _csrf: None = Depends(verify_csrf),
+    db: Session = Depends(get_db)
+):
+    """
+    Deletes individual scan record belonging to current user.
+    Rejects access if scan belongs to another user.
+    """
+    record = (
+        db.query(ScanHistory)
+        .filter(ScanHistory.scan_id == scan_id, ScanHistory.user_id == current_user.id)
+        .first()
+    )
     if not record:
-        raise HTTPException(status_code=404, detail="Scan record not found.")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Scan record not found or access denied."
+        )
 
     db.delete(record)
     db.commit()
     return {"message": "Scan record successfully deleted.", "scan_id": scan_id}
 
 
-@router.delete("/scans", status_code=status.HTTP_200_OK, summary="Clear Entire Scan History")
-def clear_all_scans(db: Session = Depends(get_db)):
-    deleted_count = db.query(ScanHistory).delete()
+@router.delete(
+    "/scans",
+    status_code=status.HTTP_200_OK,
+    summary="Clear User's Entire Scan History"
+)
+def clear_all_scans(
+    current_user: User = Depends(get_current_user),
+    _csrf: None = Depends(verify_csrf),
+    db: Session = Depends(get_db)
+):
+    """
+    Clears all scan records belonging strictly to the authenticated user.
+    Never deletes other users' scan records.
+    """
+    deleted_count = (
+        db.query(ScanHistory)
+        .filter(ScanHistory.user_id == current_user.id)
+        .delete(synchronize_session=False)
+    )
     db.commit()
-    return {"message": "Scan history cleared successfully.", "deleted_count": deleted_count}
+    return {
+        "message": "Your scan history was cleared successfully.",
+        "deleted_count": deleted_count
+    }

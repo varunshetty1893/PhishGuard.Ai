@@ -1,3 +1,4 @@
+﻿import uuid
 import pytest
 from fastapi.testclient import TestClient
 from app.main import app
@@ -7,6 +8,17 @@ from app.core.config import settings
 @pytest.fixture
 def client():
     with TestClient(app) as c:
+        email = f"sec_test_{uuid.uuid4().hex[:8]}@example.com"
+        pwd = "SecPassword123!"
+        c.post("/api/v1/auth/register", json={
+            "full_name": "Security Tester",
+            "email": email,
+            "password": pwd,
+            "confirm_password": pwd
+        })
+        login_res = c.post("/api/v1/auth/login", json={"email": email, "password": pwd})
+        csrf_token = login_res.json()["csrf_token"]
+        c.headers.update({"X-CSRF-Token": csrf_token})
         yield c
 
 

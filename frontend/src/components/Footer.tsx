@@ -1,5 +1,5 @@
-import React from 'react';
-import { Shield, Lock, Terminal, FileText, Database } from 'lucide-react';
+﻿import React from 'react';
+import { Shield, Lock, Terminal, FileText, Database, BookOpen } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export const Footer: React.FC = () => {
@@ -18,8 +18,8 @@ export const Footer: React.FC = () => {
               </span>
             </div>
             <p className="text-xs text-[#A3A3A3] max-w-md leading-relaxed">
-              Academic capstone project engineered for transparent machine learning-based phishing URL risk assessment.
-              Combines an offline Random Forest lexical classifier with multi-source threat intelligence lookup adapters.
+              Academic capstone project (MCA) for transparent machine learning-based phishing URL detection.
+              Combines a genuinely trained Random Forest classifier with multi-source threat intelligence.
             </p>
             <div className="flex items-center gap-4 text-[11px] text-[#A3A3A3]">
               <span className="flex items-center gap-1.5">
@@ -42,27 +42,33 @@ export const Footer: React.FC = () => {
               <li>
                 <Link to="/scanner" className="hover:text-[#39FF88] transition-colors flex items-center gap-1.5">
                   <Terminal className="w-3 h-3 text-[#39FF88]" />
-                  Dedicated URL Scanner
+                  URL Scanner
                 </Link>
               </li>
               <li>
                 <Link to="/dashboard" className="hover:text-[#39FF88] transition-colors">
-                  Threat Analytics Dashboard
+                  Analytics Dashboard
                 </Link>
               </li>
               <li>
                 <Link to="/history" className="hover:text-[#39FF88] transition-colors">
-                  Scan History & CSV Export
+                  Scan History & Export
                 </Link>
               </li>
               <li>
                 <Link to="/ml-lab" className="hover:text-[#39FF88] transition-colors">
-                  Machine Learning Lab & Metrics
+                  ML Lab & Training Report
+                </Link>
+              </li>
+              <li>
+                <Link to="/about" className="hover:text-[#39FF88] transition-colors flex items-center gap-1.5">
+                  <BookOpen className="w-3 h-3 text-[#FFD54A]" />
+                  <span className="text-[#FFD54A]">How It Works (Plain English)</span>
                 </Link>
               </li>
               <li>
                 <Link to="/settings" className="hover:text-[#39FF88] transition-colors">
-                  Settings, Health & Architecture
+                  Settings & System Health
                 </Link>
               </li>
             </ul>
@@ -73,18 +79,29 @@ export const Footer: React.FC = () => {
             <h4 className="text-xs font-semibold uppercase tracking-wider text-[#F5F5F5] mb-3">
               Academic Evaluation
             </h4>
-            <p className="text-[11px] text-[#A3A3A3] leading-relaxed mb-2">
-              Master of Computer Applications (MCA) Individual Project. Built with Scikit-learn, FastAPI, React 18, and SQLite.
+            <p className="text-[11px] text-[#A3A3A3] leading-relaxed mb-3">
+              Master of Computer Applications (MCA) Individual Capstone.
+              Built with Scikit-learn, FastAPI, React 18, and SQLite.
             </p>
-            <a
-              href="/api/v1/health"
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex items-center gap-1.5 text-[11px] text-[#39FF88] hover:underline"
-            >
-              <FileText className="w-3 h-3" />
-              API Health & Spec Check
-            </a>
+            <div className="space-y-2">
+              <div className="text-[11px]">
+                <span className="text-[#F5F5F5] font-medium">Dataset:</span>{' '}
+                Mitchell Krogza Phishing.Database + Tranco/Alexa (5,000 URLs)
+              </div>
+              <div className="text-[11px]">
+                <span className="text-[#F5F5F5] font-medium">Model:</span>{' '}
+                Random Forest Classifier (150 trees, 16 features)
+              </div>
+              <a
+                href="/api/v1/health"
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-1.5 text-[11px] text-[#39FF88] hover:underline"
+              >
+                <FileText className="w-3 h-3" />
+                API Health & OpenAPI Docs
+              </a>
+            </div>
           </div>
         </div>
 
@@ -95,7 +112,7 @@ export const Footer: React.FC = () => {
             A legitimate rating is never an absolute guarantee of website safety. Never download unexpected software or submit credentials blindly.
           </p>
           <p className="shrink-0 text-[#A3A3A3]">
-            PhishGuard AI © {new Date().getFullYear()} — All rights reserved.
+            PhishGuard AI &copy; {new Date().getFullYear()} — All rights reserved.
           </p>
         </div>
       </div>

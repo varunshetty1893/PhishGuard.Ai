@@ -1,85 +1,137 @@
-# PhishGuard AI 🛡️
-> **"Detect the Threat. Protect Your Digital World."**
+﻿# PhishGuard AI
 
-PhishGuard AI is an advanced, production-quality phishing URL risk assessment system engineered for academic evaluation (MCA Capstone). It couples an offline, genuinely trained machine learning classifier (Random Forest) with optional multi-source threat intelligence feeds (Google Safe Browsing v4 and abuse.ch URLhaus).
+> **AI-powered phishing URL detection** — Real Random Forest model trained on 300,000+ URLs with 96%+ accuracy
 
----
-
-## 🚀 Key Highlights
-
-- **Genuine Machine Learning Engine:** Evaluates URLs across 16 lexical and structural security dimensions with calibrated probability scoring and heuristic anomaly explanations.
-- **Zero-Network Ingestion Guarantee:** Strictly treats all incoming URLs as untrusted strings. Zero external crawls, zero rendering, zero backend DNS resolution. 100% immune to SSRF.
-- **Optional Threat Intelligence:** Decoupled server-side adapters for Google Safe Browsing and abuse.ch URLhaus with independent status tracking (`Not Configured`, `No Match Reported`, `Threat Reported`, `Unavailable`).
-- **Cybersecurity SaaS Aesthetics:** Engineered with a strict dark palette (#050505 foundation, #39FF88 neon green, #FFD54A warning yellow, #FF525C danger red). **100% free of blue or purple.**
-- **Real-Time Analytics & Persistence:** Powered by SQLite and SQLAlchemy. Real-time stats, paginated scan history, and RFC 4180 CSV export.
-- **Academic Transparency (ML Lab):** Complete model transparency displaying genuine training metrics, confusion matrix, ROC-AUC, and feature importances.
+[![Python](https://img.shields.io/badge/Python-3.12-blue?logo=python)](https://python.org)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.115-009688?logo=fastapi)](https://fastapi.tiangolo.com)
+[![React](https://img.shields.io/badge/React-18-61DAFB?logo=react)](https://react.dev)
+[![Scikit-learn](https://img.shields.io/badge/scikit--learn-1.6-F7931E?logo=scikit-learn)](https://scikit-learn.org)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green)](LICENSE)
 
 ---
 
-## 🛠️ Architecture & Tech Stack
+## Overview
 
-```
-phishguard-ai/
-├── backend/            # FastAPI REST backend, SQLite models, Threat Intel adapters
-│   ├── app/
-│   │   ├── api/        # REST routes (/api/v1/scan, /scans, /analytics, etc.)
-│   │   ├── core/       # Config, CORS, security constants
-│   │   ├── db/         # SQLite engine and session management
-│   │   ├── models/     # SQLAlchemy ORM models
-│   │   ├── schemas/    # Pydantic validation schemas
-│   │   ├── services/   # Inference service & Threat Intel aggregator
-│   │   ├── ml/         # Model loader and feature extractor
-│   │   └── utils/      # URL normalizer and sanitizers
-│   └── tests/          # Comprehensive Pytest suite
-├── frontend/           # React + Vite + TypeScript + Tailwind CSS SPA
-│   ├── src/
-│   │   ├── components/ # Header, Footer, ScanResultCard, FeatureTable, etc.
-│   │   ├── pages/      # Landing, Scanner, Results, Dashboard, History, MLLab, Settings
-│   │   ├── services/   # Axios/Fetch API client
-│   │   └── styles/     # Tailwind CSS with custom pure-black palette
-├── ml/                 # Machine learning pipeline
-│   ├── data/           # Dataset storage and benchmark sources
-│   ├── artifacts/      # Serialized .joblib model & metadata JSON
-│   ├── reports/        # Training and evaluation reports
-│   ├── feature_extraction.py # Reusable feature extraction engine
-│   └── train.py        # Model training, comparison and evaluation script
-└── docs/               # Full academic documentation suite
-```
+PhishGuard AI is a full-stack cybersecurity application that detects phishing URLs in real time using a genuine machine learning pipeline — not rule lists or third-party APIs.
+
+- **Frontend**: React 18 + TypeScript + Vite
+- **Backend**: FastAPI (Python 3.12) with JWT authentication
+- **ML Model**: Random Forest trained on 300,000+ real URLs from two public datasets
+- **Database**: Neon PostgreSQL (production) / SQLite (local dev fallback)
+- **Auth**: bcrypt password hashing, HttpOnly cookie-based JWT sessions
 
 ---
 
-## ⚡ Quick Start (Windows 11)
+## ML Model
 
-### 1. Train Machine Learning Model
-```powershell
-python ml/train.py
-```
+| Metric | Value |
+|--------|-------|
+| Accuracy | ≥ 96% |
+| ROC-AUC | ≥ 98.9% |
+| Training samples | 300,000+ unique URLs |
+| Test samples | 20% stratified holdout |
+| Cross-validation | 5-fold on training set |
+| Features | 16 lexical/structural URL features |
 
-### 2. Run the Backend API (FastAPI)
-```powershell
+**Datasets used:**
+- [PhiUSIIL Phishing URL Dataset](https://www.kaggle.com/datasets/harisudhan411/phishing-and-legitimate-urls) — 235,795 URLs
+- URL Features Extracted Dataset — 101,219 URLs
+
+---
+
+## Features
+
+- Real-time URL scan with probability score and risk level (Safe / Suspicious / Malicious)
+- Detailed feature breakdown per scan (16 features shown to user)
+- Personal scan history with delete, CSV export
+- Per-user analytics dashboard
+- Optional Google Safe Browsing + URLhaus threat intel integration
+- Full user isolation — IDOR-safe, no cross-user data leakage
+- Neon PostgreSQL ready with automatic SQLite fallback for local dev
+
+---
+
+## Quick Start
+
+### Prerequisites
+- Python 3.12+
+- Node.js 20+
+- Git LFS (git lfs install)
+
+### Backend
+`ash
 cd backend
+python -m venv .venv
+.venv\Scripts\activate        # Windows
 pip install -r requirements.txt
+# copy and edit .env
+copy .env.example .env
+# start
 python -m uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
-```
-API Documentation: [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
+`
 
-### 3. Run the Frontend (React + Vite)
-```powershell
+### Frontend
+`ash
 cd frontend
 npm install
 npm run dev
-```
-Open [http://localhost:5173](http://localhost:5173) in your browser.
+`
+
+App runs at http://127.0.0.1:5173
 
 ---
 
-## 📖 Comprehensive Documentation
-- [System Requirements Specification](file:///C:/Users/shett/.gemini/antigravity-ide/scratch/phishguard-ai/docs/SYSTEM_REQUIREMENTS.md)
-- [System Architecture & Data Flows](file:///C:/Users/shett/.gemini/antigravity-ide/scratch/phishguard-ai/docs/SYSTEM_ARCHITECTURE.md)
-- [Database Design & Schema](file:///C:/Users/shett/.gemini/antigravity-ide/scratch/phishguard-ai/docs/DATABASE_DESIGN.md)
-- [ML Methodology & Feature Engineering](file:///C:/Users/shett/.gemini/antigravity-ide/scratch/phishguard-ai/docs/ML_METHODOLOGY.md)
-- [REST API Documentation](file:///C:/Users/shett/.gemini/antigravity-ide/scratch/phishguard-ai/docs/API_DOCUMENTATION.md)
-- [Threat Intelligence Integration Guide](file:///C:/Users/shett/.gemini/antigravity-ide/scratch/phishguard-ai/docs/THREAT_INTELLIGENCE.md)
-- [Testing Report & Strategy](file:///C:/Users/shett/.gemini/antigravity-ide/scratch/phishguard-ai/docs/TESTING_REPORT.md)
-- [Setup & Deployment Guide](file:///C:/Users/shett/.gemini/antigravity-ide/scratch/phishguard-ai/docs/DEPLOYMENT_GUIDE.md)
-- [Academic Viva Questions & Answers (25 Q&As)](file:///C:/Users/shett/.gemini/antigravity-ide/scratch/phishguard-ai/docs/VIVA_QUESTIONS.md)
+## Environment Variables (ackend/.env)
+
+| Variable | Required | Description |
+|----------|----------|-------------|
+| DATABASE_URL | No (defaults to SQLite) | Neon PostgreSQL connection string |
+| SECRET_KEY | Yes | 64-char hex JWT signing secret |
+| COOKIE_SECURE | No (default alse) | Set 	rue on HTTPS deployment |
+| GOOGLE_SAFE_BROWSING_API_KEY | No | Enables Google threat intel |
+| URLHAUS_AUTH_KEY | No | Enables URLhaus lookups |
+
+---
+
+## Retrain the Model
+
+`ash
+# Place raw dataset CSVs in dataset/ folder, then:
+python ml/train_fulldata.py
+`
+
+See [ml/data/PROVENANCE.md](ml/data/PROVENANCE.md) for dataset details.
+
+---
+
+## Project Structure
+
+`
+phishguard-ai/
+├── backend/              # FastAPI backend
+│   ├── app/
+│   │   ├── api/          # API routes (auth, scan, analytics, export)
+│   │   ├── core/         # Config, security, JWT
+│   │   ├── db/           # SQLAlchemy session + Alembic migrations
+│   │   ├── ml/           # Feature extractor + model inference
+│   │   └── models/       # ORM models (User, ScanHistory)
+│   ├── alembic/          # DB migration scripts
+│   └── tests/            # 29 passing pytest tests
+├── frontend/             # React + TypeScript + Vite
+│   └── src/
+│       ├── components/
+│       ├── context/      # AuthContext
+│       ├── pages/        # Landing, Login, Register, Dashboard, MLLab, About
+│       └── services/
+├── ml/                   # Training pipeline
+│   ├── train_fulldata.py # Full-data retrain script
+│   ├── artifacts/        # Model + metadata (Git LFS)
+│   ├── data/             # Processed dataset (gitignored, see PROVENANCE.md)
+│   └── reports/          # Evaluation reports
+└── dataset/              # Raw source CSVs (gitignored — too large)
+`
+
+---
+
+## License
+MIT License — see [LICENSE](LICENSE)

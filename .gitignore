@@ -1,15 +1,19 @@
-# Python
+﻿# ============================================================
+#  PhishGuard AI — .gitignore
+#  Keeps the repo clean, secure, and CI-ready
+# ============================================================
+
+# ------ Python ------
 __pycache__/
 *.py[cod]
-*$py.class
+*.class
 *.so
 .Python
-env/
-venv/
-ENV/
+*.egg
+*.egg-info/
+dist/
 build/
 develop-eggs/
-dist/
 downloads/
 eggs/
 .eggs/
@@ -19,48 +23,68 @@ parts/
 sdist/
 var/
 wheels/
-*.egg-info/
-.installed.cfg
-*.egg
 
-# Virtual Environment
+# ------ Virtual Environments ------
 .venv/
 venv/
 ENV/
+env/
 
-# Database
+# ------ Secrets & Credentials (NEVER commit these) ------
+.env
+.env.local
+.env.*.local
+backend/.env
+frontend/.env
+
+# ------ Databases ------
 *.sqlite
 *.sqlite3
 *.db
 backend/phishguard.db
 
-# Environment Variables
-.env
-.env.local
-
-# Testing
-.pytest_cache/
-.coverage
-htmlcov/
-
-# Node / Frontend
+# ------ Node / Frontend ------
 node_modules/
-frontend/dist/
 frontend/node_modules/
+frontend/dist/
 .npm
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 
-# OS and IDE files
+# ------ Testing & Coverage ------
+.pytest_cache/
+.coverage
+htmlcov/
+coverage.xml
+*.coveragerc
+
+# ------ OS & IDE ------
 .DS_Store
 Thumbs.db
 .idea/
 .vscode/
 *.swp
 *.swo
+*.orig
+.snapshots/
 
-# Large raw datasets (keep scripts and curated baseline sample)
+# ------ Raw / Large Datasets (too big for GitHub without LFS) ------
+dataset/
+ml/data/*.csv
 ml/data/*.zip
 ml/data/*.tar.gz
+ml/data/*.parquet
+
+# Exception: keep provenance docs
+!ml/data/PROVENANCE.md
+!ml/data/.gitkeep
+
+# ------ ML Artifacts (tracked via Git LFS — see .gitattributes) ------
+# These are tracked by LFS, not excluded
+# *.joblib — handled in .gitattributes
+
+# ------ Logs ------
+*.log
+logs/

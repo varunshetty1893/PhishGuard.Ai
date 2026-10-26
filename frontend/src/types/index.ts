@@ -128,3 +128,23 @@ export interface HealthData {
   model_version: string;
   timestamp: string;
 }
+
+export interface User {
+  id: number;
+  full_name: string;
+  email: string;
+  created_at: string;
+  account_status: string;
+}
+
+export interface AuthResponse {
+  user: {
+    id: number;
+    full_name: string;
+    email: string;
+    created_at: string;
+    account_status: string;
+  };
+  csrf_token: string;
+  message: string;
+}

@@ -1,4 +1,4 @@
-import csv
+﻿import csv
 import io
 from fastapi import APIRouter, Depends
 from fastapi.responses import StreamingResponse
@@ -7,22 +7,35 @@ from sqlalchemy import desc
 
 from app.db.session import get_db
 from app.models.scan import ScanHistory
+from app.models.user import User
+from app.api.deps import get_current_user
 
 router = APIRouter()
 
 
-@router.get("/scans/export", summary="Export Full Scan History as CSV")
-def export_scans_csv(db: Session = Depends(get_db)):
+@router.get(
+    "/scans/export",
+    summary="Export Authenticated User's Scan History as CSV"
+)
+def export_scans_csv(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
     """
-    Streams RFC 4180 compliant CSV export containing all historical URL scans
-    and their extracted feature metrics.
+    Streams RFC 4180 compliant CSV export containing historical URL scans
+    strictly owned by the authenticated user.
+    Never exports another user's scan data.
     """
-    records = db.query(ScanHistory).order_by(desc(ScanHistory.created_at)).all()
+    records = (
+        db.query(ScanHistory)
+        .filter(ScanHistory.user_id == current_user.id)
+        .order_by(desc(ScanHistory.created_at))
+        .all()
+    )
 
     output = io.StringIO()
     writer = csv.writer(output)
 
-    # Header Row
     headers = [
         "Scan ID",
         "Submitted URL",

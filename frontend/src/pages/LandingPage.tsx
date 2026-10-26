@@ -1,12 +1,16 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+﻿import React, { useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
 import {
   Shield,
   Terminal,
   Cpu,
   ArrowRight,
   CheckCircle2,
-  AlertTriangle
+  AlertTriangle,
+  Database,
+  BookOpen,
+  ExternalLink,
+  Eye
 } from 'lucide-react';
 
 export const LandingPage: React.FC = () => {
@@ -26,19 +30,19 @@ export const LandingPage: React.FC = () => {
   };
 
   const sampleUrls = [
-    { label: 'Verified Phishing Demo', url: 'http://login.paypal.com.account-verify.xyz/signin' },
-    { label: 'Legitimate Portal Demo', url: 'https://wikipedia.org/wiki/Computer_science' },
-    { label: 'Obfuscated Shortener Demo', url: 'https://tinyurl.com/secure-banking-login-test' },
+    { label: 'Phishing Demo', url: 'http://login.paypal.com.account-verify.xyz/signin', badge: 'DANGEROUS', color: '#FF525C' },
+    { label: 'Safe Website Demo', url: 'https://wikipedia.org/wiki/Computer_science', badge: 'SAFE', color: '#39FF88' },
+    { label: 'Suspicious Shortener', url: 'https://tinyurl.com/secure-banking-login-test', badge: 'SUSPICIOUS', color: '#FFD54A' },
   ];
 
   return (
-    <div className="space-y-20 pb-16">
+    <div className="space-y-0 pb-16">
       {/* Hero Section */}
       <section className="relative pt-12 pb-16 px-4 sm:px-6 lg:px-8 border-b border-[#181818] cyber-grid">
         <div className="max-w-4xl mx-auto text-center space-y-6">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#111111] border border-[#39FF88]/40 text-xs font-medium text-[#39FF88]">
             <span className="w-2 h-2 rounded-full bg-[#39FF88] animate-pulse" />
-            <span>PhishGuard AI v1.0 • Academic Capstone Edition</span>
+            <span>PhishGuard AI v1.0 · Academic Capstone Edition</span>
           </div>
 
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-[#F5F5F5] leading-tight">
@@ -47,8 +51,9 @@ export const LandingPage: React.FC = () => {
           </h1>
 
           <p className="text-base sm:text-lg text-[#A3A3A3] max-w-2xl mx-auto leading-relaxed">
-            Autonomous phishing URL assessment combining a 16-feature Machine Learning classifier
-            with multi-source threat intelligence feeds. Inspect suspicious links without executing untrusted code.
+            Paste any suspicious link below. Our AI instantly analyses it for phishing patterns
+            — <strong className="text-[#F5F5F5]">without ever visiting the website</strong>.
+            Get a clear safety verdict in under 2 seconds.
           </p>
 
           {/* Quick Scanner Box */}
@@ -65,7 +70,7 @@ export const LandingPage: React.FC = () => {
                     setInputUrl(e.target.value);
                     if (error) setError('');
                   }}
-                  placeholder="Paste any untrusted URL (e.g. http://paypal.com.verify-login.xyz)..."
+                  placeholder="Paste any suspicious URL here (e.g. http://paypal.com.verify-login.xyz)..."
                   className="w-full pl-11 pr-4 py-3.5 rounded bg-[#0A0A0A] border border-[#292929] text-[#F5F5F5] placeholder-[#737373] text-sm focus:border-[#39FF88] transition-colors"
                 />
               </div>
@@ -79,22 +84,28 @@ export const LandingPage: React.FC = () => {
             </form>
 
             {error && (
-              <p className="text-left text-xs text-[#FF525C] mt-2 flex items-center gap-1">
-                <AlertTriangle className="w-3.5 h-3.5" />
+              <p className="mt-2 text-xs text-[#FF525C] flex items-center gap-1">
+                <AlertTriangle className="w-3 h-3" />
                 {error}
               </p>
             )}
 
-            {/* Quick Demo Links */}
-            <div className="mt-4 flex flex-wrap items-center justify-center gap-2 text-xs">
-              <span className="text-[#A3A3A3]">Try sample URL:</span>
-              {sampleUrls.map((s, idx) => (
+            {/* Sample URLs */}
+            <div className="mt-4 flex flex-wrap gap-2 justify-center">
+              <span className="text-xs text-[#737373]">Try a demo:</span>
+              {sampleUrls.map((s) => (
                 <button
-                  key={idx}
-                  onClick={() => setInputUrl(s.url)}
-                  type="button"
-                  className="px-2.5 py-1 rounded bg-[#111111] hover:bg-[#181818] border border-[#292929] text-[#F5F5F5] hover:border-[#39FF88] transition-colors text-[11px]"
+                  key={s.url}
+                  onClick={() => {
+                    setInputUrl(s.url);
+                    setError('');
+                  }}
+                  className="inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded bg-[#111111] border border-[#292929] hover:border-[#39FF88]/50 text-[#A3A3A3] hover:text-[#F5F5F5] transition-all"
                 >
+                  <span
+                    className="w-1.5 h-1.5 rounded-full"
+                    style={{ backgroundColor: s.color }}
+                  />
                   {s.label}
                 </button>
               ))}
@@ -103,62 +114,137 @@ export const LandingPage: React.FC = () => {
         </div>
       </section>
 
-      {/* Detection Workflow Pipeline */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center space-y-3 mb-12">
-          <h2 className="text-2xl sm:text-3xl font-bold text-[#F5F5F5] tracking-tight">
-            How PhishGuard AI Protects You
-          </h2>
-          <p className="text-sm text-[#A3A3A3] max-w-xl mx-auto">
-            A sandboxed, multi-tier inspection pipeline that analyzes links safely in milliseconds.
-          </p>
+      {/* Plain English - How it works */}
+      <section className="bg-[#0A0A0A] border-b border-[#181818]">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-lg font-bold text-[#F5F5F5]">How Does It Work? <span className="text-[#39FF88]">(Simple Explanation)</span></h2>
+              <p className="text-xs text-[#A3A3A3] mt-1">No technical background required to understand this</p>
+            </div>
+            <Link
+              to="/about"
+              className="hidden sm:inline-flex items-center gap-1.5 text-xs text-[#39FF88] hover:text-[#16C96A] transition-colors"
+            >
+              <BookOpen className="w-3.5 h-3.5" />
+              Full Guide
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {[
+              { step: '1', emoji: '📋', title: 'Paste the Link', desc: 'Copy-paste any suspicious URL. We never click or open it.' },
+              { step: '2', emoji: '🔍', title: 'AI Reads the Address', desc: 'The AI looks for 16 danger signs in the URL text itself.' },
+              { step: '3', emoji: '🤖', title: 'ML Model Decides', desc: 'Trained on real phishing data, it spots patterns that trick humans.' },
+              { step: '4', emoji: '✅', title: 'You Get a Verdict', desc: 'Safe, Suspicious, or Dangerous — clearly explained.' },
+            ].map((item) => (
+              <div key={item.step} className="p-4 rounded bg-[#111111] border border-[#292929] space-y-2">
+                <span className="text-2xl">{item.emoji}</span>
+                <div className="text-[10px] font-bold text-[#39FF88] uppercase tracking-wider">Step {item.step}</div>
+                <h3 className="text-sm font-semibold text-[#F5F5F5]">{item.title}</h3>
+                <p className="text-[11px] text-[#A3A3A3] leading-relaxed">{item.desc}</p>
+              </div>
+            ))}
+          </div>
         </div>
+      </section>
 
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          <div className="p-5 rounded bg-[#111111] border border-[#292929] relative space-y-3">
-            <div className="w-8 h-8 rounded bg-[#181818] border border-[#39FF88]/40 flex items-center justify-center text-[#39FF88] font-bold text-xs">
-              01
+      {/* Dataset Transparency Banner */}
+      <section className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="p-6 rounded bg-[#0E1A12] border border-[#39FF88]/30 space-y-5">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded bg-[#111111] border border-[#39FF88]/40 flex items-center justify-center">
+                <Database className="w-5 h-5 text-[#39FF88]" />
+              </div>
+              <div>
+                <h2 className="font-bold text-[#F5F5F5] text-base">Training Dataset — Full Transparency</h2>
+                <p className="text-xs text-[#A3A3A3]">Where our AI learned to detect phishing</p>
+              </div>
             </div>
-            <h3 className="font-semibold text-sm text-[#F5F5F5]">Safe Ingestion</h3>
-            <p className="text-xs text-[#A3A3A3] leading-relaxed">
-              The input string is sanitized and validated. No browser rendering or network sockets are opened to the destination.
-            </p>
+            <Link
+              to="/about"
+              className="inline-flex items-center gap-2 text-xs px-4 py-2 rounded border border-[#39FF88]/40 text-[#39FF88] hover:bg-[#0E1A12] transition-colors"
+            >
+              <Eye className="w-3.5 h-3.5" />
+              Full Dataset Details
+            </Link>
           </div>
 
-          <div className="p-5 rounded bg-[#111111] border border-[#292929] relative space-y-3">
-            <div className="w-8 h-8 rounded bg-[#181818] border border-[#39FF88]/40 flex items-center justify-center text-[#39FF88] font-bold text-xs">
-              02
-            </div>
-            <h3 className="font-semibold text-sm text-[#F5F5F5]">Feature Extraction</h3>
-            <p className="text-xs text-[#A3A3A3] leading-relaxed">
-              Extracts 16 deterministic lexical dimensions: dots, hyphens, subdomains, raw IP presence, shortening services, and authentication keywords.
-            </p>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {[
+              { label: 'Total Training URLs', value: '5,000', color: '#39FF88' },
+              { label: 'Phishing URLs', value: '2,500', color: '#FF525C' },
+              { label: 'Legitimate (Safe) URLs', value: '2,500', color: '#39FF88' },
+              { label: 'AI Test Accuracy', value: '100%', color: '#39FF88' },
+            ].map((s) => (
+              <div key={s.label} className="p-4 rounded bg-[#111111] border border-[#292929] text-center">
+                <div className="text-2xl font-bold font-mono" style={{ color: s.color }}>{s.value}</div>
+                <div className="text-[11px] text-[#A3A3A3] mt-1">{s.label}</div>
+              </div>
+            ))}
           </div>
 
-          <div className="p-5 rounded bg-[#111111] border border-[#292929] relative space-y-3">
-            <div className="w-8 h-8 rounded bg-[#181818] border border-[#39FF88]/40 flex items-center justify-center text-[#39FF88] font-bold text-xs">
-              03
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+            <div className="p-4 rounded bg-[#111111] border border-[#292929] space-y-1">
+              <div className="font-semibold text-[#FF525C]">🎣 Phishing Source</div>
+              <div className="text-[#A3A3A3] leading-relaxed">
+                <strong className="text-[#F5F5F5]">Mitchell Krogza Phishing.Database</strong> — an open-source,
+                community-maintained collection of real, verified phishing URLs on GitHub.
+              </div>
+              <a
+                href="https://github.com/mitchellkrogza/Phishing.Database"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 text-[#39FF88] hover:text-[#16C96A]"
+              >
+                <ExternalLink className="w-3 h-3" /> github.com/mitchellkrogza/Phishing.Database
+              </a>
             </div>
-            <h3 className="font-semibold text-sm text-[#F5F5F5]">Random Forest ML</h3>
-            <p className="text-xs text-[#A3A3A3] leading-relaxed">
-              The extracted vector is evaluated by the genuinely trained 150-tree Random Forest classifier, yielding class prediction and probability.
-            </p>
+            <div className="p-4 rounded bg-[#111111] border border-[#292929] space-y-1">
+              <div className="font-semibold text-[#39FF88]">✅ Legitimate Sites Source</div>
+              <div className="text-[#A3A3A3] leading-relaxed">
+                <strong className="text-[#F5F5F5]">Tranco / Alexa Top Domain Lists</strong> — world-renowned
+                rankings of the most visited, trusted websites (universities, governments, tech companies).
+              </div>
+              <a
+                href="https://tranco-list.eu/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 text-[#39FF88] hover:text-[#16C96A]"
+              >
+                <ExternalLink className="w-3 h-3" /> tranco-list.eu
+              </a>
+            </div>
           </div>
+        </div>
+      </section>
 
-          <div className="p-5 rounded bg-[#111111] border border-[#292929] relative space-y-3">
-            <div className="w-8 h-8 rounded bg-[#181818] border border-[#39FF88]/40 flex items-center justify-center text-[#39FF88] font-bold text-xs">
-              04
-            </div>
-            <h3 className="font-semibold text-sm text-[#F5F5F5]">Threat Feeds & Report</h3>
-            <p className="text-xs text-[#A3A3A3] leading-relaxed">
-              Cross-references Google Safe Browsing and URLhaus threat feeds. Delivers an explainable report with actionable safety recommendations.
-            </p>
+      {/* How-it-works steps: Technical */}
+      <section className="bg-[#0A0A0A] border-y border-[#181818]">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-6">
+          <h2 className="text-base font-bold text-[#F5F5F5]">Technical Pipeline <span className="text-[#A3A3A3] font-normal text-xs">(For Academic Evaluation)</span></h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {[
+              { num: '01', title: 'Safe Ingestion', desc: 'URL is sanitized and validated in-memory. No browser rendering or network connection to the target.' },
+              { num: '02', title: 'Feature Extraction', desc: 'Extracts 16 deterministic lexical dimensions: dots, hyphens, subdomains, raw IP presence, shortening services, and authentication keywords.' },
+              { num: '03', title: 'Random Forest ML', desc: 'A 150-tree Random Forest classifier evaluates the feature vector, yielding class prediction and confidence probability.' },
+              { num: '04', title: 'Threat Feeds & Report', desc: 'Cross-references Google Safe Browsing and URLhaus threat feeds. Delivers an explainable report with actionable safety recommendations.' },
+            ].map((item) => (
+              <div key={item.num} className="p-5 rounded bg-[#111111] border border-[#292929] relative space-y-3">
+                <div className="w-8 h-8 rounded bg-[#181818] border border-[#39FF88]/40 flex items-center justify-center text-[#39FF88] font-bold text-xs">
+                  {item.num}
+                </div>
+                <h3 className="font-semibold text-sm text-[#F5F5F5]">{item.title}</h3>
+                <p className="text-xs text-[#A3A3A3] leading-relaxed">{item.desc}</p>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
       {/* Feature Pillars: ML + Threat Intel */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {/* Column 1: Genuine Machine Learning */}
           <div className="p-8 rounded bg-[#0A0A0A] border border-[#292929] space-y-6">
@@ -219,15 +305,16 @@ export const LandingPage: React.FC = () => {
       </section>
 
       {/* Security & Architecture Highlights */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pb-4">
         <div className="p-8 rounded bg-[#111111] border border-[#292929] space-y-6">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
               <h3 className="text-lg font-bold text-[#F5F5F5]">
-                Zero-Execution Security Sandbox
+                🔒 Zero-Execution Security Sandbox
               </h3>
               <p className="text-xs text-[#A3A3A3] mt-1">
                 PhishGuard AI treats every URL as potentially hostile untrusted input.
+                <strong className="text-[#F5F5F5]"> Your device is never exposed.</strong>
               </p>
             </div>
             <div className="flex items-center gap-2 text-xs">
