@@ -9,7 +9,6 @@ import {
   AlertTriangle,
   Database,
   BookOpen,
-  ExternalLink,
   Eye
 } from 'lucide-react';
 
@@ -173,49 +172,16 @@ export const LandingPage: React.FC = () => {
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {[
-              { label: 'Total Training URLs', value: '5,000', color: '#39FF88' },
-              { label: 'Phishing URLs', value: '2,500', color: '#FF525C' },
-              { label: 'Legitimate (Safe) URLs', value: '2,500', color: '#39FF88' },
-              { label: 'AI Test Accuracy', value: '100%', color: '#39FF88' },
+              { label: 'Total Dataset URLs', value: '298,006', color: '#39FF88' },
+              { label: 'Phishing URLs', value: '162,711', color: '#FF525C' },
+              { label: 'Legitimate (Safe) URLs', value: '135,295', color: '#39FF88' },
+              { label: 'AI Test Accuracy', value: '99.40%', color: '#39FF88' },
             ].map((s) => (
               <div key={s.label} className="p-4 rounded bg-[#111111] border border-[#292929] text-center">
                 <div className="text-2xl font-bold font-mono" style={{ color: s.color }}>{s.value}</div>
                 <div className="text-[11px] text-[#A3A3A3] mt-1">{s.label}</div>
               </div>
             ))}
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
-            <div className="p-4 rounded bg-[#111111] border border-[#292929] space-y-1">
-              <div className="font-semibold text-[#FF525C]">🎣 Phishing Source</div>
-              <div className="text-[#A3A3A3] leading-relaxed">
-                <strong className="text-[#F5F5F5]">Mitchell Krogza Phishing.Database</strong> — an open-source,
-                community-maintained collection of real, verified phishing URLs on GitHub.
-              </div>
-              <a
-                href="https://github.com/mitchellkrogza/Phishing.Database"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 text-[#39FF88] hover:text-[#16C96A]"
-              >
-                <ExternalLink className="w-3 h-3" /> github.com/mitchellkrogza/Phishing.Database
-              </a>
-            </div>
-            <div className="p-4 rounded bg-[#111111] border border-[#292929] space-y-1">
-              <div className="font-semibold text-[#39FF88]">✅ Legitimate Sites Source</div>
-              <div className="text-[#A3A3A3] leading-relaxed">
-                <strong className="text-[#F5F5F5]">Tranco / Alexa Top Domain Lists</strong> — world-renowned
-                rankings of the most visited, trusted websites (universities, governments, tech companies).
-              </div>
-              <a
-                href="https://tranco-list.eu/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 text-[#39FF88] hover:text-[#16C96A]"
-              >
-                <ExternalLink className="w-3 h-3" /> tranco-list.eu
-              </a>
-            </div>
           </div>
         </div>
       </section>
@@ -255,8 +221,7 @@ export const LandingPage: React.FC = () => {
               Genuine Supervised Machine Learning
             </h3>
             <p className="text-xs text-[#A3A3A3] leading-relaxed">
-              Trained on a curated benchmark of verified phishing URLs (Mitchell Krogza Phishing.Database)
-              and high-reputation domains (Tranco/Alexa). Evaluated on held-out test splits with exact metrics.
+              Trained on 298,006 verified phishing and legitimate URLs across recognized security benchmarks. Evaluated on held-out test splits with exact metrics.
             </p>
             <ul className="space-y-3 text-xs text-[#F5F5F5]">
               <li className="flex items-center gap-2">
