@@ -38,3 +38,13 @@
 - **Phase 8:** Implemented full paginated history with multi-attribute filtering and CSV export.
 - **Phase 9:** Executed Pytest test suite (22/22 tests passing) and ran automated color audits (0 blue/purple).
 - **Phase 10:** Prepared 25 comprehensive viva questions and verified local Windows 11 execution.
+
+## v4.1 Empirical Validation & Hardening Update (October 2026)
+- **Data Leakage & Overlap Audit (Prompt 1):** Verified provenance of 16,245 training phishing URLs (PhiUSIIL 61.5%, Kaggle 38.5%). Discovered and documented previous fresh Tranco test leakage (79.2% domain overlap). Disclosed smoke test exact matches and threshold selection directly on test set.
+- **Domain-Isolated 3-Split Retraining (Prompt 2):** Partitioned into 60% Train, 20% Val, 20% Test by registered apex domain. Fit model & calibration on train only, tuned threshold (0.640) on validation only, evaluated on test exactly once: Accuracy 96.82%, Precision 97.61%, Recall 95.38%, FPR 1.96%, ROC-AUC 99.28%.
+- **Long-Tail Legitimate Test Set (Prompt 3):** Evaluated 1,080 URLs outside Tranco top-50k. Achieved 0.55% FPR on ranks 200k-1M, 3.00% on SMBs/regional, and documented 46.67% FPR on authentic SSO login portals (overall FPR 13.06% [95% CI: 11.05% - 15.06%]).
+- **Hard Phishing Test Set (Prompt 4):** Evaluated 600 verified phishing URLs across HTTPS (95.34%), bare domains (98.70%), compromised CMS sites (99.33%), and platform-hosted sites (98.02%). Overall recall: 96.67%.
+- **Time-Based Evaluation (Prompt 5):** Created continuous OpenPhish daily collector (`openphish_timeseries.csv`). Measured temporal recall vs random split on 7-day chronological cohorts.
+- **Ablation Study (Prompt 6):** Benchmarked feature subsets and model architectures (Random Forest vs Logistic Regression vs Gradient Boosting). Found keywords drive 40% of false positives on legitimate login portals, and tree ensembles vastly outperform linear models.
+- **Allowlist Hardening (Prompt 7):** Stripped shared-hosting and cloud platforms (`amazonaws.com`, `windows.net`, `googleusercontent.com`, `github.io`, `firebaseapp.com`, `web.app`, `azurewebsites.net`) from `HIGH_REPUTATION_DOMAINS`. Added unit tests proving threat intelligence feeds always override allowlists.
+- **Honest UI & Documentation (Prompt 8):** Updated `/api/v1/model/info`, ML Lab page, `ResultsPage.tsx`, `ML_METHODOLOGY.md`, and archived v3 reports.

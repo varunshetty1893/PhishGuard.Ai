@@ -43,7 +43,11 @@ class MLInferenceService:
                 raise FileNotFoundError(
                     f"Machine learning model artifact not found at: {MODEL_PATH}."
                 )
-            cls._model = joblib.load(MODEL_PATH)
+            loaded = joblib.load(MODEL_PATH)
+            if isinstance(loaded, dict) and "model" in loaded:
+                cls._model = loaded["model"]
+            else:
+                cls._model = loaded
         if cls._metadata is None:
             if os.path.exists(METADATA_PATH):
                 with open(METADATA_PATH, "r", encoding="utf-8") as f:

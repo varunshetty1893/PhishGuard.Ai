@@ -53,26 +53,26 @@ KNOWN_SHORTENERS: set = {
 }
 HIGH_REPUTATION_DOMAINS: set = {
     # Alphabet / Google
-    "google.com", "googleapis.com", "gstatic.com", "googleusercontent.com",
+    "google.com", "googleapis.com", "gstatic.com", 
     "youtube.com", "googlevideo.com", "android.com", "googleblog.com",
     "googlesyndication.com", "googletagmanager.com", "google.co.in",
     "google.co.uk", "google.de", "google.fr", "google.ca",
     # Microsoft / Azure
     "microsoft.com", "office.com", "azure.com", "live.com", "microsoftonline.com",
-    "visualstudio.com", "windows.net", "bing.com", "linkedin.com", "github.com",
+    "visualstudio.com",  "bing.com", "linkedin.com", "github.com",
     "t-msedge.net", "spo-msedge.net", "tm-azurefd.net",
     # Amazon / AWS
-    "amazon.com", "amazonaws.com", "aws.amazon.com", "media-amazon.com",
+    "amazon.com",  "aws.amazon.com", "media-amazon.com",
     # Apple
     "apple.com", "icloud.com", "icloud-content.com",
     # CDN / Infrastructure
     "cloudflare.com", "cloudflare-dns.com", "fastly.com", "fastly-edge.com",
-    "akamai.com", "akamaized.net", "digitalocean.com", "gravatar.com",
+    "akamai.com", "akamaized.net",  "gravatar.com",
     "openxcdn.net", "gtld-servers.net", "root-servers.net",
     # Dev / Open Source
     "docker.com", "gitlab.com", "npmjs.com", "pypi.org",
     "mozilla.org", "wikipedia.org", "wikimedia.org", "chatgpt.com", "openai.com",
-    "github.io", "githubusercontent.com",
+     
     # Financial
     "paypal.com", "stripe.com", "visa.com", "mastercard.com",
     # Telecom / ISP
@@ -151,16 +151,26 @@ def extract_apex_domain(hostname: str) -> str:
     return f"{parts[-2]}.{parts[-1]}"
 
 
+DISALLOWED_SHARED_PLATFORMS: set = {
+    "amazonaws.com", "windows.net", "googleusercontent.com", "github.io",
+    "githubusercontent.com", "blogspot.com", "firebaseapp.com", "web.app",
+    "azurewebsites.net", "digitalocean.com", "pages.dev", "vercel.app",
+    "netlify.app", "glitch.me", "herokuapp.com", "square.site"
+}
+
+
 def is_high_reputation_domain(hostname: str) -> Tuple[bool, str]:
     apex = extract_apex_domain(hostname)
     if not apex:
         return False, ""
+    clean_host = hostname.lower().strip(".")
+    if any(plat in clean_host for plat in DISALLOWED_SHARED_PLATFORMS):
+        return False, apex
     if apex in HIGH_REPUTATION_DOMAINS:
         return True, apex
     if apex.endswith((".gov", ".gov.in", ".gov.uk", ".edu", ".edu.in", ".ac.uk", ".mil")):
         return True, apex
     return False, apex
-
 
 # ──── NEW feature helpers ────────────────────────────────────────────────
 

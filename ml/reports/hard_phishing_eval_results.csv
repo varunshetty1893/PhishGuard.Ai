@@ -1,0 +1,601 @@
+url,is_https,is_bare,is_platform,is_compromised,primary_group,prob,pred
+https://s4w.in/jZlxQ,True,False,False,False,HTTPS Phishing (General),0.7169590643274854,1
+http://xfinityhelplogin.weebly.com/,False,True,False,False,Bare-Domain Phishing,0.9933261150289145,1
+https://www.roblox.rw/games/88738945340571/Would-You-Rather-Countryball-Tower?privateServerLinkCode=11040290185766545005746312904812&game_id=88738945340571&game_name=Would-You-Rather-Countryball-Tower,True,False,False,False,HTTPS Phishing (General),0.9875513867176191,1
+https://www.roblox.rw/games/84107034759866/UPD-Countryball-Simulator?privateServerLinkCode=11040290185766545005746312904812&game_id=84107034759866&game_name=UPD-Countryball-Simulator,True,False,False,False,HTTPS Phishing (General),0.9875513867176191,1
+https://www.roblox.rw/games/9391468976/HIRED-KILLER-Jujutsu-Shenanigans?privateServerLinkCode=11040290185766545005746312904812&game_id=9391468976&game_name=HIRED-KILLER-Jujutsu-Shenanigans,True,False,False,False,HTTPS Phishing (General),0.9875513867176191,1
+https://www.roblox.rw/games/107778070777162/Steal-An-Egg?privateServerLinkCode=11040290185766545005746312904812&game_id=107778070777162&game_name=Steal-An-Egg,True,False,False,False,HTTPS Phishing (General),0.9875513867176191,1
+https://www.roblox.rw/games/15269951959/SHINJI-Legends-Battlegrounds?privateServerLinkCode=11040290185766545005746312904812&game_id=15269951959&game_name=SHINJI-Legends-Battlegrounds,True,False,False,False,HTTPS Phishing (General),0.9875513867176191,1
+https://www.roblox.rw/games/13076380114/Heroes-Battlegrounds?privateServerLinkCode=11040290185766545005746312904812&game_id=13076380114&game_name=Heroes-Battlegrounds,True,False,False,False,HTTPS Phishing (General),0.9875513867176191,1
+http://conncast.vercel.app/,False,True,True,False,Platform-Hosted Phishing,0.9791581013459165,1
+http://494145-coinbase.com/,False,True,False,False,Bare-Domain Phishing,0.9744805659232013,1
+https://cont17ct-davuri-biz-kelom-ravta.pages.dev/,True,True,True,False,Platform-Hosted Phishing,0.9895485551872815,1
+https://www.dashboard.adobeexperience.com.br/,True,True,False,False,Bare-Domain Phishing,0.9885507306967779,1
+https://www.instagarm.vercel.app/,True,True,True,False,Platform-Hosted Phishing,0.9791581013459165,1
+https://www.roblox.rw/games/77182599101794/-4nn1s-place?privateServerLinkCode=29443536713818717471407919220012,True,False,False,False,HTTPS Phishing (General),0.9959669233170011,1
+https://lsdryfg-xgbjsrdtgh.pages.dev/index.htm,True,False,True,False,Platform-Hosted Phishing,0.64514516480342,1
+https://ppss123.shop/,True,True,False,False,Bare-Domain Phishing,0.858620256493238,1
+http://www.newhorizonsrehab.ke/arm/amnd/,False,False,False,False,Other / Generic Phishing,0.8235117752309106,1
+https://suite.zapier.app/,True,True,False,False,Bare-Domain Phishing,0.9847084585015565,1
+https://netflix-ui-clone-vikas.vercel.app/login,True,False,True,False,Platform-Hosted Phishing,0.8814488068166252,1
+https://elettrotecnica-branchi-s-r-l-s.p-s9bbs8qw.workers.dev/,True,True,False,False,Bare-Domain Phishing,0.9847084585015565,1
+https://isecion822-cyber.github.io/prueba-/,True,False,True,False,Platform-Hosted Phishing,0.9459462390362253,1
+https://isecion822-cyber.github.io/facebook-/,True,False,True,False,Platform-Hosted Phishing,0.9294814984335537,1
+https://isecion822-cyber.github.io/facebook./,True,False,True,False,Platform-Hosted Phishing,0.9001426308541981,1
+https://netflix-ui-clone-vikas.vercel.app/,True,True,True,False,Platform-Hosted Phishing,0.9981455725544738,1
+https://isecion822-cyber.github.io/prueba/,True,False,True,False,Platform-Hosted Phishing,0.9459462390362253,1
+https://ledgre-livee-app-en.pages.dev/,True,True,True,False,Platform-Hosted Phishing,0.9935420809581296,1
+https://www.roblox.com.ml/users/278632722156/profile,True,False,False,False,HTTPS Phishing (General),0.9963850091741921,1
+https://ritamnaskar11.github.io/Netflix_CLONE/,True,False,True,False,Platform-Hosted Phishing,0.756648451730419,1
+https://roblox.com.kz/users/1203160479/profile,True,False,False,False,HTTPS Phishing (General),0.9947910477322243,1
+https://www.imtoke.net/wallet,True,False,False,False,HTTPS Phishing (General),0.015208240088544411,0
+http://mrz-3misd-kry4v-3gg-m789n.pages.dev/,False,True,True,False,Platform-Hosted Phishing,0.9891304693300903,1
+http://49sl-g4ma-q8d-8ea5-nhp5-fbm4xd.pages.dev/,False,True,True,False,Platform-Hosted Phishing,0.9929080291717235,1
+https://sp30ct10-melrevo-biz-kunati.pages.dev/,True,True,True,False,Platform-Hosted Phishing,0.9981455725544738,1
+http://sp24ct-kavi-biz-morak-tune.pages.dev/,False,True,True,False,Platform-Hosted Phishing,0.9716608033846083,1
+https://m5y4-yimba-g5lrmx-iig-wk2uy.pages.dev/,True,True,True,False,Platform-Hosted Phishing,0.9791581013459165,1
+http://ewp2-fiib-4qjk-aei1h-njxhst.pages.dev/,False,True,True,False,Platform-Hosted Phishing,0.9738120247115445,1
+https://belquro-kxt-qanvemi-c6x2dw97.pages.dev/,True,True,True,False,Platform-Hosted Phishing,0.9969696969696971,1
+https://sp29ct-pelun-biz-vakti-zemra.pages.dev/,True,True,True,False,Platform-Hosted Phishing,0.9847731708551448,1
+https://norzela-kxt-belmavi-c1x6hk49.pages.dev/,True,True,True,False,Platform-Hosted Phishing,0.9969696969696971,1
+http://qulnar-dremor-7a31dc-gb1504bb-s2406vma.pages.dev/,False,True,True,False,Platform-Hosted Phishing,1.0,1
+http://o1uwy-jnis-i8d-rjg-kg7m1.pages.dev/,False,True,True,False,Platform-Hosted Phishing,0.9791581013459165,1
+http://kwvo5-qw2-qtdj-7y2n9-2beyc.pages.dev/,False,True,True,False,Platform-Hosted Phishing,0.9847731708551448,1
+https://sp19ct-zarel-biz-lunik-mota.pages.dev/,True,True,True,False,Platform-Hosted Phishing,0.9847731708551448,1
+http://vx8go-5e3rk-0e80-mt2v9f-gf5bf.pages.dev/,False,True,True,False,Platform-Hosted Phishing,0.9923662053733526,1
+https://sp28ct5-ravri-biz-kemak-zolun.pages.dev/,True,True,True,False,Platform-Hosted Phishing,0.9738120247115445,1
+https://75ql6w-0u213-xiz-vsgz-5w4.pages.dev/,True,True,True,False,Platform-Hosted Phishing,0.9963850091741921,1
+https://1301614.eu9.myftpupload.com/mycssMla/mycss/k.html,True,False,False,False,HTTPS Phishing (General),0.9935420809581296,1
+https://www.ticket-att.com/wireless/step02.php,True,False,False,False,HTTPS Phishing (General),0.858620256493238,1
+http://ledger-ai-13a.pages.dev/,False,True,True,False,Platform-Hosted Phishing,0.9716608033846083,1
+https://login.steamcommunutty.com/profile/76561116133252110/,True,False,False,False,HTTPS Phishing (General),0.9963850091741921,1
+https://uwsqsqqpui.casa/,True,True,False,False,Bare-Domain Phishing,0.9710569745265398,1
+http://webmail-hycte9e2a0bch0fw.westus3-01.azurewebsites.net/,False,True,True,False,Platform-Hosted Phishing,1.0,1
+http://1n1jn1aja.pages.dev/,False,True,True,False,Platform-Hosted Phishing,0.9895485551872815,1
+https://www.roblox.ly/games/127764019442807/Repacked-Baddies?privateServerLinkCode=70796097220162913274573076561245,True,False,False,False,HTTPS Phishing (General),0.9959669233170011,1
+https://www.roblox.ly/communities/3109493600/LibertyYouth#!/about,True,False,False,False,HTTPS Phishing (General),0.9963850091741921,1
+https://orange-aside-126380.framer.app/,True,True,False,False,Bare-Domain Phishing,1.0,1
+https://www.roblox.com.et/users/6853786715/profile,True,False,False,False,HTTPS Phishing (General),0.9963850091741921,1
+http://instagarm.vercel.app/,False,True,True,False,Platform-Hosted Phishing,0.9875261086876278,1
+http://likpaklix.com/,False,True,False,False,Bare-Domain Phishing,0.9716608033846083,1
+https://www.dhl.smarthub.vuelogix.ai/,True,True,False,False,Bare-Domain Phishing,0.9828485732649126,1
+https://www.roblox.com.et/users/3145712069/profile,True,False,False,False,HTTPS Phishing (General),0.9963850091741921,1
+https://www.roblox.com.et/games/124331793246454/UwUs-Tower?privateServerLinkCode=88380561114050715342591383119023,True,False,False,False,HTTPS Phishing (General),0.9981455725544738,1
+https://amuento-linea-credi-6767--aumento35.replit.app/,True,True,False,False,Bare-Domain Phishing,0.9929080291717235,1
+https://asesoriamildraperez--credito-ec.replit.app/,True,True,False,False,Bare-Domain Phishing,1.0,1
+https://www.roblox.je/games/132929771812494/X2-Cameraman-Tower-Defense?privateServerLinkCode=296817581803318434235849461157,True,False,False,False,HTTPS Phishing (General),0.9875513867176191,1
+https://www.roblox.je/users/141558529787/profile,True,False,False,False,HTTPS Phishing (General),0.9913936589128406,1
+https://raza014.github.io/netflix-clone/,True,False,True,False,Platform-Hosted Phishing,0.7319712552103175,1
+http://sp20ct-forqel-biz-lansik-vormek.pages.dev/,False,True,True,False,Platform-Hosted Phishing,0.9763383388073236,1
+http://sp30ct10-varkako-biz-kuremi.pages.dev/,False,True,True,False,Platform-Hosted Phishing,1.0,1
+https://5t9n-71s-kyp87d-zhih-o11l4.pages.dev/,True,True,True,False,Platform-Hosted Phishing,0.9959669233170011,1
+https://norzeta-kxt-qelmavi-p7t1hc94.pages.dev/,True,True,True,False,Platform-Hosted Phishing,0.9969696969696971,1
+http://ui546-clryb-u4rvea-q9x40.pages.dev/,False,True,True,False,Platform-Hosted Phishing,1.0,1
+http://sp30ct10-zelvemi-biz-zunaro.pages.dev/,False,True,True,False,Platform-Hosted Phishing,1.0,1
+http://ylktp41vnx-qjrsh84mkg-9p2k3g-bcf17p.pages.dev/,False,True,True,False,Platform-Hosted Phishing,0.9982394366197184,1
+https://3ml70y-cuj-ghmg-8ltox-qur0s6.pages.dev/,True,True,True,False,Platform-Hosted Phishing,0.9963850091741921,1
+https://sp30ct10-nalvilo-biz-zurelo.pages.dev/,True,True,True,False,Platform-Hosted Phishing,0.9981455725544738,1
+http://sp30ct10-ravleko-biz-zumaro.pages.dev/,False,True,True,False,Platform-Hosted Phishing,1.0,1
+https://o2ca4-x17v-3arh-ksvn6-tzgrf.pages.dev/,True,True,True,False,Platform-Hosted Phishing,0.9963850091741921,1
+http://sp30ct10-melzavo-biz-lunemi.pages.dev/,False,True,True,False,Platform-Hosted Phishing,1.0,1
+http://sp28ct5-lurvi-biz-felun-zemro.pages.dev/,False,True,True,False,Platform-Hosted Phishing,0.9709922621729515,1
+http://o4h-9sb5-7y0gw-f0b81-4rtul.pages.dev/,False,True,True,False,Platform-Hosted Phishing,0.991973397546153,1
+https://pronex-talvik-d39271-njyrr-k2406vno.pages.dev/,True,True,True,False,Platform-Hosted Phishing,0.9981455725544738,1
+http://h0sa04-zf9rl-nuh-snpa-dsr6.pages.dev/,False,True,True,False,Platform-Hosted Phishing,0.9791581013459165,1
+https://ylktp125bf-qjrshskr-6p5k1g-ylkq78c.pages.dev/,True,True,True,False,Platform-Hosted Phishing,0.9982394366197184,1
+https://syt82-fc16-dlgw-u65lq-aq50a.pages.dev/,True,True,True,False,Platform-Hosted Phishing,0.9981455725544738,1
+https://g1x-emr7-sul-kdh-4yr5f-nts1ih.pages.dev/,True,True,True,False,Platform-Hosted Phishing,0.9847084585015565,1
+https://szal-onn7h-yph-qfca4w-ic3qx.pages.dev/,True,True,True,False,Platform-Hosted Phishing,0.9738120247115445,1
+http://sp30ct10-dorvilo-biz-zanati.pages.dev/,False,True,True,False,Platform-Hosted Phishing,1.0,1
+https://bcfzw3140lk-vnxldpli-8nq35d-bcf63c.pages.dev/,True,True,True,False,Platform-Hosted Phishing,0.9963850091741921,1
+https://sp30ct10-vemleko-biz-zureti.pages.dev/,True,True,True,False,Platform-Hosted Phishing,0.9981455725544738,1
+http://sp30ct10-varkilo-biz-mureti.pages.dev/,False,True,True,False,Platform-Hosted Phishing,1.0,1
+http://maps-apple.support/iaz,False,False,False,False,Other / Generic Phishing,0.9234313596241415,1
+https://www.roblox.rw/games/123974602339071/UP-Just-a-baseplate?privateServerLinkCode=22324743478128854097197029393298,True,False,False,False,HTTPS Phishing (General),0.9875513867176191,1
+https://myprojectdocument.pw/,True,True,False,False,Bare-Domain Phishing,0.9791581013459165,1
+https://metuuskwith-1.gitbook.io/,True,True,False,False,Bare-Domain Phishing,0.9904337492572788,1
+https://f005.backblazeb2.com/file/rbtdgeg/sholi.html,True,False,False,False,HTTPS Phishing (General),0.9716608033846083,1
+http://metamask-docs-fbv47wj26-consensys-ddffed67.vercel.app/metamask-connect/evm/guides/migrate-from-sdk/,False,False,True,False,Platform-Hosted Phishing,0.9935420809581296,1
+http://metamask-docs-fbv47wj26-consensys-ddffed67.vercel.app/smart-accounts-kit/development/guides/advanced-permissions/execute-on-metamask-users-behalf/,False,False,True,False,Platform-Hosted Phishing,0.9919481195161617,1
+http://metamask-docs-fbv47wj26-consensys-ddffed67.vercel.app/smart-accounts-kit/get-started/supported-networks/,False,False,True,False,Platform-Hosted Phishing,0.9933261150289145,1
+http://metamask-docs-fbv47wj26-consensys-ddffed67.vercel.app/smart-accounts-kit/get-started/smart-account-quickstart/,False,False,True,False,Platform-Hosted Phishing,0.9929080291717235,1
+http://metamask-docs-fbv47wj26-consensys-ddffed67.vercel.app/metamask-connect/troubleshooting/,False,False,True,False,Platform-Hosted Phishing,0.9982394366197184,1
+http://metamask-docs-fbv47wj26-consensys-ddffed67.vercel.app/metamask-connect/evm/,False,False,True,False,Platform-Hosted Phishing,0.9963850091741921,1
+http://metamask-docs-fbv47wj26-consensys-ddffed67.vercel.app/metamask-connect/architecture/,False,False,True,False,Platform-Hosted Phishing,0.9982394366197184,1
+http://metamask-docs-fbv47wj26-consensys-ddffed67.vercel.app/smart-accounts-kit/development/get-started/use-scaffold-eth/smart-accounts/,False,False,True,False,Platform-Hosted Phishing,0.9885507306967779,1
+http://metamask-docs-fbv47wj26-consensys-ddffed67.vercel.app/quickstart/,False,False,True,False,Platform-Hosted Phishing,0.9959669233170011,1
+http://coda-rwx.event-en.de/,False,True,False,False,Bare-Domain Phishing,0.9813588698113443,1
+https://likpaklix.com/home,True,False,False,False,HTTPS Phishing (General),0.007210120292560977,0
+https://1url.at/www/robloxusers-9510999481-profile,True,False,False,False,HTTPS Phishing (General),0.958116303837869,1
+http://lyloauckland.hostel.town/,False,True,False,False,Bare-Domain Phishing,0.9941267687536345,1
+https://absa.agrp.co.za/loading_verify.html,True,False,False,False,HTTPS Phishing (General),0.7481481481481481,1
+https://roblox.com.bz/communities/7495873881/?referer=urlvanish.com%2F52f4625d#!/about,True,False,False,False,HTTPS Phishing (General),0.9963850091741921,1
+https://www.govpendenciapainel.org/,True,True,False,False,Bare-Domain Phishing,0.9935420809581296,1
+http://particulares--micreditose.replit.app/,False,True,False,False,Bare-Domain Phishing,1.0,1
+https://community-policy-info.vercel.app/careers.html/,True,False,True,False,Platform-Hosted Phishing,0.9716608033846083,1
+https://www.walletsupportlive-vc8n.vercel.app/,True,True,True,False,Platform-Hosted Phishing,0.9981455725544738,1
+http://vmi3694604.contaboserver.net/santander_es_2026/santander_es_2026/login.php,False,False,False,False,Other / Generic Phishing,1.0,1
+http://www.netflix-clone-seven-liard.vercel.app/,False,True,True,False,Platform-Hosted Phishing,1.0,1
+https://asesorjuanluis--credito-ec.replit.app/,True,True,False,False,Bare-Domain Phishing,0.9963850091741921,1
+https://www.instagram-groupe-invite.vercel.app/,True,True,True,False,Platform-Hosted Phishing,1.0,1
+https://www.roblox.com.et/users/5073829960/profile,True,False,False,False,HTTPS Phishing (General),0.9963850091741921,1
+http://www.verifiedbadgehub.vercel.app/,False,True,True,False,Platform-Hosted Phishing,0.9961690432449771,1
+http://metamask-docs-fbv47wj26-consensys-ddffed67.vercel.app/embedded-wallets/sdk/unity/advanced/custom-authentication/,False,False,True,False,Platform-Hosted Phishing,0.9935420809581296,1
+http://metamask-docs-fbv47wj26-consensys-ddffed67.vercel.app/agent-wallet/,False,False,True,False,Platform-Hosted Phishing,0.9885507306967779,1
+http://metamask-docs-fbv47wj26-consensys-ddffed67.vercel.app/embedded-wallets/sdk/unity/advanced/dapp-share/,False,False,True,False,Platform-Hosted Phishing,0.9963850091741921,1
+http://metamask-docs-fbv47wj26-consensys-ddffed67.vercel.app/embedded-wallets/authentication/,False,False,True,False,Platform-Hosted Phishing,0.9982394366197184,1
+https://trezoriostart-apps.square.site/,True,True,True,False,Platform-Hosted Phishing,0.9981455725544738,1
+https://www.roblox.com.pt/users/966658257628/profile,True,False,False,False,HTTPS Phishing (General),0.9963850091741921,1
+http://sp30ct10-zelrako-biz-luneti.pages.dev/,False,True,True,False,Platform-Hosted Phishing,1.0,1
+https://www.roblox.ss/games/8304191830/APRIL-FOOLS-Anime-Adventures?privateServerLinkCode=14957790894136791384648350615568,True,False,False,False,HTTPS Phishing (General),0.9875513867176191,1
+https://novidadesdasemanalu.com/produto/6381171,True,False,False,False,HTTPS Phishing (General),0.958116303837869,1
+https://create-signup.netlify.app/,True,True,True,False,Platform-Hosted Phishing,0.9935420809581296,1
+https://www.roblox.rw/users/891850854724/profile,True,False,False,False,HTTPS Phishing (General),0.9913936589128406,1
+https://trustwallet-gules.vercel.app/restorepage/24,True,False,True,False,Platform-Hosted Phishing,0.9392107486673472,1
+https://trustwallet-gules.vercel.app/restorepage/12,True,False,True,False,Platform-Hosted Phishing,0.9392107486673472,1
+https://um49zt-kta-548z-glvkbz-7af9b.pages.dev/,True,True,True,False,Platform-Hosted Phishing,0.9963850091741921,1
+https://sp29ct-felak-biz-korun-zemri.pages.dev/,True,True,True,False,Platform-Hosted Phishing,0.9847731708551448,1
+http://sp28ct5-zemor-biz-rulak-kavti.pages.dev/,False,True,True,False,Platform-Hosted Phishing,0.9709922621729515,1
+https://sp28ct5-femun-biz-zavri-kelro.pages.dev/,True,True,True,False,Platform-Hosted Phishing,0.9738120247115445,1
+http://www.amazon-frontend-clone-project.vercel.app/,False,True,True,False,Platform-Hosted Phishing,0.9982394366197184,1
+http://roblox.com.et/communities/6781641218/ShInGP,False,False,False,False,Other / Generic Phishing,0.9963850091741921,1
+https://www.roblox.rw/users/540155540777/profile#about,True,False,False,False,HTTPS Phishing (General),0.9961690432449771,1
+https://cv453237.tw1.ru/copilote-s-panel/,True,False,False,False,HTTPS Phishing (General),0.9793623818671846,1
+https://e.vg/CONdcKvQQ,True,False,False,False,HTTPS Phishing (General),0.5419841092463766,0
+https://www.rosaehessfrzimbra.vercel.app/,True,True,True,False,Platform-Hosted Phishing,0.9959669233170011,1
+https://www.symeb.com.co/,True,True,False,False,Bare-Domain Phishing,0.858620256493238,1
+https://verfiyconnect24.github.io/BankOfAmerica/,True,False,True,False,Platform-Hosted Phishing,0.756648451730419,1
+https://www.roblox.je/games/142823291/Murder-Mystery-2?privateServerLinkCode=152747484525262034763692323143,True,False,False,False,HTTPS Phishing (General),0.9959669233170011,1
+http://v2238.ig-verifica.freemyip.com/web/lite,False,False,False,False,Other / Generic Phishing,0.9847731708551448,1
+https://onubicij.servecounterstrike.com/cupe/,True,False,False,False,HTTPS Phishing (General),0.6842911877394635,1
+https://botazouy.com/paino/,True,False,False,False,HTTPS Phishing (General),0.5960282769413414,0
+http://metamask-docs-fbv47wj26-consensys-ddffed67.vercel.app/embedded-wallets/sdk/android,False,False,True,False,Platform-Hosted Phishing,0.9982394366197184,1
+http://metamask-docs-fbv47wj26-consensys-ddffed67.vercel.app/embedded-wallets/sdk/react/advanced/wallet-services/,False,False,True,False,Platform-Hosted Phishing,0.9963850091741921,1
+http://metamask-docs-fbv47wj26-consensys-ddffed67.vercel.app/agent-wallet/reference/outflow-policy/,False,False,True,False,Platform-Hosted Phishing,0.9982394366197184,1
+http://metamask-docs-fbv47wj26-consensys-ddffed67.vercel.app/embedded-wallets/connect-blockchain/,False,False,True,False,Platform-Hosted Phishing,0.9982394366197184,1
+http://metamask-docs-fbv47wj26-consensys-ddffed67.vercel.app/embedded-wallets/troubleshooting/,False,False,True,False,Platform-Hosted Phishing,0.9982394366197184,1
+http://metamask-docs-fbv47wj26-consensys-ddffed67.vercel.app/embedded-wallets/build-with-ai/,False,False,True,False,Platform-Hosted Phishing,0.9919481195161617,1
+http://metamask-docs-fbv47wj26-consensys-ddffed67.vercel.app/embedded-wallets/connect-blockchain/solana/,False,False,True,False,Platform-Hosted Phishing,0.9953965084036557,1
+http://metamask-docs-fbv47wj26-consensys-ddffed67.vercel.app/agent-wallet/reference/trading-modes/,False,False,True,False,Platform-Hosted Phishing,0.9982394366197184,1
+https://ch958846.tw1.ru/copilote-s-panel/,True,False,False,False,HTTPS Phishing (General),0.9793623818671846,1
+https://e.vg/KQMEMbYwz,True,False,False,False,HTTPS Phishing (General),0.5419841092463766,0
+https://aunmentoenlinea-82--rixxioramos.replit.app/,True,True,False,False,Bare-Domain Phishing,0.9963850091741921,1
+https://testdevfin72.best/,True,True,False,False,Bare-Domain Phishing,0.9179436006720111,1
+http://pocketpay-demo.pages.dev/,False,True,True,False,Platform-Hosted Phishing,0.9963850091741921,1
+http://rosaehessfrzimbra.vercel.app/,False,True,True,False,Platform-Hosted Phishing,0.9981455725544738,1
+https://www.kd7j.ph-tg77.net/,True,True,False,False,Bare-Domain Phishing,0.9179436006720111,1
+http://www.cyberleek.fit/,False,True,False,False,Bare-Domain Phishing,0.9758085126557042,1
+https://sharemyhtml.com/p/IrTQoAjnBl,True,False,False,False,HTTPS Phishing (General),0.7213282247765006,1
+http://www.roblox.ly/users/1155415418/profile,False,False,False,False,Other / Generic Phishing,0.9963850091741921,1
+https://ediv-server.github.io/service,True,False,True,False,Platform-Hosted Phishing,0.09628321537954958,0
+https://www.roblox.rw/games/142823291/Murder-Mystery-2?privateServerLinkCode=60869683094735370675006673192210,True,False,False,False,HTTPS Phishing (General),0.9959669233170011,1
+https://govregularizapainel.org/,True,True,False,False,Bare-Domain Phishing,0.9744805659232013,1
+https://www.wedks.com/,True,True,False,False,Bare-Domain Phishing,0.9234313596241415,1
+https://www.roblox.rw/users/213296865287/profile,True,False,False,False,HTTPS Phishing (General),0.9913936589128406,1
+http://coenbse-web.zapier.app/,False,True,False,False,Bare-Domain Phishing,0.9961690432449771,1
+http://secure-bridge-trezr-apps.typedream.app/,False,True,False,False,Bare-Domain Phishing,0.9982394366197184,1
+http://exoduslarp.vercel.app/,False,True,True,False,Platform-Hosted Phishing,0.9957509573877861,1
+https://www.um05bw.ph-tg77.net/,True,True,False,False,Bare-Domain Phishing,0.9763383388073236,1
+https://www.welcome-back-nine.vercel.app/,True,True,True,False,Platform-Hosted Phishing,0.9982394366197184,1
+https://www.roblox.com.ml/users/237327868596/profile/,True,False,False,False,HTTPS Phishing (General),0.9963850091741921,1
+https://community-policy-info.vercel.app/required.html/,True,False,True,False,Platform-Hosted Phishing,0.9744805659232013,1
+https://gyeox4.6686-vn.net/,True,True,False,False,Bare-Domain Phishing,0.9963850091741921,1
+https://www.y5fm.ph23-ph.net/,True,True,False,False,Bare-Domain Phishing,0.9179436006720111,1
+http://trezor-suite-eng-chiky.wasmer.app/,False,True,False,False,Bare-Domain Phishing,0.9906211240715191,1
+https://gifting-raduga.biz/id=12598126712/,True,False,False,False,HTTPS Phishing (General),0.9744805659232013,1
+https://sumittripathy40.github.io/NETFLIX-CLONE/,True,False,True,False,Platform-Hosted Phishing,0.8498698594482041,1
+https://cnb-ex.sdhsged.workers.dev/,True,True,False,False,Bare-Domain Phishing,0.9923662053733526,1
+https://roblox.com.am/games/2753915549/Blox-Fruits?privateServerLinkCode=172445976660885445481424941338#!/game-instances,True,False,False,False,HTTPS Phishing (General),0.9916096248420555,1
+https://khushboorajput11.github.io/Netflix-Clone/,True,False,True,False,Platform-Hosted Phishing,0.8903776018642683,1
+http://www.tqi21.vercel.app/,False,True,True,False,Platform-Hosted Phishing,0.9800309230788414,1
+http://sp33ct-varelo-biz-faneki-zumaro.pages.dev/,False,True,True,False,Platform-Hosted Phishing,0.9763383388073236,1
+http://c67-9ew-ne88c-ey6-l30nl-8kfr1v.pages.dev/,False,True,True,False,Platform-Hosted Phishing,0.9961690432449771,1
+https://w111zh-wuw1-826-6yj-e3lj.pages.dev/,True,True,True,False,Platform-Hosted Phishing,0.9963850091741921,1
+http://g7dkt-7tli-vk0wg1-06d-5wfj.pages.dev/,False,True,True,False,Platform-Hosted Phishing,0.9847731708551448,1
+https://www.checkforcopyrightinfringement.vercel.app/,True,True,True,False,Platform-Hosted Phishing,0.9981455725544738,1
+https://allegrolokalnie.aukcja758487593.top/oferta/1984-mz-etz-250/80344,True,False,False,False,HTTPS Phishing (General),0.9959669233170011,1
+https://centre-dentaire-bat.com/mola/mola.htm,True,False,False,False,HTTPS Phishing (General),0.756648451730419,1
+https://imtoken.hk.cn/,True,True,False,False,Bare-Domain Phishing,0.9234313596241415,1
+https://imtoken.hk.cn/download.html,True,False,False,False,HTTPS Phishing (General),0.002402573695896386,0
+https://www.ticket-att.com/wireless/step01.php,True,False,False,False,HTTPS Phishing (General),0.858620256493238,1
+https://www.ticket-att.com/,True,True,False,False,Bare-Domain Phishing,0.9891304693300903,1
+https://metamask-docs-fbv47wj26-consensys-ddffed67.vercel.app/embedded-wallets/sdk/node,True,False,True,False,Platform-Hosted Phishing,0.9978213507625272,1
+https://gruposaria.com/index2.html,True,False,False,False,HTTPS Phishing (General),0.057410052757142525,0
+https://ldgr-lives-app.pages.dev/,True,True,True,False,Platform-Hosted Phishing,0.9933261150289145,1
+https://nav-ledgr-eng.pages.dev/,True,True,True,False,Platform-Hosted Phishing,0.991973397546153,1
+http://5985n9mff-funfn994784ecd853-8478h84.netlify.app/,False,True,True,False,Platform-Hosted Phishing,1.0,1
+https://ip3dev.com/,True,True,False,False,Bare-Domain Phishing,0.9663147267502362,1
+http://netflix-clone-seven-liard.vercel.app/,False,True,True,False,Platform-Hosted Phishing,0.9982394366197184,1
+https://nutradiabs-whatsapp.orderyuk.info/,True,True,False,False,Bare-Domain Phishing,0.9981455725544738,1
+http://v2238.ig-verifica.freemyip.com/,False,True,False,False,Bare-Domain Phishing,0.9963850091741921,1
+https://community-policy-info.vercel.app/,True,True,True,False,Platform-Hosted Phishing,1.0,1
+http://instagram-groupe-invite.vercel.app/,False,True,True,False,Platform-Hosted Phishing,1.0,1
+http://www.instagram-clone-master-three.vercel.app/,False,True,True,False,Platform-Hosted Phishing,0.9982394366197184,1
+https://verifiedbadgehub.vercel.app/,True,True,True,False,Platform-Hosted Phishing,0.9931239951009386,1
+http://roblox.ss/users/1051870473/profile,False,False,False,False,Other / Generic Phishing,0.9758085126557042,1
+https://plotddmf.weebly.com/,True,True,False,False,Bare-Domain Phishing,0.9847084585015565,1
+http://www.roblox.com.kz/users/559211103/profile/,False,False,False,False,Other / Generic Phishing,1.0,1
+https://mydpd.yjbow.top/track-ch/,True,False,False,False,HTTPS Phishing (General),0.46420292402065394,0
+https://upcmail-hispeed-ch.jimdofree.com/,True,True,False,False,Bare-Domain Phishing,1.0,1
+http://www.upc-websrv-updt.weebly.com/,False,True,False,False,Bare-Domain Phishing,0.9963850091741921,1
+https://www.sunrise0041.flazio.online/,True,True,False,False,Bare-Domain Phishing,0.9957509573877861,1
+https://www.roblox.com.ml/users/187621307399/profile,True,False,False,False,HTTPS Phishing (General),0.9963850091741921,1
+https://my.gov.addllr.com/,True,True,False,False,Bare-Domain Phishing,0.8550907225993316,1
+http://br.ngtwr.shop/,False,True,False,False,Bare-Domain Phishing,0.9014788600693396,1
+https://osmelhoresprecos.com/produto/8444634,True,False,False,False,HTTPS Phishing (General),0.958116303837869,1
+https://1url.at/www/robloxusers-951099594-profile,True,False,False,False,HTTPS Phishing (General),0.958116303837869,1
+http://vakeusplay.com/,False,True,False,False,Bare-Domain Phishing,0.9459462390362253,1
+https://1xlite-78173.com/,True,True,False,False,Bare-Domain Phishing,0.9166073714568698,1
+https://anandanand39981-blip.github.io/l_inshtagram/,True,False,True,False,Platform-Hosted Phishing,0.9763383388073236,1
+https://walletsupportlive-vc8n.vercel.app/,True,True,True,False,Platform-Hosted Phishing,0.9981455725544738,1
+https://amazon-frontend-clone-project.vercel.app/,True,True,True,False,Platform-Hosted Phishing,1.0,1
+https://welcome-back-nine.vercel.app/,True,True,True,False,Platform-Hosted Phishing,0.9935420809581296,1
+https://tokanimt-cdnm-gf.lat/,True,True,False,False,Bare-Domain Phishing,0.9663147267502362,1
+https://vakqfxa.cyou/,True,True,False,False,Bare-Domain Phishing,0.9744805659232013,1
+https://hdcelebritynude.com/m/index.html,True,False,False,False,HTTPS Phishing (General),0.5775163398692811,0
+https://y5fm.ph23-ph.net/,True,True,False,False,Bare-Domain Phishing,0.9709922621729515,1
+https://aadityasinghh01.github.io/amazon-clone/,True,False,True,False,Platform-Hosted Phishing,0.7830065359477124,1
+https://smackapp.com/grp01.id.rakuten.co.jp/jp/bbfd66ebc9cf8def0b2cf4ab59953a1b/?cmd=,True,False,False,False,HTTPS Phishing (General),1.0,1
+https://um05bw.ph-tg77.net/,True,True,False,False,Bare-Domain Phishing,0.9952091335894154,1
+https://rakeshnira.github.io/Amazon-clone-website/,True,False,True,False,Platform-Hosted Phishing,0.9716608033846083,1
+https://57obxc-x1dsf-guev-m0o-6mh26o.pages.dev/,True,True,True,False,Platform-Hosted Phishing,0.9963850091741921,1
+http://kafqf-4k6v-2ol-4zm-b6m-872ru.pages.dev/,False,True,True,False,Platform-Hosted Phishing,0.9929080291717235,1
+https://ylpxt3cqzgo-jmkslsi-1v0t4b-ylpkr01c3t3.pages.dev/,True,True,True,False,Platform-Hosted Phishing,0.990556411717931,1
+http://mbtzp5dplix-fsgcyyhy-8s7q0g-qw177a.pages.dev/,False,True,True,False,Platform-Hosted Phishing,0.9982394366197184,1
+https://fsgcy25kq-mbtzp81los-2s4s9b-qw428w.pages.dev/,True,True,True,False,Platform-Hosted Phishing,0.9963850091741921,1
+http://sp28ct-funav-biz-qorel-qatek.pages.dev/,False,True,True,False,Platform-Hosted Phishing,0.9716608033846083,1
+https://community-policy-info.vercel.app/required.html,True,False,True,False,Platform-Hosted Phishing,0.9180320984704046,1
+https://tokanlmq-cdn0-ffd.lat/,True,True,False,False,Bare-Domain Phishing,0.9663147267502362,1
+https://rxuk.dt68-vn.net/,True,True,False,False,Bare-Domain Phishing,0.9931239951009386,1
+https://www.roblox.rw/games/80532649935029/when-the-game-is-real?privateServerLinkCode=11040290185766545005746312904812&game_id=80532649935029&game_name=when-the-game-is-real,True,False,False,False,HTTPS Phishing (General),0.9875513867176191,1
+https://community-policy-info.vercel.app/careers.html,True,False,True,False,Platform-Hosted Phishing,0.8916740142531112,1
+https://roblox.com.kg/404,True,False,False,False,HTTPS Phishing (General),0.8849783407105315,1
+https://www.roblox.rw/games/110116732259159/STAY-AT-THE-WORST-HOTEL-EVER-KNOWN-TO-MANKIND?privateServerLinkCode=11040290185766545005746312904812&game_id=110116732259159&game_name=STAY-AT-THE-WORST-HOTEL-EVER-KNOWN-TO-MANKIND,True,False,False,False,HTTPS Phishing (General),0.9847731708551448,1
+https://www.roblox.rw/games/130880054413998/Dreamworlds-Dreamcore-Obby?privateServerLinkCode=11040290185766545005746312904812&game_id=130880054413998&game_name=Dreamworlds-Dreamcore-Obby,True,False,False,False,HTTPS Phishing (General),0.9875513867176191,1
+https://www.roblox.rw/games/129859213496608/Geometry-Dash-Elevator?privateServerLinkCode=11040290185766545005746312904812&game_id=129859213496608&game_name=Geometry-Dash-Elevator,True,False,False,False,HTTPS Phishing (General),0.9875513867176191,1
+https://www.roblox.rw/games/6733528409/Going-on-a-Bear-Hunt?privateServerLinkCode=11040290185766545005746312904812&game_id=6733528409&game_name=Going-on-a-Bear-Hunt,True,False,False,False,HTTPS Phishing (General),0.9875513867176191,1
+https://www.roblox.rw/games/135256222236321/Bunny-64-HORROR?privateServerLinkCode=11040290185766545005746312904812&game_id=135256222236321&game_name=Bunny-64-HORROR,True,False,False,False,HTTPS Phishing (General),0.9875513867176191,1
+https://www.roblox.rw/games/77094086684121/Dream?privateServerLinkCode=11040290185766545005746312904812&game_id=77094086684121&game_name=Dream,True,False,False,False,HTTPS Phishing (General),0.9957509573877861,1
+https://www.roblox.rw/games/111403197324514/Fun-Obby?privateServerLinkCode=11040290185766545005746312904812&game_id=111403197324514&game_name=Fun-Obby,True,False,False,False,HTTPS Phishing (General),0.9876160990712074,1
+https://go3217.craftum.io/?naps,True,True,False,False,Bare-Domain Phishing,0.9466236447352868,1
+https://dhl-tracking.live/,True,True,False,False,Bare-Domain Phishing,0.958116303837869,1
+http://tudor.ind.br/hstrfp/scur588566256.html,False,False,False,False,Other / Generic Phishing,0.9935420809581296,1
+http://dftr-ftrdnt.fter.web.id/,False,True,False,False,Bare-Domain Phishing,0.9891304693300903,1
+https://s.team-rf.com/p/rpt-bvj/bxfsfosw,True,False,False,False,HTTPS Phishing (General),0.8287939700297834,1
+https://mydpd.drtkv.top/track-ch,True,False,False,False,HTTPS Phishing (General),0.017344992225296545,0
+https://5uq7g34ayvu29t8gc6nk.s3.amazonaws.com/czpq_ac9ty7vziox4nslwio9fezt_mn_c4mot3l33xce28c5x.html,True,False,True,False,Platform-Hosted Phishing,0.9982394366197184,1
+https://matamsklogex.gitbook.io/is/,True,False,False,False,HTTPS Phishing (General),0.9676426734827391,1
+https://metlmnnsk-loggn.gitbook.io/us,True,False,False,False,HTTPS Phishing (General),0.9791581013459165,1
+https://metlmnnsk-loggn.gitbook.io/,True,True,False,False,Bare-Domain Phishing,0.9950866784091962,1
+https://v2238.ig-verifica.freemyip.com/accounts/login/?next=https%3A%2F%2Fwww.instagram.com%2Flegal%2Fcookies%2F&is_from_rle,True,False,False,False,HTTPS Phishing (General),0.9792228136995048,1
+https://v2238.ig-verifica.freemyip.com/legal/cookies/,True,False,False,False,HTTPS Phishing (General),0.9923662053733526,1
+https://www.roblox.rw/games/89018178970518/Countryball-Wars?privateServerLinkCode=11040290185766545005746312904812&game_id=89018178970518&game_name=Countryball-Wars,True,False,False,False,HTTPS Phishing (General),0.9875513867176191,1
+https://www.roblox.com.et/users/1413659486/profile,True,False,False,False,HTTPS Phishing (General),0.9963850091741921,1
+https://www.roblox.rw/games/17625359962/RIVALS?privateServerLinkCode=11040290185766545005746312904812&game_id=17625359962&game_name=RIVALS,True,False,False,False,HTTPS Phishing (General),0.9957509573877861,1
+https://www.roblox.rw/games/10449761463/The-Strongest-Battlegrounds?privateServerLinkCode=11040290185766545005746312904812&game_id=10449761463&game_name=The-Strongest-Battlegrounds,True,False,False,False,HTTPS Phishing (General),0.9875513867176191,1
+https://iebayi.cc/,True,True,False,False,Bare-Domain Phishing,0.9294814984335537,1
+https://f005.backblazeb2.com/file/reflrl/microsoft+outlook.html,True,False,False,False,HTTPS Phishing (General),0.9813588698113443,1
+http://www.monitor.drddental.hu/,False,True,False,False,Bare-Domain Phishing,0.9891304693300903,1
+https://dhl.smarthub.vuelogix.ai/,True,True,False,False,Bare-Domain Phishing,0.9791581013459165,1
+http://preview-cs1-v2.netlify.app/,False,True,True,False,Platform-Hosted Phishing,0.9884860183431896,1
+https://dreamteamworks.com/,True,True,False,False,Bare-Domain Phishing,0.9744805659232013,1
+https://nbddut-i6esa064.vercel.app/,True,True,True,False,Platform-Hosted Phishing,0.9981455725544738,1
+http://marfeli-mpt-quzvano-k5x7pe83.pages.dev/,False,True,True,False,Platform-Hosted Phishing,0.9981455725544738,1
+http://chat-group-as-ruby.vercel.app/,False,True,True,False,Platform-Hosted Phishing,0.9931239951009386,1
+http://santander-remaster-whats-fb-kappa.vercel.app/,False,True,True,False,Platform-Hosted Phishing,0.9931239951009386,1
+http://usdt-bep20-check.vercel.app/,False,True,True,False,Platform-Hosted Phishing,0.9885205743676573,1
+https://trustifybep.vercel.app/,True,True,True,False,Platform-Hosted Phishing,0.9933261150289145,1
+http://adobeinstaller-virid.vercel.app/,False,True,True,False,Platform-Hosted Phishing,0.9963850091741921,1
+https://facebook-clone1-ten.vercel.app/,True,True,True,False,Platform-Hosted Phishing,0.9963850091741921,1
+https://zesty-horse-7b04a2.netlify.app/,True,True,True,False,Platform-Hosted Phishing,0.9981455725544738,1
+https://linkedin-antanim.vercel.app/login,True,False,True,False,Platform-Hosted Phishing,0.5463884937569148,0
+http://linkedin-antanim.vercel.app/,False,True,True,False,Platform-Hosted Phishing,0.9981455725544738,1
+http://vivaah-ledger.pages.dev/,False,True,True,False,Platform-Hosted Phishing,0.9963850091741921,1
+http://dci-ledger-test197.pages.dev/,False,True,True,False,Platform-Hosted Phishing,0.9895485551872815,1
+http://instagram-lilac-two.vercel.app/,False,True,True,False,Platform-Hosted Phishing,0.9981455725544738,1
+http://ingra-ledger-private.pages.dev/,False,True,True,False,Platform-Hosted Phishing,0.9981455725544738,1
+https://dashboard-blockchains.web.app/secured/,True,False,True,False,Platform-Hosted Phishing,0.8778724978124183,1
+http://dashboard-blockchains.web.app/,False,True,True,False,Platform-Hosted Phishing,0.9963850091741921,1
+http://yon0sbl.vercel.app/,False,True,True,False,Platform-Hosted Phishing,0.992391483403344,1
+https://app-f6a854cc-05d8-491d-88fd-b58ec07adf37.cleverapps.io/cc/login.php,True,False,False,False,HTTPS Phishing (General),0.9963850091741921,1
+http://dnf-apyltr.fter.web.id/,False,True,False,False,Bare-Domain Phishing,0.9895485551872815,1
+https://santehraboti.by/wp-admin/zz/index.html,True,False,False,True,Compromised Legitimate Sites,0.9835801121744504,1
+https://2alb-atfal.com/wp-content/mu-plugins/mygov/index2.html,True,False,False,True,Compromised Legitimate Sites,0.9847084585015565,1
+https://finalstagetogo.com/uploads/il11.txt,True,False,False,True,Compromised Legitimate Sites,0.9052583306261489,1
+https://waterwiselandscaping.com.au/wp-includes/ixr/signon_teltawimau-login-goto-http-3a2f2femail-tes1ra4432fwebmail/index.html?username=,True,False,False,True,Compromised Legitimate Sites,0.9931239951009386,1
+https://forrestperkins.com/wp-content/251/efa38fa83710b40a4767bcb939bbe40b/execution.html?validation=e1s1,True,False,False,True,Compromised Legitimate Sites,0.9981455725544738,1
+www.foto-yama.kiev.ua/wp-content/uploads/2012/07/index.htm,False,False,False,True,Compromised Legitimate Sites,0.9979296066252589,1
+https://185.255.122.133/uploads/pnk11.zip,True,False,False,True,Compromised Legitimate Sites,0.9981455725544738,1
+https://lifentimez.com/wp-admin/includes/api.php,True,False,False,True,Compromised Legitimate Sites,0.9963850091741921,1
+malatyasehri.com/wp-includes/js/crop/.sinc3.1/portal/,False,False,False,True,Compromised Legitimate Sites,0.9847084585015565,1
+https://newskinandcare.com/wp-includes/wwii22/renelecconstructionhasevolvedfromitsrootswithinrenelec/login.php?public/enroll/identifyuser-aspx-lob=rbglogon=mte0mdmyntqwmq==mte0mdmyntqwmq==&amp;session=mte0mdmyntqwmq==mte0mdmyntqwmq==,True,False,False,True,Compromised Legitimate Sites,0.9716608033846083,1
+https://tostudydrycleaning.ru/wp-content/offset/,True,False,False,True,Compromised Legitimate Sites,0.9724895440214824,1
+http://gxnwys.com//wp-admin/dev/cncountin/cncountin/cncountin/cncountin/cncountin/upload/index.php?email=jairamp@guysuco.com,False,False,False,True,Compromised Legitimate Sites,0.9786521213972694,1
+https://zerowebli.com/wp-admin/about/micab/swiis1/swiis/index.php,True,False,False,True,Compromised Legitimate Sites,0.9963850091741921,1
+http://ccpz.ui.edu.ng/wp-includes/customize/growwin/login/nab/nab.au/nab_au,False,False,False,True,Compromised Legitimate Sites,0.9663147267502362,1
+https://streamingplus.co/optusnet1/optus%20-%20webmail.htm,True,False,False,True,Compromised Legitimate Sites,0.9847084585015565,1
+mrmclaughlin.com/wp-includes/personal,False,False,False,True,Compromised Legitimate Sites,0.952770227203497,1
+https://finalstepgo.com/uploads/il4.txt,True,False,False,True,Compromised Legitimate Sites,0.7882273990988399,1
+http://www.urban3d.co/wp-includes/certificates/,False,False,False,True,Compromised Legitimate Sites,0.9807603496358573,1
+https://doximex.vn/wp-includes/ppouo/login.php?cmd=submit_log&amp;id=mjezmjk2mdywng==mjezmjk2mdywng==&amp;session=mjezmjk2mdywng==mjezmjk2mdywng==,True,False,False,True,Compromised Legitimate Sites,0.8849783407105315,1
+http://dailythings.me/wp-content/plugins/my/my/bf930e8d839bce69e68bdc99e66c30db/index.php,False,False,False,True,Compromised Legitimate Sites,1.0,1
+https://stokismrtakokajang.com/wp-content/themes/finley/bry/login.php?cmd=submit_log&id=mja4ntuzmdazna==mja4ntuzmdazna==&session=mja4ntuzmdazna==mja4ntuzmdazna==,True,False,False,True,Compromised Legitimate Sites,0.8498698594482041,1
+http://www.ik0vve.net/wp-content/themes/twentythirteen/js/fr/3/d150a/,False,False,False,True,Compromised Legitimate Sites,0.9963850091741921,1
+https://rebabeachresort.in/wp-content/plugins/z-downloads/,True,False,False,True,Compromised Legitimate Sites,0.9929080291717235,1
+https://sydneyphysios.com.au/wp-content/plugins/wpforms-lite/lite/assets/images/image-/ar/,True,False,False,True,Compromised Legitimate Sites,0.9931239951009386,1
+https://finalstagetogo.com/uploads/beta22.zip,True,False,False,True,Compromised Legitimate Sites,0.8355294603986616,1
+https://melanies31closet.com/wp-content/themes/rshmicro365/officeonline/cgi-bin1,True,False,False,True,Compromised Legitimate Sites,0.9981455725544738,1
+http://whimar.com/wp-admin/maint/XjoPqhzc228.bin,False,False,False,True,Compromised Legitimate Sites,0.9709922621729515,1
+http://entry-biglobes-auth1-mail-cgibin-643339e7f1407.ehuaya.net/auth-api-sso-webmail-index-rui1/index.php?resource_url=https:/auth.sso.biglobe.ne.jp/mail&__cf_chl_f_tk=hzezrcqem1h_r_cg9ajh8jtimlgapsprud84nflkdfk-1681079205-0-ganycgzndps,False,False,False,True,Compromised Legitimate Sites,0.9929080291717235,1
+https://precisesystems.com/wp-content/upgrade/usps-manage-informed-delivery/,True,False,False,True,Compromised Legitimate Sites,0.9947910477322243,1
+https://pepzop.com/roundcube2023/index.php,True,False,False,True,Compromised Legitimate Sites,0.8903776018642683,1
+https://podup.vitecdevelopment.com/wp-admin/wr/rfrf/authen/sms.php,True,False,False,True,Compromised Legitimate Sites,0.9813588698113443,1
+https://muenchnernotizen.info/wp-content/plugins/62dfa1a3658045e481c36a4f234248c4/y/mm/mmd/dreamchaser/java/index.php?=foi%40scottishwater.co.uk,True,False,False,True,Compromised Legitimate Sites,0.9982394366197184,1
+http://compclub.sk/components/ctis.ndmi/login.jsp.php,False,False,False,True,Compromised Legitimate Sites,0.9691344892888293,1
+https://trackthemgood.com/uploads/punk33.txt,True,False,False,True,Compromised Legitimate Sites,0.9052583306261489,1
+https://westernskips.com.au/wp-admin/user/content/content.php,True,False,False,True,Compromised Legitimate Sites,0.9847084585015565,1
+https://dev1.creationsbyedith.com/wp-content/landbank/login/,True,False,False,True,Compromised Legitimate Sites,0.9691344892888293,1
+https://www.informacionoportuna.com/wp-content/uploads/2024/08/test11.txt,True,False,False,True,Compromised Legitimate Sites,0.9982394366197184,1
+https://santemax.ru/wp-content/plugins/wp-file-manager/lib/files/wprlight/client/dep.html,True,False,False,True,Compromised Legitimate Sites,0.9919481195161617,1
+https://www.informacionoportuna.com/wp-content/uploads/2024/07/qqaass.txt,True,False,False,True,Compromised Legitimate Sites,0.9982394366197184,1
+http://www.jensenhome.net.dream.website/wp-admin/eddiitt.html,False,False,False,True,Compromised Legitimate Sites,0.9963850091741921,1
+https://wordpress-565197-2243366.cloudwaysapps.com/wp-admin/ca/auth/entrar.php/,True,False,False,True,Compromised Legitimate Sites,0.9982394366197184,1
+http://paypal.com-cgi-bin.webscr.cmd-secure-login.webscr.cmd-home.country-lang.true-cmd.areuhj.dstech.us.com/http:/paypal.com-cgi-bin.webscr.cmd-secure-login.webscr.cmd-home.country-lang.true-cmd.areuhj.dstech.us.com/mtm/direct/.ejy9jksowzaibe_izvtjfs5teultvpfhgfvfve8er131at29eqiyt-uyudmfznbm0pbouapv7cluftkkvhhreqc8emxqwn6v8bdpnfpy6cxk8duwccad_rgbcvf0hfwnkuhx63tilgpqusi4m0ojogrgen6wshwhvbv7wcwd_2j1qrbxs_fwcpp7nb_vzds:1og7hi:gyed8jc_523xulc_uxjdydtkd_s/,False,False,False,True,Compromised Legitimate Sites,1.0,1
+https://leads.imagineautos.com/storage/ssl/webmailbeta.aruba.it/mail.user.aruba/client_service.mail_aruba.sign_in_my_account.access/id/cust.auth/index.htm,True,False,False,True,Compromised Legitimate Sites,0.9903690369036905,1
+http://www.alanqaa-contracting.com/wp-includes/widgets/newnetflix/newnetflix/en/login.php,False,False,False,True,Compromised Legitimate Sites,0.9933261150289145,1
+https://nicolalu.com/etc.clientlibs/sharedcomponents/clientlibs/clientlib-vendor/jquery-ui/css/images/ui-icons_555555_256x240.html,True,False,False,True,Compromised Legitimate Sites,0.9961690432449771,1
+https://bafybeic22jysn4z5af74jstfdqlwxxsctyytickynao5rctfqx42regoyu.ipfs.cf-ipfs.com//twebmail.html,True,False,False,True,Compromised Legitimate Sites,0.9981455725544738,1
+https://finalstepgo.com/uploads/pnk2.txt,True,False,False,True,Compromised Legitimate Sites,0.858620256493238,1
+https://185.255.122.133/uploads/rui9.txt,True,False,False,True,Compromised Legitimate Sites,0.9963850091741921,1
+http://en.hepingshijie.com/wp-content/uploads/2021/05/espace-client/sfr/sfr/,False,False,False,True,Compromised Legitimate Sites,0.9963850091741921,1
+https://leads.imagineautos.com/storage/mail/webmailbeta.aruba.it/service.client_mail/aruba.mailbox_user.myaccount_access/accedi/update_additional2.htm,True,False,False,True,Compromised Legitimate Sites,0.9841765199974155,1
+https://davincibellasartes.es/wp-content/plugins/z-downloads/,True,False,False,True,Compromised Legitimate Sites,0.9957509573877861,1
+https://finalsteptogo.com/uploads/pnk2.txt,True,False,False,True,Compromised Legitimate Sites,0.9410528895661844,1
+https://pay.rncarebd.com/uploads/logo/redirect.php?url=txrfndvgtg,True,False,False,True,Compromised Legitimate Sites,0.9891304693300903,1
+https://menuuo.com/wp-content/plugins/z-downloads/,True,False,False,True,Compromised Legitimate Sites,0.9847084585015565,1
+publi-webs.com/modules/mod_mostread/login/remax/,False,False,False,True,Compromised Legitimate Sites,0.9716608033846083,1
+http://www.sadaftrade.com/wp-admin/images/ma/,False,False,False,True,Compromised Legitimate Sites,0.9710569745265398,1
+http://digital.momentumacademy.net/wp-content/link/linkedin_,False,False,False,True,Compromised Legitimate Sites,0.9961690432449771,1
+https://webapp325149.ip-198-58-122-121.cloudezapp.io/wp-admin/bg/dskbank/,True,False,False,True,Compromised Legitimate Sites,1.0,1
+https://www.alseaelectric.com/wp-admin/js/webmail.aruba.it/mail/aruba.cust_id/account/access/,True,False,False,True,Compromised Legitimate Sites,0.9884860183431896,1
+https://demo3.cloudwp.dev/trial-xw6u211w/wp-admin/dkbo/-/fbs/,True,False,False,True,Compromised Legitimate Sites,0.9961690432449771,1
+http://www.torneocittadiverona.it/wp-includes/php-compat/delivery/,False,False,False,True,Compromised Legitimate Sites,0.9933261150289145,1
+https://nhw3staging.serenitybirthstudio.com/wp-content/themes/divi/includes/module-customizer/meta/kyc/v/e440416/,True,False,False,True,Compromised Legitimate Sites,1.0,1
+https://185.255.122.133/uploads/punk33.zip,True,False,False,True,Compromised Legitimate Sites,0.9981455725544738,1
+https://www.chocoladdict.fr/wp/wp-content/themes/begin5.2/inc/go.php?url=///cutt%2ely%2FNeOQMJ4h#H_7thy-Lp,True,False,False,True,Compromised Legitimate Sites,0.9919481195161617,1
+https://www.ielts24x7.com/wp-includes/id3/process/n/login,True,False,False,True,Compromised Legitimate Sites,0.9891304693300903,1
+"https://preservewealthok.com/wp-content/grp01.id.rakuten.co.jp/jp/98b41b254913bd0d1bffd51e922a1628/?cmd=_identifier_demarrer_id=450854931+_time:thu,apr,20,2023-1:47pm",True,False,False,True,Compromised Legitimate Sites,0.9929080291717235,1
+https://185.255.122.133/uploads/il22.txt,True,False,False,True,Compromised Legitimate Sites,0.9963850091741921,1
+https://toddler-town.com/wp-content/upgrade/index.php?userid=user@domain.ch,True,False,False,True,Compromised Legitimate Sites,0.9875261086876278,1
+https://m.hauserbau.at/wp-admin/usr/login,True,False,False,True,Compromised Legitimate Sites,0.8575273603183747,1
+https://www.jackctaylorconferencecenter.org/wp-content/uploads/2010/en/login.php,True,False,False,True,Compromised Legitimate Sites,0.9981455725544738,1
+https://www.biomaarquitetura.com.br/wp-admin/css/colors/blue/info.html,True,False,False,True,Compromised Legitimate Sites,0.9875261086876278,1
+https://185.255.122.133/uploads/il444.zip,True,False,False,True,Compromised Legitimate Sites,0.9981455725544738,1
+https://oxnardappliancerepairmasters.com/wp-content/plugins/z-downloads/,True,False,False,True,Compromised Legitimate Sites,0.9716608033846083,1
+https://finalstepgo.com/uploads/pnk22.txt,True,False,False,True,Compromised Legitimate Sites,0.9663147267502362,1
+https://1dianabol.com/wp-includes/blocks/button/po.php,True,False,False,True,Compromised Legitimate Sites,0.9952091335894154,1
+https://crateloans.us/wp-content/plugins/elementor/assets/one.sef/,True,False,False,True,Compromised Legitimate Sites,0.9981455725544738,1
+http://104.248.130.181/modules/prosseguir.php?,False,False,False,True,Compromised Legitimate Sites,0.9982394366197184,1
+http://cacfnd.cam/3/webmail/webmail.php?email=user@example.org,False,False,False,True,Compromised Legitimate Sites,0.9594907385829646,1
+https://ldsofmichigan.com/wp-admin/cf/uy/,True,False,False,True,Compromised Legitimate Sites,0.9663147267502362,1
+https://www.newlifewelfaresociety.com/wp-content/themes/twentytwentyone/assets/fd54fd54fsd56fds564/011010101110101/0110101100111/5fds4fds5fes8d456635f546asd56asd.php?url=5f6d5f6d5d6f36f5g6f58&amp;72lwe,True,False,False,True,Compromised Legitimate Sites,0.9981455725544738,1
+https://kyampus.net/wp-admin/swisscomspx/swisscomspx/swisscomspx/swisscom/,True,False,False,True,Compromised Legitimate Sites,0.9933261150289145,1
+https://fdikom.uinjkt.ac.id/wp-content/themes/twentyfourteen/mk.php,True,False,False,True,Compromised Legitimate Sites,0.9847084585015565,1
+https://dev-rcbncsmes.pantheonsite.io/wp-content/cic/login.html,True,False,False,True,Compromised Legitimate Sites,0.9847084585015565,1
+"https://objectstorage.us-phoenix-1.oraclecloud.com/n/axgebi5u7aji/b/roundcubeauth/o/tyeteyshhsjsiwiwuwieoeoeoowoowjshshhsjsskskskksksindex.html?pid=patch&c=mobilefooter%22,%22reportercaseid%22:%2240055334%22,%22date%22:%222023-03-02t21:56:46z%22,%22sourceip%22:%22134.70.8.1%22,%22reporternotes%22:%22see",True,False,False,True,Compromised Legitimate Sites,0.9963850091741921,1
+https://nkgroup.com.bd/wp-includes/certificates/passlog/login.php,True,False,False,True,Compromised Legitimate Sites,0.9847731708551448,1
+https://urbanexcursionspdx.com/wp-admin/maint/coxxa/web/login.php?web,True,False,False,True,Compromised Legitimate Sites,0.9758085126557042,1
+www.danatranslation.com/modules/pp/,False,False,False,True,Compromised Legitimate Sites,0.8235117752309106,1
+https://www.loganpowerpoles.com/jp/webmail.php?_user=aaaa@example.jp,True,False,False,True,Compromised Legitimate Sites,0.8447662108971007,1
+https://allspurlabs.com/wp-content/plugins/us/k/verification/,True,False,False,True,Compromised Legitimate Sites,0.9963850091741921,1
+https://onlinedialogue.nl/wp-content/plugins/ds/b1fde01ca4f5c50/region.php?lca,True,False,False,True,Compromised Legitimate Sites,0.9981455725544738,1
+sepakbolaonline.com/wp-content/themes/redcarpet-3.0.6/sec/ibank.ib.nab.com.au/,False,False,False,True,Compromised Legitimate Sites,0.9847084585015565,1
+https://finalsteptogo.com/uploads/punk33.zip,True,False,False,True,Compromised Legitimate Sites,0.9052583306261489,1
+https://primeone.org/wp-content/plugins/gravityforms/includes/ht/content/,True,False,False,True,Compromised Legitimate Sites,0.9961690432449771,1
+http://amoamosss.com/Dem7kTu/Plugins/clip64.dll,False,False,False,True,Compromised Legitimate Sites,0.9830003735411378,1
+https://whmcsdev.vpsmalaysia.com.my/wordpress/wp-includes/customize/n/monave/commonwbank/,True,False,False,True,Compromised Legitimate Sites,0.987590821041216,1
+https://zalander-rowisa82288388.codeanyapp.com/wp-content/upgrade/s/dhst,True,False,False,True,Compromised Legitimate Sites,0.9981455725544738,1
+http://www.asvicltda.com/wp-content/languages/themes/app-nickel/login/clients,False,False,False,True,Compromised Legitimate Sites,0.9868158482177126,1
+https://hsildodj.builderallwppro.com/wp-admin/user/eikaa2/edyurekia/edyurekia/jhkhdso/,True,False,False,True,Compromised Legitimate Sites,0.9800309230788414,1
+https://smartnepali.com/wp-content/plugins/z-downloads/,True,False,False,True,Compromised Legitimate Sites,0.9847731708551448,1
+http://payitbehindyou.com/wp-includes/wwii11/jdn8pyysvjfhdkwqpgbrzuzksbxzj/login.php,False,False,False,True,Compromised Legitimate Sites,0.987590821041216,1
+https://homes121s.in/wp-content/plugins/z-downloads/,True,False,False,True,Compromised Legitimate Sites,0.9800309230788414,1
+https://finalstagetogo.com/uploads/rui9.zip,True,False,False,True,Compromised Legitimate Sites,0.8849783407105315,1
+https://shop.vajro.in/wp-admin/service/898ce1f40d49eb45f/,True,False,False,True,Compromised Legitimate Sites,0.9959669233170011,1
+https://xemaybaotin.vn/wp-content/litespeed/ccss/au/544970d/login.php,True,False,False,True,Compromised Legitimate Sites,0.9981455725544738,1
+https://wpguys.com.au/wp-content/themes/twentytwentythree/styles/de/de/,True,False,False,True,Compromised Legitimate Sites,0.9895485551872815,1
+http://alinstantecolombia.com/wp-content/uploads/2024/10/666666njazul.txt,False,False,False,True,Compromised Legitimate Sites,1.0,1
+https://theitalianplaceprovidore.com.au/wp-content/plugins/z-downloads/,True,False,False,True,Compromised Legitimate Sites,0.9813588698113443,1
+http://bet810.net/wp-admin,False,False,False,True,Compromised Legitimate Sites,0.6726696211386951,1
+http://www.geckobet.net/wp-content/themes/twentytwentythree/patterns/dim/,False,False,False,True,Compromised Legitimate Sites,0.9877757578732744,1
+https://eljardindelosnovios.com/wp-content/plugins/vino/,True,False,False,True,Compromised Legitimate Sites,0.9819757515319877,1
+https://globalinterpacific.com.co/wp-content/themes/fitnessbase/login,True,False,False,True,Compromised Legitimate Sites,0.9744805659232013,1
+https://shop.vajro.in/wp-admin/service/e38948152f9357935/,True,False,False,True,Compromised Legitimate Sites,0.9959669233170011,1
+http://interieursite.be/adminmyaccount/myaccount.earthlink.net/cam/config/webmail/billing/index.html,False,False,False,True,Compromised Legitimate Sites,0.9847731708551448,1
+https://finalsteptogo.com/uploads/b222.txt,True,False,False,True,Compromised Legitimate Sites,0.9513808134689908,1
+https://medclinicto.com.br/wp-includes/random_compat/webmail.php?/b8fc142685db1371c6fd477be3b8f7662cc75d5c6659b4b95f141abb494d0af2,True,False,False,True,Compromised Legitimate Sites,0.9981455725544738,1
+https://www.merashehar.today/wp-includes/widgets/kuidais/index.php,True,False,False,True,Compromised Legitimate Sites,0.9884860183431896,1
+https://onlinedialogue.nl/wp-content/plugins/ds/1b145252acff536/region.php?lca,True,False,False,True,Compromised Legitimate Sites,1.0,1
+https://www.chocoladdict.fr/wp/wp-content/themes/begin5.2/inc/go.php?url=///cutt%2ely%2FOeOQBd8O#1Mt-Rd5,True,False,False,True,Compromised Legitimate Sites,0.9963850091741921,1
+https://dev-hjkppbvcaedse.pantheonsite.io/wp-includes/ca023/70818/,True,False,False,True,Compromised Legitimate Sites,1.0,1
+mmilogistics.net/preview/bin/ssl/_id/www.paypal.com/fr/cgi-bin/webscr/cmd=_registration-run,False,False,False,True,Compromised Legitimate Sites,0.9950866784091962,1
+https://airtechaust.com.au/wp-content/themes/twentyseventeen/inc/de/de/,True,False,False,True,Compromised Legitimate Sites,0.9961690432449771,1
+http://amoamosss.com/Dem7kTu/Plugins/cred64.dll,False,False,False,True,Compromised Legitimate Sites,0.9830003735411378,1
+https://videochat.jee.cx/wp-content/themes/pridmag/js/webmail.aruba.it/mail/user/aruba.cust_id/myaccount/access/index.htm,True,False,False,True,Compromised Legitimate Sites,0.9957509573877861,1
+https://viaclientcop.com/modules/conta,True,False,False,True,Compromised Legitimate Sites,0.2645992426000647,0
+https://blanchecarpenter.top/wp-admin/qgri/client/dep.html,True,False,False,True,Compromised Legitimate Sites,0.9963850091741921,1
+https://novafresh.com.au/wp-content/themes/twentytwentythree/assets/fonts/inter/success/login.php,True,False,False,True,Compromised Legitimate Sites,0.9919481195161617,1
+https://www.chocoladdict.fr/wp/wp-content/themes/begin5.2/inc/go.php?url=///cutt%2ely%2FxeOQNHmZ#_45XeGB8T,True,False,False,True,Compromised Legitimate Sites,0.9963850091741921,1
+discoverybaptist.com.au/wp-content/plugins/audio-player/wells/www.wellsfargo/online.htm,False,False,False,True,Compromised Legitimate Sites,0.9895485551872815,1
+https://projetoseti.com.br/wp-content/themes/spintech/templates/templates/cc/banking/manage/e9bfd/,True,False,False,True,Compromised Legitimate Sites,0.9929080291717235,1
+https://finalstepgo.com/uploads/tera3.zip,True,False,False,True,Compromised Legitimate Sites,0.858620256493238,1
+www.prpk59.ru/administrator/templates/khepri/images/index2.php,False,False,False,True,Compromised Legitimate Sites,0.9792228136995048,1
+https://pold.builderallwppro.com/wp-content/plugins/r/tracking/fv5ejh/details.php,True,False,False,True,Compromised Legitimate Sites,0.9791581013459165,1
+https://doximex.vn/wp-includes/ppouo/login.php?cmd=submit_log&id=mtg3mjg5ntqwnq==mtg3mjg5ntqwnq==&session=mtg3mjg5ntqwnq==mtg3mjg5ntqwnq==,True,False,False,True,Compromised Legitimate Sites,0.9663147267502362,1
+https://demo2.cloudwp.dev/trial-6vy6y62t/wp-content/plugins/credit-agricole/credit-agricole/region/pages/region.php,True,False,False,True,Compromised Legitimate Sites,0.9933261150289145,1
+https://finalstagetogo.com/uploads/pnk33.txt,True,False,False,True,Compromised Legitimate Sites,0.8653557468621154,1
+https://demo.y2ksolution.com/wp-admin/whifhgh/0229ca5ad4cf55c97/,True,False,False,True,Compromised Legitimate Sites,0.9963850091741921,1
+https://finalstagetogo.com/uploads/inur4.zip,True,False,False,True,Compromised Legitimate Sites,0.858620256493238,1
+https://trackthemgood.com/uploads/pnk11.zip,True,False,False,True,Compromised Legitimate Sites,0.9663147267502362,1
+http://www.jongarmendia.com/wp-content/plugins/wp-statistics/includes/vendor/s1lentium/iptools/tests/content/content.php,False,False,False,True,Compromised Legitimate Sites,0.9950866784091962,1
+https://cashpayments.co.uk/wp-content/themes/next/newfolder/orangenew,True,False,False,True,Compromised Legitimate Sites,0.9961690432449771,1
+https://epicradio.com.ar/wp-content/plugins/z-downloads/,True,False,False,True,Compromised Legitimate Sites,0.9961690432449771,1
+http://mips.farmasi.unhas.ac.id/wp-content/themes/total/js/mk.php,False,False,False,True,Compromised Legitimate Sites,0.9895485551872815,1
+jameshowardmusic.com/wp-content/themes/widescreen/includes/cache/bbnew/bb.php,False,False,False,True,Compromised Legitimate Sites,0.9959669233170011,1
+https://www.maeadmiravel.org.br/wp-admin/options.html,True,False,False,True,Compromised Legitimate Sites,0.95558998974209,1
+https://refreshdailyessentials.com/wp-content/mu-plugins/wadu/81c5d/,True,False,False,True,Compromised Legitimate Sites,0.9847731708551448,1
+https://devinopolitist.ro/wp-content/plugins/jetpack/sal/jc/system.php?zonealldom=ywfhyublegftcgxllmpw,True,False,False,True,Compromised Legitimate Sites,0.9935420809581296,1
+https://riselifeuniversity.com/wp-admin/user/user/docusign.html,True,False,False,True,Compromised Legitimate Sites,0.9887666966259929,1
+daotao.pctu.edu.vn//wp-content/plugins/ultimate-tinymce/preview/login.html,False,False,False,True,Compromised Legitimate Sites,0.9763383388073236,1
+http://www.xemaybaotin.vn/wp-content/litespeed/ccss/au/e7eb91e/login.php,False,False,False,True,Compromised Legitimate Sites,0.9847731708551448,1
+https://parahombres.com.ar/wp-content/uploads/2022/02/rhuozudwpzq9n7hghvhf/fqzhpcwlj7lmcnrheuevfqzhpcwlj7lmcnrheuev/,True,False,False,True,Compromised Legitimate Sites,1.0,1
+https://sfexpresss-cn01.web.app/,True,True,True,False,Platform-Hosted Phishing,0.9791581013459165,1
+https://maildinshaakckjnw259.firebaseapp.com/,True,True,True,False,Platform-Hosted Phishing,0.9963850091741921,1
+https://dewju222.firebaseapp.com/,True,True,True,False,Platform-Hosted Phishing,0.992391483403344,1
+https://scbniivin.square.site/,True,True,True,False,Platform-Hosted Phishing,0.9919481195161617,1
+https://rackspaceservicecenter.firebaseapp.com/,True,True,True,False,Platform-Hosted Phishing,0.9929080291717235,1
+https://ibank-agribank.firebaseapp.com/,True,True,True,False,Platform-Hosted Phishing,0.9981455725544738,1
+https://file-share-from-frankie-view.web.app/,True,True,True,False,Platform-Hosted Phishing,0.9982394366197184,1
+https://fb-restriction-case-c9079.firebaseapp.com/,True,True,True,False,Platform-Hosted Phishing,0.9981455725544738,1
+http://ishankbansal.github.io/netflix-clone,False,False,True,False,Platform-Hosted Phishing,0.5071393880524525,0
+https://hd1qy0qkou.firebaseapp.com/,True,True,True,False,Platform-Hosted Phishing,0.9963850091741921,1
+http://www.m0380933669.s3-us-west-1.amazonaws.com,False,True,True,False,Platform-Hosted Phishing,0.9981455725544738,1
+https://maildinshaakckjnw174.web.app/,True,True,True,False,Platform-Hosted Phishing,1.0,1
+https://god-785.firebaseapp.com/,True,True,True,False,Platform-Hosted Phishing,0.9947910477322243,1
+https://visapreppaidproccess1.firebaseapp.com/,True,True,True,False,Platform-Hosted Phishing,0.9919481195161617,1
+http://www.40wia6je1e.s3.eu-north-1.amazonaws.com,False,True,True,False,Platform-Hosted Phishing,0.9963850091741921,1
+https://fb-restriction-case-c9079.web.app/,True,True,True,False,Platform-Hosted Phishing,1.0,1
+https://sijcdv6vx.firebaseapp.com/,True,True,True,False,Platform-Hosted Phishing,0.9961690432449771,1
+https://jeudiunjour.firebaseapp.com/,True,True,True,False,Platform-Hosted Phishing,0.9931239951009386,1
+https://banreservass-personass.netlify.app,True,True,True,False,Platform-Hosted Phishing,0.9663147267502362,1
+https://tra-srt09923.firebaseapp.com/,True,True,True,False,Platform-Hosted Phishing,0.9963850091741921,1
+https://fb-restriction-case-97be5.web.app/,True,True,True,False,Platform-Hosted Phishing,0.9981455725544738,1
+https://hwn28inofn.firebaseapp.com/,True,True,True,False,Platform-Hosted Phishing,0.9963850091741921,1
+https://signinalerts-flcu.web.app/,True,True,True,False,Platform-Hosted Phishing,0.9935420809581296,1
+https://rich-swamp-opportunity.glitch.me/cn-first-international-futures-limited.html,True,False,True,False,Platform-Hosted Phishing,0.958116303837869,1
+https://maildinshaakckjnw24.firebaseapp.com/,True,True,True,False,Platform-Hosted Phishing,0.9959669233170011,1
+http://facebook-help-5005412789364505.web.app/,False,True,True,False,Platform-Hosted Phishing,1.0,1
+https://maildinshaakckjnw140.firebaseapp.com/,True,True,True,False,Platform-Hosted Phishing,0.9963850091741921,1
+http://www.kdaoskdokaodkwldld.blogspot.com,False,True,True,False,Platform-Hosted Phishing,1.0,1
+https://onlinebankchase-dcc0a.firebaseapp.com/,True,True,True,False,Platform-Hosted Phishing,0.9963850091741921,1
+https://maildinshaakckjnw377.web.app/,True,True,True,False,Platform-Hosted Phishing,1.0,1
+https://business-page-appeal-364981291.firebaseapp.com/,True,True,True,False,Platform-Hosted Phishing,0.9959669233170011,1
+https://businessottawoldfr.web.app/,True,True,True,False,Platform-Hosted Phishing,0.9935420809581296,1
+http://latestversion-2023inform-ation2023.square.site/,False,True,True,False,Platform-Hosted Phishing,1.0,1
+https://caseid100589734589347589435.web.app/,True,True,True,False,Platform-Hosted Phishing,1.0,1
+https://splendid-daffodil-af4474.netlify.app/,True,True,True,False,Platform-Hosted Phishing,0.9981455725544738,1
+https://glitter-neon-tuna.glitch.me/irveri.html,True,False,True,False,Platform-Hosted Phishing,0.560472721385786,0
+http://att-100116107741.square.site/,False,True,True,False,Platform-Hosted Phishing,1.0,1
+https://authdigitale.firebaseapp.com/,True,True,True,False,Platform-Hosted Phishing,0.9935420809581296,1
+https://fb-business-appeal-21855.web.app/,True,True,True,False,Platform-Hosted Phishing,0.9981455725544738,1
+https://notifications1052835111.firebaseapp.com/,True,True,True,False,Platform-Hosted Phishing,1.0,1
+https://yahoo-108126-104626.square.site/,True,True,True,False,Platform-Hosted Phishing,1.0,1
+https://fed-project1.web.app/,True,True,True,False,Platform-Hosted Phishing,0.9819757515319877,1
+http://heinthu1.github.io/,False,True,True,False,Platform-Hosted Phishing,0.992391483403344,1
+https://delevery04.firebaseapp.com/,True,True,True,False,Platform-Hosted Phishing,0.9963850091741921,1
+https://szfbl33wdm.web.app/,True,True,True,False,Platform-Hosted Phishing,0.9963850091741921,1
+https://bpsync5.web.app/,True,True,True,False,Platform-Hosted Phishing,0.9663147267502362,1
+https://vins2106.github.io/discord-login-page,True,False,True,False,Platform-Hosted Phishing,0.8849783407105315,1
+https://maildinshaakckjnw258.firebaseapp.com/,True,True,True,False,Platform-Hosted Phishing,0.9963850091741921,1
+https://xerox34.web.app/,True,True,True,False,Platform-Hosted Phishing,0.9691344892888293,1
+https://maildinshaakckjnw463.firebaseapp.com/,True,True,True,False,Platform-Hosted Phishing,0.9963850091741921,1
+https://kskyzvrcwbfx.web.app/,True,True,True,False,Platform-Hosted Phishing,0.9847731708551448,1
+https://mail-105352.square.site/,True,True,True,False,Platform-Hosted Phishing,0.9963850091741921,1
+https://business-confirm-appeal-76d7d.firebaseapp.com/,True,True,True,False,Platform-Hosted Phishing,0.9931239951009386,1
+https://lyon1324.github.io/bonheur/index.html,True,False,True,False,Platform-Hosted Phishing,0.8903776018642683,1
+http://my-business-106320-104630.square.site/,False,True,True,False,Platform-Hosted Phishing,0.9981455725544738,1
+http://www.am3f3cu.firebaseapp.com,False,True,True,False,Platform-Hosted Phishing,0.9931239951009386,1
+https://juno-mail-106397.square.site/,True,True,True,False,Platform-Hosted Phishing,0.9982394366197184,1
+https://hilal-1202.github.io/netflix,True,False,True,False,Platform-Hosted Phishing,0.8029808639770369,1
+https://postereservc.web.app/,True,True,True,False,Platform-Hosted Phishing,0.9847731708551448,1
+https://sjaqb8dhp.firebaseapp.com/,True,True,True,False,Platform-Hosted Phishing,0.9961690432449771,1
+https://tropical-level-brochure.glitch.me/bmv86wgyqsrnebaf6cadobepo78392992023.html,True,False,True,False,Platform-Hosted Phishing,0.9935420809581296,1
+https://squfhajt7alk.web.app/,True,True,True,False,Platform-Hosted Phishing,0.9763383388073236,1
+https://fb-account-restrict-58114.web.app/,True,True,True,False,Platform-Hosted Phishing,0.9981455725544738,1
+https://porezna-uprava-33a1c.firebaseapp.com/,True,True,True,False,Platform-Hosted Phishing,1.0,1
+https://section-personnel-agricole-1.web.app/,True,True,True,False,Platform-Hosted Phishing,0.9935420809581296,1
+https://s66-ufa.web.app/,True,True,True,False,Platform-Hosted Phishing,0.9709922621729515,1
+https://mail-103974.square.site/,True,True,True,False,Platform-Hosted Phishing,0.9963850091741921,1
+https://indianna-uplink.web.app/,True,True,True,False,Platform-Hosted Phishing,0.9813588698113443,1
+https://sb33-m-ga4.web.app/,True,True,True,False,Platform-Hosted Phishing,0.9847084585015565,1
+https://maildinshaakckjnw122.firebaseapp.com/,True,True,True,False,Platform-Hosted Phishing,0.9963850091741921,1
+https://law-outlook-drive1-share.firebaseapp.com/,True,True,True,False,Platform-Hosted Phishing,0.9981455725544738,1
+https://dnrqrteetsqastyfrayn.s3.us-east-2.amazonaws.com/link.html,True,False,True,False,Platform-Hosted Phishing,0.9847084585015565,1
+https://zcag-a4831.firebaseapp.com/,True,True,True,False,Platform-Hosted Phishing,0.9981455725544738,1
+https://sk1ul-ytp-l.web.app/,True,True,True,False,Platform-Hosted Phishing,0.9963850091741921,1
+https://maildinshaakckjnw163.firebaseapp.com/,True,True,True,False,Platform-Hosted Phishing,0.9963850091741921,1
+https://fb-business-security-954774321.web.app/,True,True,True,False,Platform-Hosted Phishing,0.9981455725544738,1
+https://facebook-help-1001748236742101.web.app/,True,True,True,False,Platform-Hosted Phishing,0.9981455725544738,1
+https://qontomsg05.firebaseapp.com/,True,True,True,False,Platform-Hosted Phishing,0.9963850091741921,1
+http://www.attnetuserm105761-108779.square.site,False,True,True,False,Platform-Hosted Phishing,1.0,1
+https://sr-6k-ahg.firebaseapp.com/,True,True,True,False,Platform-Hosted Phishing,0.9957509573877861,1
+https://review-appeal-status-100249722.web.app/,True,True,True,False,Platform-Hosted Phishing,0.9981455725544738,1
+https://asb-verify-info.web.app/,True,True,True,False,Platform-Hosted Phishing,0.991973397546153,1
+https://facebook-business-appeal-67dc8.web.app/,True,True,True,False,Platform-Hosted Phishing,0.9935420809581296,1
+https://shanky0.github.io/netflix-clone,True,False,True,False,Platform-Hosted Phishing,0.06532627468649095,0
+https://caseid1007859469834578546.firebaseapp.com/,True,True,True,False,Platform-Hosted Phishing,0.9981455725544738,1
+https://off5ce2023.web.app/,True,True,True,False,Platform-Hosted Phishing,0.9961690432449771,1
+https://meta-business-team-196-99412.web.app/,True,True,True,False,Platform-Hosted Phishing,0.9959669233170011,1
+https://currentlyatt-yahooupdate.square.site/,True,True,True,False,Platform-Hosted Phishing,0.9963850091741921,1
+https://saa-104595.square.site/,True,True,True,False,Platform-Hosted Phishing,0.9981455725544738,1
+https://75i73hu6.square.site/,True,True,True,False,Platform-Hosted Phishing,0.9935420809581296,1
+https://mttb-prep09.web.app/,True,True,True,False,Platform-Hosted Phishing,0.9875261086876278,1
+https://fb-business-appeal-25766.web.app/,True,True,True,False,Platform-Hosted Phishing,0.9981455725544738,1
+http://sfdgfsgdhdgf.blogspot.com.by/,False,True,True,False,Platform-Hosted Phishing,0.9961690432449771,1
+https://pec-auth-f42b4.firebaseapp.com/,True,True,True,False,Platform-Hosted Phishing,0.9981455725544738,1
+https://saming-renssade.web.app/,True,True,True,False,Platform-Hosted Phishing,0.9813588698113443,1
+https://customer-center-2444.firebaseapp.com/,True,True,True,False,Platform-Hosted Phishing,0.9981455725544738,1
+https://anjalijha167.github.io/facebook_replicate/,True,False,True,False,Platform-Hosted Phishing,0.9791581013459165,1
+http://michauxrodiernazloglou.blogspot.com/,False,True,True,False,Platform-Hosted Phishing,0.9963850091741921,1
+http://att-106497.square.site/,False,True,True,False,Platform-Hosted Phishing,0.9963850091741921,1
+https://hzgam4hig.web.app/,True,True,True,False,Platform-Hosted Phishing,0.9933261150289145,1
+http://www.weolir.com,False,True,False,False,Bare-Domain Phishing,0.8947433697004613,1
+http://www.smx.nu,False,True,False,False,Bare-Domain Phishing,0.756648451730419,1
+http://www.pop.rnp-rosneft.ru,False,True,False,False,Bare-Domain Phishing,0.9792228136995048,1
+http://www.cdn.update.huaweiyuncdn.com,False,True,False,False,Bare-Domain Phishing,0.9981455725544738,1
+https://www.michelonturismo.com.br,True,True,False,False,Bare-Domain Phishing,0.1947857022057935,0
+http://6ae87f69-5a86-49a9-8714-15337b8f0abd.id.repl.co,False,True,False,False,Bare-Domain Phishing,0.9963850091741921,1
+https://mail-105352.weeblysite.com/,True,True,False,False,Bare-Domain Phishing,1.0,1
+https://yellow-rice-9ac5.wrqnttvts9487.workers.dev/,True,True,False,False,Bare-Domain Phishing,1.0,1
+https://www.mobilformonaydenzzii.top,True,True,False,False,Bare-Domain Phishing,0.09004973603212459,0
+http://www.usafreespace.com,False,True,False,False,Bare-Domain Phishing,0.9758085126557042,1
+http://www.aerolitigate.com,False,True,False,False,Bare-Domain Phishing,0.9758085126557042,1
+http://packageisseu.marryjaneexpress.com/,False,True,False,False,Bare-Domain Phishing,0.9961690432449771,1
+http://www.transforselogistics.in,False,True,False,False,Bare-Domain Phishing,0.9981455725544738,1
+https://page11confirms.start.page/,True,True,False,False,Bare-Domain Phishing,0.9961690432449771,1
+http://www.andsto57cksstar.rr.nu,False,True,False,False,Bare-Domain Phishing,1.0,1
+http://www.amazcaozm-co-jp.amazzeocn.hmhpwjg.cn/,False,True,False,False,Bare-Domain Phishing,1.0,1
+http://www.vivaceactivewear.com,False,True,False,False,Bare-Domain Phishing,0.9981455725544738,1
+http://www.wheatherserviceapi.info,False,True,False,False,Bare-Domain Phishing,0.9935420809581296,1
+http://www.altero.gr,False,True,False,False,Bare-Domain Phishing,0.9001426308541981,1
+https://webs-logins.webflow.io/,True,True,False,False,Bare-Domain Phishing,0.9891304693300903,1
+http://www.nasikotak.id,False,True,False,False,Bare-Domain Phishing,0.9663147267502362,1
+http://20.25.18.237/,False,True,False,False,Bare-Domain Phishing,0.9979296066252589,1
+https://www.lglsvy.top,True,True,False,False,Bare-Domain Phishing,0.007019863232226511,0
+http://www.manager.jetos.com,False,True,False,False,Bare-Domain Phishing,0.9963850091741921,1
+http://www.paynah.cf,False,True,False,False,Bare-Domain Phishing,0.9001426308541981,1
+http://www.przemyslawszymanowski.pl,False,True,False,False,Bare-Domain Phishing,0.9758323588586765,1
+http://www.amazcazm-co-jp.amazococn.jiasuba.top/,False,True,False,False,Bare-Domain Phishing,1.0,1
+https://lvkobf.webwave.dev/,True,True,False,False,Bare-Domain Phishing,0.9847731708551448,1
+http://www.mengxianli.com,False,True,False,False,Bare-Domain Phishing,0.9716608033846083,1
+https://xn--allgrolokalnie-x4b.pl,True,True,False,False,Bare-Domain Phishing,0.19632891208233674,0
+http://www.j00dee6e8e233a5c07352c4290ab190157.ws,False,True,False,False,Bare-Domain Phishing,1.0,1
+http://www.newel.se,False,True,False,False,Bare-Domain Phishing,0.8849783407105315,1
+http://www.vengo.de,False,True,False,False,Bare-Domain Phishing,0.8849783407105315,1
+http://down.shopeevip13.com/,False,True,False,False,Bare-Domain Phishing,0.9875513867176191,1
+http://egbyddofps.duckdns.org/,False,True,False,False,Bare-Domain Phishing,0.9963850091741921,1
+https://surpassingbeauty.com/,True,True,False,False,Bare-Domain Phishing,0.9791581013459165,1
+https://aol-105981.weeblysite.com/,True,True,False,False,Bare-Domain Phishing,1.0,1
+http://www.ephemereparfum.com,False,True,False,False,Bare-Domain Phishing,0.9981455725544738,1
+http://www.saisoncard.co.jp.answer074.xyz/,False,True,False,False,Bare-Domain Phishing,0.9981455725544738,1
+http://www.mass.longvn.net,False,True,False,False,Bare-Domain Phishing,0.9963850091741921,1
+https://askldjfhkjasdklfhsdlajkfhsd.nayibukele.repl.co/,True,True,False,False,Bare-Domain Phishing,0.9981455725544738,1
+https://gazelle-3pqd-6qm4.9m-816844780.workers.dev/,True,True,False,False,Bare-Domain Phishing,0.9963850091741921,1
+http://www.api.boosting.online,False,True,False,False,Bare-Domain Phishing,0.9981455725544738,1
+http://hypeims-rhialt-hoosts.yolasite.com/,False,True,False,False,Bare-Domain Phishing,1.0,1
+https://www.megalu-ofertas.shop/,True,True,False,False,Bare-Domain Phishing,0.9813588698113443,1
+http://www.a0555497.xsph.ru,False,True,False,False,Bare-Domain Phishing,0.9935420809581296,1
+http://www.wsmmanagement.com,False,True,False,False,Bare-Domain Phishing,0.9887019842724047,1
+http://www.asud28cv.cfd,False,True,False,False,Bare-Domain Phishing,0.9813588698113443,1
+https://bellsouthverifivcationteakkrueo393.webflow.io/,True,True,False,False,Bare-Domain Phishing,0.9982394366197184,1
+http://www.amaarhomes.ca,False,True,False,False,Bare-Domain Phishing,0.9791581013459165,1

@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Cpu,
   AlertTriangle,
@@ -6,7 +6,11 @@ import {
   Target,
   ShieldCheck,
   ShieldAlert,
-  Info
+  Info,
+  Calendar,
+  Database,
+  BarChart2,
+  FileText
 } from 'lucide-react';
 import {
   ResponsiveContainer,
@@ -64,13 +68,17 @@ export const MLLabPage: React.FC = () => {
     }))
     .sort((a, b) => b.importance - a.importance);
 
-  const cm = modelInfo.confusion_matrix || { tn: 27708, fp: 249, fn: 193, tp: 29870 };
+  const cm = modelInfo.confusion_matrix || { tn: 3793, fp: 76, fn: 150, tp: 3099 };
   const metrics = modelInfo.evaluation_metrics || {
-    accuracy: 0.9924,
-    precision: 0.9917,
-    recall: 0.9936,
-    f1_score: 0.9927,
-    roc_auc: 0.9971
+    accuracy: 0.9682,
+    precision: 0.9761,
+    recall: 0.9538,
+    f1_score: 0.9648,
+    roc_auc: 0.9928,
+    false_positive_rate: 0.0196,
+    false_negative_rate: 0.0462,
+    long_tail_legit_fpr: 0.1306,
+    hard_phishing_recall: 0.9667
   };
 
   const fpr = metrics.false_positive_rate ?? (cm.fp / (cm.fp + cm.tn));
@@ -82,50 +90,51 @@ export const MLLabPage: React.FC = () => {
       <div className="pb-6 border-b border-[#292929]">
         <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded bg-[#111111] border border-[#39FF88]/40 text-xs font-medium text-[#39FF88] mb-2">
           <Cpu className="w-3.5 h-3.5 text-[#39FF88]" />
-          <span>Algorithmic Transparency &amp; Validation</span>
+          <span>Algorithmic Transparency &amp; Empirical Benchmark (v4.1)</span>
         </div>
         <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[#F5F5F5]">
           Machine Learning Laboratory
         </h1>
         <p className="text-xs text-[#A3A3A3] mt-1">
-          Complete empirical audit trail, domain-separated evaluation metrics, feature importances, and error mode analysis.
+          Complete empirical audit trail, domain-isolated 3-split evaluation, out-of-distribution stress testing, and known failure mode documentation.
         </p>
       </div>
 
-      {/* Domain Separation & Anti-Leakage Protocol Card */}
+      {/* Domain-Isolated 3-Split Protocol Banner */}
       <div className="p-6 rounded bg-[#0E1A12] border border-[#39FF88]/40 space-y-5">
         <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
           <div>
             <div className="flex items-center gap-2 mb-1">
               <ShieldCheck className="w-5 h-5 text-[#39FF88]" />
-              <h2 className="text-base font-bold text-[#F5F5F5]">Independent Domain-Separated Evaluation (Zero Leakage)</h2>
+              <h2 className="text-base font-bold text-[#F5F5F5]">Domain-Isolated 3-Way Partitioning (Zero Domain Leakage)</h2>
             </div>
             <p className="text-xs text-[#A3A3A3] leading-relaxed max-w-3xl">
-              Unlike simplistic benchmarks that perform random row splits (causing URLs from the same domain to leak into both train and test sets),
-              PhishGuard AI enforces <strong>GroupShuffleSplit by Apex Domain</strong>. 100% of domains in the holdout test set were never seen during training.
+              Trained using a strict 3-way partition grouped by registered apex domain: <strong>60% Train (18,384 domains)</strong>, 
+              <strong> 20% Validation (6,128 domains)</strong>, and <strong>20% Test (6,128 domains)</strong>. The decision threshold (0.640) 
+              was tuned exclusively on the validation set, and the test set was evaluated exactly once.
             </p>
           </div>
           <span className="self-start px-2.5 py-1 rounded bg-[#111111] border border-[#39FF88]/40 text-[#39FF88] font-mono text-[11px] font-semibold">
-            0 Domain Overlap
+            0 Shared Domains Across Splits
           </span>
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div className="p-3 rounded bg-[#111111] border border-[#292929] text-center">
-            <div className="text-2xl font-bold font-mono text-[#39FF88]">{modelInfo.total_samples?.toLocaleString() || '298,046'}</div>
-            <div className="text-[11px] text-[#A3A3A3] mt-1">Total Unique URLs</div>
+            <div className="text-2xl font-bold font-mono text-[#39FF88]">{modelInfo.total_samples?.toLocaleString() || '40,000'}</div>
+            <div className="text-[11px] text-[#A3A3A3] mt-1">Curated v4 Samples</div>
           </div>
           <div className="p-3 rounded bg-[#111111] border border-[#292929] text-center">
-            <div className="text-2xl font-bold font-mono text-[#FF525C]">162,731</div>
-            <div className="text-[11px] text-[#A3A3A3] mt-1">Supervised Phishing URLs</div>
+            <div className="text-2xl font-bold font-mono text-[#39FF88]">{modelInfo.train_samples?.toLocaleString() || '23,913'}</div>
+            <div className="text-[11px] text-[#A3A3A3] mt-1">Train Partition (60%)</div>
           </div>
           <div className="p-3 rounded bg-[#111111] border border-[#292929] text-center">
-            <div className="text-2xl font-bold font-mono text-[#39FF88]">135,315</div>
-            <div className="text-[11px] text-[#A3A3A3] mt-1">Legitimate Baseline URLs</div>
+            <div className="text-2xl font-bold font-mono text-[#FFD54A]">8,969</div>
+            <div className="text-[11px] text-[#A3A3A3] mt-1">Validation Partition (20%)</div>
           </div>
           <div className="p-3 rounded bg-[#111111] border border-[#292929] text-center">
-            <div className="text-2xl font-bold font-mono text-[#39FF88]">{modelInfo.train_samples?.toLocaleString() || '240,026'} / {modelInfo.test_samples?.toLocaleString() || '58,020'}</div>
-            <div className="text-[11px] text-[#A3A3A3] mt-1">Train / Test Samples</div>
+            <div className="text-2xl font-bold font-mono text-[#39FF88]">{modelInfo.test_samples?.toLocaleString() || '7,118'}</div>
+            <div className="text-[11px] text-[#A3A3A3] mt-1">Held-Out Test Partition (20%)</div>
           </div>
         </div>
       </div>
@@ -135,166 +144,187 @@ export const MLLabPage: React.FC = () => {
         <div className="p-4 rounded bg-[#111111] border border-[#292929] space-y-1">
           <span className="text-[10px] uppercase font-semibold text-[#A3A3A3]">Active Classifier</span>
           <div className="text-sm font-bold text-[#F5F5F5]">{modelInfo.algorithm}</div>
-          <p className="text-[10px] text-[#39FF88]">Ensemble of 150 Decision Trees</p>
+          <p className="text-[10px] text-[#39FF88]">200 Trees &bull; Isotonic Calibrated</p>
         </div>
 
         <div className="p-4 rounded bg-[#111111] border border-[#292929] space-y-1">
           <span className="text-[10px] uppercase font-semibold text-[#A3A3A3]">Model Version</span>
           <div className="text-sm font-bold text-[#F5F5F5]">v{modelInfo.model_version}</div>
-          <p className="text-[10px] text-[#A3A3A3]">Trained: {new Date(modelInfo.training_date).toLocaleDateString()}</p>
+          <p className="text-[10px] text-[#A3A3A3]">Decision Threshold: 0.640</p>
         </div>
 
         <div className="p-4 rounded bg-[#111111] border border-[#292929] space-y-1">
-          <span className="text-[10px] uppercase font-semibold text-[#A3A3A3]">Distinct Domain Split</span>
-          <div className="text-sm font-bold text-[#F5F5F5]">193,498 Apex Domains</div>
-          <p className="text-[10px] text-[#39FF88]">154,798 Train / 38,700 Test Domains</p>
+          <span className="text-[10px] uppercase font-semibold text-[#A3A3A3]">Collection Windows</span>
+          <div className="text-sm font-bold text-[#F5F5F5]">Historical Train vs Live Eval</div>
+          <p className="text-[10px] text-[#A3A3A3]">Train: 2020-2023 | Eval: Oct 2026</p>
         </div>
 
         <div className="p-4 rounded bg-[#111111] border border-[#292929] space-y-1">
-          <span className="text-[10px] uppercase font-semibold text-[#A3A3A3]">Evaluation Partition</span>
-          <div className="text-sm font-bold text-[#F5F5F5] truncate" title={modelInfo.dataset_name}>
-            Domain-Separated Holdout
-          </div>
-          <p className="text-[10px] text-[#39FF88]">PhiUSIIL + Modern Web3/Cloud</p>
+          <span className="text-[10px] uppercase font-semibold text-[#A3A3A3]">Decision Principle</span>
+          <div className="text-sm font-bold text-[#F5F5F5]">Categorical Risk Tiering</div>
+          <p className="text-[10px] text-[#39FF88]">Low / Suspicious / High Risk</p>
         </div>
       </div>
 
-      {/* Primary Empirical Metrics (6 Cards: Accuracy, Precision, Recall, FPR, Missed Threats, ROC-AUC) */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-        <div className="p-4 rounded bg-[#0A0A0A] border border-[#292929] text-center space-y-1">
-          <span className="text-[10px] font-semibold uppercase tracking-wider text-[#A3A3A3]">Accuracy</span>
-          <div className="text-2xl font-bold font-mono text-[#39FF88]">
-            {(metrics.accuracy * 100).toFixed(2)}%
+      {/* Primary Empirical Held-Out Test Metrics */}
+      <div className="space-y-4">
+        <h3 className="text-xs font-semibold uppercase tracking-wider text-[#A3A3A3] flex items-center gap-2">
+          <Target className="w-4 h-4 text-[#39FF88]" />
+          Held-Out Domain-Separated Test Set Metrics (7,118 Samples, Evaluated Once)
+        </h3>
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+          <div className="p-4 rounded bg-[#0A0A0A] border border-[#292929] text-center space-y-1">
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-[#A3A3A3]">Accuracy</span>
+            <div className="text-2xl font-bold font-mono text-[#39FF88]">
+              {(metrics.accuracy * 100).toFixed(2)}%
+            </div>
+            <span className="text-[10px] text-[#737373]">Overall Correct</span>
           </div>
-          <span className="text-[10px] text-[#737373]">Overall Correct</span>
-        </div>
 
-        <div className="p-4 rounded bg-[#0A0A0A] border border-[#292929] text-center space-y-1">
-          <span className="text-[10px] font-semibold uppercase tracking-wider text-[#A3A3A3]">Precision</span>
-          <div className="text-2xl font-bold font-mono text-[#39FF88]">
-            {(metrics.precision * 100).toFixed(2)}%
+          <div className="p-4 rounded bg-[#0A0A0A] border border-[#292929] text-center space-y-1">
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-[#A3A3A3]">Precision</span>
+            <div className="text-2xl font-bold font-mono text-[#39FF88]">
+              {(metrics.precision * 100).toFixed(2)}%
+            </div>
+            <span className="text-[10px] text-[#737373]">TP / (TP + FP)</span>
           </div>
-          <span className="text-[10px] text-[#737373]">TP / (TP + FP)</span>
-        </div>
 
-        <div className="p-4 rounded bg-[#0A0A0A] border border-[#292929] text-center space-y-1">
-          <span className="text-[10px] font-semibold uppercase tracking-wider text-[#A3A3A3]">Phishing Recall</span>
-          <div className="text-2xl font-bold font-mono text-[#39FF88]">
-            {(metrics.recall * 100).toFixed(2)}%
+          <div className="p-4 rounded bg-[#0A0A0A] border border-[#292929] text-center space-y-1">
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-[#A3A3A3]">Phishing Recall</span>
+            <div className="text-2xl font-bold font-mono text-[#39FF88]">
+              {(metrics.recall * 100).toFixed(2)}%
+            </div>
+            <span className="text-[10px] text-[#737373]">Threats Caught</span>
           </div>
-          <span className="text-[10px] text-[#737373]">Threats Caught</span>
-        </div>
 
-        <div className="p-4 rounded bg-[#0A0A0A] border border-[#292929] text-center space-y-1">
-          <span className="text-[10px] font-semibold uppercase tracking-wider text-[#FFD54A]">False Positive Rate</span>
-          <div className="text-2xl font-bold font-mono text-[#FFD54A]">
-            {(fpr * 100).toFixed(2)}%
+          <div className="p-4 rounded bg-[#0A0A0A] border border-[#292929] text-center space-y-1">
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-[#39FF88]">False Positive Rate</span>
+            <div className="text-2xl font-bold font-mono text-[#39FF88]">
+              {(fpr * 100).toFixed(2)}%
+            </div>
+            <span className="text-[10px] text-[#737373]">{cm.fp} / {cm.fp + cm.tn} Legit</span>
           </div>
-          <span className="text-[10px] text-[#737373]">{cm.fp} / {cm.fp + cm.tn} Legit</span>
-        </div>
 
-        <div className="p-4 rounded bg-[#0A0A0A] border border-[#292929] text-center space-y-1">
-          <span className="text-[10px] font-semibold uppercase tracking-wider text-[#FF525C]">Missed Threats (FNR)</span>
-          <div className="text-2xl font-bold font-mono text-[#FF525C]">
-            {(fnr * 100).toFixed(2)}%
+          <div className="p-4 rounded bg-[#0A0A0A] border border-[#292929] text-center space-y-1">
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-[#FF525C]">Missed Threats (FNR)</span>
+            <div className="text-2xl font-bold font-mono text-[#FF525C]">
+              {(fnr * 100).toFixed(2)}%
+            </div>
+            <span className="text-[10px] text-[#737373]">{cm.fn} / {cm.fn + cm.tp} Phish</span>
           </div>
-          <span className="text-[10px] text-[#737373]">{cm.fn} / {cm.fn + cm.tp} Phish</span>
-        </div>
 
-        <div className="p-4 rounded bg-[#0A0A0A] border border-[#292929] text-center space-y-1">
-          <span className="text-[10px] font-semibold uppercase tracking-wider text-[#39FF88]">ROC-AUC</span>
-          <div className="text-2xl font-bold font-mono text-[#39FF88]">
-            {metrics.roc_auc.toFixed(4)}
+          <div className="p-4 rounded bg-[#0A0A0A] border border-[#292929] text-center space-y-1">
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-[#39FF88]">ROC-AUC</span>
+            <div className="text-2xl font-bold font-mono text-[#39FF88]">
+              {(metrics.roc_auc * 100).toFixed(2)}%
+            </div>
+            <span className="text-[10px] text-[#737373]">Discrimination</span>
           </div>
-          <span className="text-[10px] text-[#737373]">Discrimination</span>
         </div>
       </div>
 
-      {/* Confusion Matrix and Candidate Comparison */}
+      {/* Out-of-Distribution Stress Test Highlights: Long-Tail Legit vs Hard Phishing */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Confusion Matrix Card */}
         <div className="p-6 rounded bg-[#111111] border border-[#292929] space-y-4">
           <div className="flex items-center justify-between pb-3 border-b border-[#181818]">
             <h3 className="text-xs font-semibold uppercase tracking-wider text-[#F5F5F5] flex items-center gap-2">
-              <Target className="w-4 h-4 text-[#39FF88]" />
-              Confusion Matrix (Unseen Holdout: {modelInfo.test_samples.toLocaleString()} Samples)
+              <ShieldAlert className="w-4 h-4 text-[#FFD54A]" />
+              Hard Long-Tail Legitimate Stress Test (1,080 URLs)
             </h3>
-            <span className="text-[10px] font-mono text-[#39FF88]">38,700 Unseen Domains</span>
+            <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#181818] text-[#FFD54A]">
+              13.06% FPR [95% CI: 11.05% - 15.06%]
+            </span>
           </div>
-
-          <div className="grid grid-cols-2 gap-3 text-center">
-            {/* True Negative */}
-            <div className="p-4 rounded bg-[#0E1A12] border border-[#39FF88]/40 space-y-1">
-              <span className="text-[10px] font-semibold uppercase tracking-wider text-[#39FF88]">
-                True Negatives (TN)
-              </span>
-              <div className="text-2xl font-bold font-mono text-[#F5F5F5]">{cm.tn.toLocaleString()}</div>
-              <p className="text-[10px] text-[#A3A3A3]">Legitimate correctly identified</p>
-            </div>
-
-            {/* False Positive */}
-            <div className="p-4 rounded bg-[#1A170A] border border-[#FFD54A]/40 space-y-1">
-              <span className="text-[10px] font-semibold uppercase tracking-wider text-[#FFD54A]">
-                False Positives (FP)
-              </span>
-              <div className="text-2xl font-bold font-mono text-[#FFD54A]">{cm.fp.toLocaleString()}</div>
-              <p className="text-[10px] text-[#A3A3A3]">Legitimate falsely flagged (0.89%)</p>
-            </div>
-
-            {/* False Negative */}
-            <div className="p-4 rounded bg-[#181010] border border-[#FF525C]/40 space-y-1">
-              <span className="text-[10px] font-semibold uppercase tracking-wider text-[#FF525C]">
-                False Negatives (FN)
-              </span>
-              <div className="text-2xl font-bold font-mono text-[#FF525C]">{cm.fn.toLocaleString()}</div>
-              <p className="text-[10px] text-[#A3A3A3]">Phishing threats missed (0.64%)</p>
-            </div>
-
-            {/* True Positive */}
-            <div className="p-4 rounded bg-[#0E1A12] border border-[#39FF88]/40 space-y-1">
-              <span className="text-[10px] font-semibold uppercase tracking-wider text-[#39FF88]">
-                True Positives (TP)
-              </span>
-              <div className="text-2xl font-bold font-mono text-[#F5F5F5]">{cm.tp.toLocaleString()}</div>
-              <p className="text-[10px] text-[#A3A3A3]">Phishing accurately caught</p>
-            </div>
-          </div>
-
-          <p className="text-[11px] text-[#737373] leading-relaxed">
-            * Evaluated on {modelInfo.test_samples.toLocaleString()} held-out test URLs with zero training domain overlap.
+          <p className="text-xs text-[#A3A3A3] leading-relaxed">
+            Tested on 1,080 completely unseen legitimate URLs outside Tranco top-50k (ranks 200k-1M, authentic SSO login portals, SMBs, and URLs containing security keywords).
           </p>
+          <div className="space-y-2 text-xs">
+            <div className="flex justify-between py-1.5 border-b border-[#1A1A1A]">
+              <span className="text-[#A3A3A3]">Tranco Ranks 200k-1M (Bare Domains)</span>
+              <span className="font-mono text-[#39FF88] font-bold">0.55% FPR (3/550 FP)</span>
+            </div>
+            <div className="flex justify-between py-1.5 border-b border-[#1A1A1A]">
+              <span className="text-[#A3A3A3]">SMBs / Schools / Hyphen &amp; Digit Hostnames</span>
+              <span className="font-mono text-[#39FF88] font-bold">3.00% FPR (6/200 FP)</span>
+            </div>
+            <div className="flex justify-between py-1.5 border-b border-[#1A1A1A]">
+              <span className="text-[#A3A3A3]">Authentic Login &amp; SSO Portals (Google, MS, MIT)</span>
+              <span className="font-mono text-[#FF525C] font-bold">46.67% FPR (14/30 FP)</span>
+            </div>
+            <div className="flex justify-between py-1.5">
+              <span className="text-[#A3A3A3]">Legitimate URLs with Security Keywords (/billing, /portal)</span>
+              <span className="font-mono text-[#FF525C] font-bold">36.00% - 52.00% FPR</span>
+            </div>
+          </div>
         </div>
 
-        {/* Error Mode & Failure Analysis Card */}
         <div className="p-6 rounded bg-[#111111] border border-[#292929] space-y-4">
           <div className="flex items-center justify-between pb-3 border-b border-[#181818]">
             <h3 className="text-xs font-semibold uppercase tracking-wider text-[#F5F5F5] flex items-center gap-2">
-              <AlertTriangle className="w-4 h-4 text-[#FFD54A]" />
-              Failure Mode &amp; Error Analysis
+              <ShieldCheck className="w-4 h-4 text-[#39FF88]" />
+              Hard Phishing Test Set (600 URLs, Live 2026 Feeds)
             </h3>
-            <span className="text-[10px] text-[#A3A3A3]">Scientific Rigor</span>
+            <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#181818] text-[#39FF88]">
+              96.67% Overall Recall (580/600)
+            </span>
           </div>
-
-          <div className="space-y-3 text-xs leading-relaxed">
-            <div className="p-3 rounded bg-[#0A0A0A] border border-[#292929] space-y-1">
-              <div className="font-semibold text-[#FFD54A] flex items-center gap-1.5">
-                <Info className="w-3.5 h-3.5" />
-                <span>False Positives (0.89%): Why do legitimate URLs get flagged?</span>
-              </div>
-              <p className="text-[#A3A3A3]">
-                Legitimate web services with excessive tracking query parameters, nested subdomains, or unencrypted HTTP on legacy infrastructure exhibit lexical characteristics that statistically resemble phishing harvesting kits. PhishGuard applies verified domain reputation guards to mitigate enterprise cloud false alarms.
-              </p>
+          <p className="text-xs text-[#A3A3A3] leading-relaxed">
+            Evaluated against live OpenPhish 2026 feeds and un-used held-out phishing URLs specifically targeting difficult deception modalities.
+          </p>
+          <div className="space-y-2 text-xs">
+            <div className="flex justify-between py-1.5 border-b border-[#1A1A1A]">
+              <span className="text-[#A3A3A3]">All HTTPS Phishing (No HTTP shortcut)</span>
+              <span className="font-mono text-[#39FF88] font-bold">95.34% Recall (389/408)</span>
             </div>
-
-            <div className="p-3 rounded bg-[#0A0A0A] border border-[#292929] space-y-1">
-              <div className="font-semibold text-[#FF525C] flex items-center gap-1.5">
-                <ShieldAlert className="w-3.5 h-3.5" />
-                <span>Missed Threats (0.64%): Why do some phishing URLs slip through?</span>
-              </div>
-              <p className="text-[#A3A3A3]">
-                Short, brand-new phishing domains without hyphens, subdomains, or overt deceptive keywords in the URI string mimic clean domain structures. This is why PhishGuard couples ML lexical analysis with Google Safe Browsing and URLhaus threat feeds for defense-in-depth.
-              </p>
+            <div className="flex justify-between py-1.5 border-b border-[#1A1A1A]">
+              <span className="text-[#A3A3A3]">Bare-Domain Phishing (No Path)</span>
+              <span className="font-mono text-[#39FF88] font-bold">98.70% Recall (303/307)</span>
             </div>
+            <div className="flex justify-between py-1.5 border-b border-[#1A1A1A]">
+              <span className="text-[#A3A3A3]">Compromised Legitimate Sites (CMS/WordPress)</span>
+              <span className="font-mono text-[#39FF88] font-bold">99.33% Recall (149/150)</span>
+            </div>
+            <div className="flex justify-between py-1.5">
+              <span className="text-[#A3A3A3]">Platform-Hosted Phishing (Cloud/PaaS Subdomains)</span>
+              <span className="font-mono text-[#39FF88] font-bold">98.02% Recall (247/252)</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Honest Limitations & Failure Modes Section */}
+      <div className="p-6 rounded bg-[#111111] border border-[#292929] space-y-4">
+        <div className="flex items-center justify-between pb-3 border-b border-[#181818]">
+          <h3 className="text-xs font-semibold uppercase tracking-wider text-[#FF525C] flex items-center gap-2">
+            <AlertTriangle className="w-4 h-4 text-[#FF525C]" />
+            Known Model Limitations (What Pure Lexical ML Cannot Catch)
+          </h3>
+          <span className="text-[10px] text-[#A3A3A3]">Transparent Security Engineering</span>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs leading-relaxed">
+          <div className="p-3.5 rounded bg-[#0A0A0A] border border-[#292929] space-y-1.5">
+            <div className="font-semibold text-[#FFD54A]">1. Calibrated on 50/50 Data (Not Literal Base-Rate Probability)</div>
+            <p className="text-[#A3A3A3]">
+              The model was calibrated on an evenly balanced research dataset. In production, phishing prevalence is ~1%-5%. A model probability of 0.65 indicates relative lexical suspicion, not a 65% literal likelihood that the URL is phishing. Always interpret scores as <strong>Low Risk</strong>, <strong>Suspicious</strong>, or <strong>High Risk</strong>.
+            </p>
+          </div>
+          <div className="p-3.5 rounded bg-[#0A0A0A] border border-[#292929] space-y-1.5">
+            <div className="font-semibold text-[#FFD54A]">2. Authentic Login Portals &amp; Security Keywords</div>
+            <p className="text-[#A3A3A3]">
+              Legitimate enterprise SSO pages (e.g. <code>accounts.google.com</code>, <code>login.microsoftonline.com</code>, <code>identity.mit.edu</code>) and paths like <code>/billing/invoices</code> look statistically identical to credential harvesters. This causes elevated false positives (26%-52%) without domain reputation whitelists.
+            </p>
+          </div>
+          <div className="p-3.5 rounded bg-[#0A0A0A] border border-[#292929] space-y-1.5">
+            <div className="font-semibold text-[#FF525C]">3. Shortened Links &amp; Clean Cloud Portfolios</div>
+            <p className="text-[#A3A3A3]">
+              Phishing hosted on shorteners (e.g., <code>e.vg/xxx</code>) or disguised as developer projects on <code>github.io</code> possess virtually zero lexical anomalies (standard length, normal character entropy, clean protocol). They will evade offline lexical ML and require active reputation feeds (Google Safe Browsing / URLhaus) to detect.
+            </p>
+          </div>
+          <div className="p-3.5 rounded bg-[#0A0A0A] border border-[#292929] space-y-1.5">
+            <div className="font-semibold text-[#FF525C]">4. Zero-Day Temporal Concept Drift</div>
+            <p className="text-[#A3A3A3]">
+              Attackers continually register obscure ccTLDs and adopt novel URL structures. While our time-based split shows strong short-term stability (99.14% temporal recall), continuous ingestion of daily feeds is necessary to prevent long-term performance decay.
+            </p>
           </div>
         </div>
       </div>
@@ -304,9 +334,9 @@ export const MLLabPage: React.FC = () => {
         <div className="flex items-center justify-between pb-3 border-b border-[#181818]">
           <h3 className="text-xs font-semibold uppercase tracking-wider text-[#F5F5F5] flex items-center gap-2">
             <Layers className="w-4 h-4 text-[#39FF88]" />
-            16-Dimensional Feature Attribution &amp; Weight Distribution
+            16-Dimensional Feature Attribution &amp; Gini Importance
           </h3>
-          <span className="text-[10px] text-[#A3A3A3]">Random Forest Gini Importance</span>
+          <span className="text-[10px] text-[#A3A3A3]">Random Forest Feature Weighting</span>
         </div>
 
         <div className="h-72 w-full">
@@ -343,4 +373,3 @@ export const MLLabPage: React.FC = () => {
     </div>
   );
 };
-

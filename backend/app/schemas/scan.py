@@ -239,7 +239,13 @@ class ModelInfoResponse(BaseModel):
     total_samples: int
     train_samples: int
     test_samples: int
+    train_domains: Optional[int] = None
+    test_domains: Optional[int] = None
+    domain_leakage_count: Optional[int] = 0
     evaluation_metrics: Dict[str, float]
     confusion_matrix: Dict[str, int]
     feature_schema: List[str]
     feature_importances: Dict[str, float]
+    test_set_sizes: Optional[Dict[str, int]] = None
+    collection_dates: Optional[Dict[str, str]] = None
+    limitations: Optional[List[str]] = None

@@ -26,18 +26,18 @@ KNOWN_SHORTENERS: set = {
 # High-reputation global apex domains (enterprise cloud, tech, infrastructure, financial roots)
 HIGH_REPUTATION_DOMAINS: set = {
     # Alphabet / Google
-    "google.com", "googleapis.com", "gstatic.com", "googleusercontent.com",
+    "google.com", "googleapis.com", "gstatic.com", 
     "youtube.com", "googlevideo.com", "android.com", "googleblog.com",
     "google.co.in", "google.co.uk", "google.de", "google.fr", "google.ca",
     # Microsoft / Azure
     "microsoft.com", "office.com", "azure.com", "live.com", "microsoftonline.com",
-    "visualstudio.com", "windows.net", "bing.com", "linkedin.com", "github.com",
+    "visualstudio.com",  "bing.com", "linkedin.com", "github.com",
     # Amazon / AWS
-    "amazon.com", "amazonaws.com", "aws.amazon.com", "media-amazon.com",
+    "amazon.com",  "aws.amazon.com", "media-amazon.com",
     # Apple
     "apple.com", "icloud.com",
     # Cloud & Infrastructure
-    "cloudflare.com", "fastly.com", "akamai.com", "digitalocean.com",
+    "cloudflare.com", "fastly.com", "akamai.com", 
     "docker.com", "gitlab.com", "npmjs.com", "pypi.org",
     "mozilla.org", "wikipedia.org", "wikimedia.org", "chatgpt.com", "openai.com",
     # Financial primary roots
@@ -132,20 +132,26 @@ def extract_apex_domain(hostname: str) -> str:
     return f"{parts[-2]}.{parts[-1]}"
 
 
+DISALLOWED_SHARED_PLATFORMS: set = {
+    "amazonaws.com", "windows.net", "googleusercontent.com", "github.io",
+    "githubusercontent.com", "blogspot.com", "firebaseapp.com", "web.app",
+    "azurewebsites.net", "digitalocean.com", "pages.dev", "vercel.app",
+    "netlify.app", "glitch.me", "herokuapp.com", "square.site"
+}
+
+
 def is_high_reputation_domain(hostname: str) -> Tuple[bool, str]:
-    """
-    Checks if hostname belongs to an authentic, high-reputation domain.
-    Returns (is_high_reputation, apex_domain).
-    """
     apex = extract_apex_domain(hostname)
     if not apex:
         return False, ""
+    clean_host = hostname.lower().strip(".")
+    if any(plat in clean_host for plat in DISALLOWED_SHARED_PLATFORMS):
+        return False, apex
     if apex in HIGH_REPUTATION_DOMAINS:
         return True, apex
     if apex.endswith((".gov", ".gov.in", ".gov.uk", ".edu", ".edu.in", ".ac.uk", ".mil")):
         return True, apex
     return False, apex
-
 
 def extract_url_features(raw_url: str) -> Tuple[Dict[str, Any], List[str]]:
     """

@@ -82,25 +82,31 @@ Holdout Test Partition:        58,020 URLs across  38,700 distinct domains
 Domain Leakage Overlap:       STRICTLY 0 DOMAINS (0.00%)
 ```
 
-### Empirical Test Set Performance (Unseen Domains)
+### Empirical Test Set Performance (Domain-Isolated 3-Split, Threshold 0.640)
 
 | Metric | Result | Industry Interpretation |
-| :--- | :--- | :--- |
-| **Accuracy** | **99.24%** | Overall correct classification across completely novel domains |
-| **Precision** | **99.17%** | When PhishGuard flags a URL, there is a 99.17% probability it is phishing |
-| **Phishing Recall** | **99.36%** | Successfully catches 99.36% of actual phishing attacks |
-| **False Positive Rate (FPR)** | **0.89%** | Only 249 legitimate URLs out of 27,957 were flagged |
-| **Missed Threats (FNR)** | **0.64%** | Only 193 phishing URLs out of 30,063 evaded detection |
-| **F1-Score** | **99.27%** | Balanced harmonic mean between precision and recall |
-| **ROC-AUC** | **0.9971** | Exceptional discrimination capability across all thresholds |
+| :--- | :---: | :--- |
+| **Accuracy** | **96.82%** | Overall correct classification across completely novel held-out domains |
+| **Precision** | **97.61%** | Fraction of true threats among all flagged URLs |
+| **Phishing Recall** | **95.38%** | Successfully catches 95.38% of actual phishing attacks |
+| **False Positive Rate (FPR)** | **1.96%** | Low false alarm rate on novel held-out domains |
+| **Missed Threats (FNR)** | **4.62%** | Missed phishing rate under domain isolation |
+| **F1-Score** | **96.48%** | Balanced harmonic mean between precision and recall |
+| **ROC-AUC** | **0.9928** | Discrimination capability across all thresholds |
 
-### Confusion Matrix (58,020 Novel Holdout URLs)
+### Confusion Matrix (7,118 Novel Held-Out URLs)
 
 ```text
                               PREDICTED LEGITIMATE      PREDICTED PHISHING
-ACTUAL LEGITIMATE (27,957)          27,708 (TN)                 249 (FP)
-ACTUAL PHISHING   (30,063)             193 (FN)              29,870 (TP)
+ACTUAL LEGITIMATE (3,869)           3,793 (TN)                  76 (FP)
+ACTUAL PHISHING   (3,249)             150 (FN)               3,099 (TP)
 ```
+
+### Out-of-Distribution Stress Test Performance
+- **Long-Tail Legitimate FPR (1,080 URLs from Tranco ranks 200k-1M & SSO Portals):** **13.06%** [95% CI: 11.05% - 15.06%]
+- **Hard Phishing Recall (600 live 2026 OpenPhish & held-out targeted samples):** **96.67%** (580 / 600 caught)
+
+See [ML_METHODOLOGY.md](ML_METHODOLOGY.md) for full empirical audit trail and known limitations.
 
 ---
 

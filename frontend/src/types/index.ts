@@ -124,6 +124,8 @@ export interface ModelMetadata {
     false_positive_rate?: number;
     false_negative_rate?: number;
     missed_threats_count?: number;
+    long_tail_legit_fpr?: number;
+    hard_phishing_recall?: number;
   };
   confusion_matrix: {
     tn: number;
@@ -131,6 +133,18 @@ export interface ModelMetadata {
     fn: number;
     tp: number;
   };
+  test_set_sizes?: {
+    holdout_test?: number;
+    long_tail_legit?: number;
+    hard_phishing?: number;
+  };
+  collection_dates?: {
+    training?: string;
+    holdout_test?: string;
+    long_tail_legit?: string;
+    hard_phishing?: string;
+  };
+  limitations?: string[];
   feature_schema: string[];
   feature_importances: Record<string, number>;
 }

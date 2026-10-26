@@ -120,10 +120,10 @@ export const ResultsPage: React.FC = () => {
     verdictSubtext = `Authenticated high-reputation infrastructure (${apexDomain})`;
   } else if (isHighRisk) {
     verdictHeadline = 'Elevated Phishing Risk';
-    verdictSubtext = `Lexical pattern match (${rawMlPercent}% statistical ML probability)`;
+    verdictSubtext = `High Risk Tier ? Deceptive lexical anomalies detected (Decision index: ${rawMlPercent}%)`;
   } else if (isSuspicious) {
     verdictHeadline = 'Suspicious URL Structure';
-    verdictSubtext = `Anomalous structural attributes detected (${rawMlPercent}% ML risk score)`;
+    verdictSubtext = `Medium Risk Tier ? Borderline lexical attributes detected (Decision index: ${rawMlPercent}%)`;
   }
 
   const bannerTheme = isHighRisk
@@ -305,7 +305,7 @@ export const ResultsPage: React.FC = () => {
                 />
               </div>
               <p className="text-[10px] text-[#737373]">
-                Raw 150-tree Random Forest lexical inference score
+                Calibrated on 50/50 dataset; represents risk tier, not population probability
               </p>
             </div>
 
