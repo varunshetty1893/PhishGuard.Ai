@@ -14,7 +14,7 @@ def get_model_info():
         return {
             "model_version": meta.get("model_version", "1.0.0"),
             "algorithm": meta.get("algorithm", "Random Forest Classifier"),
-            "dataset_name": meta.get("dataset_name", "PhishGuard Academic Benchmark"),
+            "dataset_name": meta.get("dataset_name", "PhishGuard Threat Intelligence Benchmark"),
             "training_date": meta.get("training_date", ""),
             "total_samples": meta.get("total_samples", 5000),
             "train_samples": meta.get("train_samples", 4000),

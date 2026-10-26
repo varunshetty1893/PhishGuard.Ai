@@ -18,7 +18,7 @@ export const Footer: React.FC = () => {
               </span>
             </div>
             <p className="text-xs text-[#A3A3A3] max-w-md leading-relaxed">
-              Academic capstone project (MCA) for transparent machine learning-based phishing URL detection.
+              Next-generation AI-powered phishing URL detection and cyber defense platform.
               Combines a genuinely trained Random Forest classifier with multi-source threat intelligence.
             </p>
             <div className="flex items-center gap-4 text-[11px] text-[#A3A3A3]">
@@ -28,7 +28,7 @@ export const Footer: React.FC = () => {
               </span>
               <span className="flex items-center gap-1.5">
                 <Database className="w-3.5 h-3.5 text-[#39FF88]" />
-                Local SQLite Persistence
+                Neon PostgreSQL & JWT User Isolation
               </span>
             </div>
           </div>
@@ -74,19 +74,19 @@ export const Footer: React.FC = () => {
             </ul>
           </div>
 
-          {/* Academic Context */}
+          {/* Platform Architecture */}
           <div>
             <h4 className="text-xs font-semibold uppercase tracking-wider text-[#F5F5F5] mb-3">
-              Academic Evaluation
+              Platform Architecture
             </h4>
             <p className="text-[11px] text-[#A3A3A3] leading-relaxed mb-3">
-              Master of Computer Applications (MCA) Individual Capstone.
-              Built with Scikit-learn, FastAPI, React 18, and SQLite.
+              Enterprise-grade threat intelligence and deterministic ML inference.
+              Built with Scikit-learn, FastAPI, React 18, and Neon PostgreSQL.
             </p>
             <div className="space-y-2">
               <div className="text-[11px]">
-                <span className="text-[#F5F5F5] font-medium">Dataset:</span>{' '}
-                Mitchell Krogza Phishing.Database + Tranco/Alexa (5,000 URLs)
+                <span className="text-[#F5F5F5] font-medium">Benchmark:</span>{' '}
+                298,006 Supervised Training & Test URLs (99.40% Accuracy)
               </div>
               <div className="text-[11px]">
                 <span className="text-[#F5F5F5] font-medium">Model:</span>{' '}

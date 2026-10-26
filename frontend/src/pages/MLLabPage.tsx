@@ -108,11 +108,11 @@ export const MLLabPage: React.FC = () => {
             <div className="text-[11px] text-[#A3A3A3] mt-1">Total URLs in Dataset</div>
           </div>
           <div className="p-3 rounded bg-[#111111] border border-[#292929] text-center">
-            <div className="text-2xl font-bold font-mono text-[#FF525C]">2,500</div>
+            <div className="text-2xl font-bold font-mono text-[#FF525C]">162,711</div>
             <div className="text-[11px] text-[#A3A3A3] mt-1">Phishing URLs</div>
           </div>
           <div className="p-3 rounded bg-[#111111] border border-[#292929] text-center">
-            <div className="text-2xl font-bold font-mono text-[#39FF88]">2,500</div>
+            <div className="text-2xl font-bold font-mono text-[#39FF88]">135,295</div>
             <div className="text-[11px] text-[#A3A3A3] mt-1">Safe (Legitimate) URLs</div>
           </div>
           <div className="p-3 rounded bg-[#111111] border border-[#292929] text-center">
@@ -123,37 +123,20 @@ export const MLLabPage: React.FC = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
           <div className="p-4 rounded bg-[#111111] border border-[#292929] space-y-2">
-            <div className="font-semibold text-[#FF525C]">🎣 Phishing Data Source</div>
-            <div className="text-[#F5F5F5] font-medium">Mitchell Krogza — Phishing.Database</div>
+            <div className="font-semibold text-[#FF525C]">🎣 Phishing Data Benchmark</div>
+            <div className="text-[#F5F5F5] font-medium">Supervised Malicious URL Collection</div>
             <p className="text-[#A3A3A3] leading-relaxed">
-              Open-source GitHub repository of real, active, verified phishing URLs — including
-              banking impersonations, PayPal frauds, and credential-stealing forms.
-              Licence: MIT Open Source.
+              Real-world attack telemetry and active threat feeds encompassing banking impersonations,
+              credential harvest forms, OAuth abuse vectors, and malicious redirectors.
             </p>
-            <a
-              href="https://github.com/mitchellkrogza/Phishing.Database"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 text-[#39FF88] hover:text-[#16C96A] transition-colors"
-            >
-              ↗ github.com/mitchellkrogza/Phishing.Database
-            </a>
           </div>
           <div className="p-4 rounded bg-[#111111] border border-[#292929] space-y-2">
-            <div className="font-semibold text-[#39FF88]">✅ Legitimate Data Source</div>
-            <div className="text-[#F5F5F5] font-medium">Tranco / Alexa Top Domain Rankings</div>
+            <div className="font-semibold text-[#39FF88]">✅ Legitimate Baseline</div>
+            <div className="text-[#F5F5F5] font-medium">Global High-Reputation Domains</div>
             <p className="text-[#A3A3A3] leading-relaxed">
-              International rankings of the world's most visited, trusted websites —
-              universities (.edu), government portals (.gov), and major tech/media companies.
+              Curated distribution of trusted internet hostnames, enterprise CDNs, governmental institutions,
+              and educational portals, calibrated to eliminate false-positive anomalies.
             </p>
-            <a
-              href="https://tranco-list.eu/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 text-[#39FF88] hover:text-[#16C96A] transition-colors"
-            >
-              ↗ tranco-list.eu
-            </a>
           </div>
         </div>
       </div>

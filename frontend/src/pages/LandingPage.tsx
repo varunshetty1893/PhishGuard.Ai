@@ -41,7 +41,7 @@ export const LandingPage: React.FC = () => {
         <div className="max-w-4xl mx-auto text-center space-y-6">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#111111] border border-[#39FF88]/40 text-xs font-medium text-[#39FF88]">
             <span className="w-2 h-2 rounded-full bg-[#39FF88] animate-pulse" />
-            <span>PhishGuard AI v1.0 · Academic Capstone Edition</span>
+            <span>PhishGuard AI v3.0 - AI-Powered Threat Defense</span>
           </div>
 
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-[#F5F5F5] leading-tight">
@@ -189,7 +189,7 @@ export const LandingPage: React.FC = () => {
       {/* How-it-works steps: Technical */}
       <section className="bg-[#0A0A0A] border-y border-[#181818]">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-6">
-          <h2 className="text-base font-bold text-[#F5F5F5]">Technical Pipeline <span className="text-[#A3A3A3] font-normal text-xs">(For Academic Evaluation)</span></h2>
+          <h2 className="text-base font-bold text-[#F5F5F5]">Technical Detection Pipeline</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {[
               { num: '01', title: 'Safe Ingestion', desc: 'URL is sanitized and validated in-memory. No browser rendering or network connection to the target.' },

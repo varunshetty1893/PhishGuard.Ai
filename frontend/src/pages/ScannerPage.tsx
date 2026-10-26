@@ -207,11 +207,11 @@ export const ScannerPage: React.FC = () => {
         )}
       </div>
 
-      {/* Preset Academic Demo Samples */}
+      {/* Preset Test Scenarios */}
       <div className="space-y-4">
         <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-[#A3A3A3]">
           <Sparkles className="w-3.5 h-3.5 text-[#FFD54A]" />
-          <span>Academic Evaluation Scenarios</span>
+          <span>Benchmark Test Scenarios</span>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

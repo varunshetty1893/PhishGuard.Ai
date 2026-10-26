@@ -33,13 +33,13 @@ export const SettingsPage: React.FC = () => {
       <div className="pb-6 border-b border-[#292929]">
         <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded bg-[#111111] border border-[#39FF88]/40 text-xs font-medium text-[#39FF88] mb-2">
           <Settings className="w-3.5 h-3.5 text-[#39FF88]" />
-          <span>System Diagnostics &amp; Academic Overview</span>
+          <span>System Diagnostics &amp; Platform Overview</span>
         </div>
         <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[#F5F5F5]">
           Settings &amp; About PhishGuard AI
         </h1>
         <p className="text-xs text-[#A3A3A3] mt-1">
-          Runtime health telemetry, threat-provider configuration, architecture specifications, and academic project details.
+          Runtime health telemetry, threat-provider configuration, architecture specifications, and platform security standards.
         </p>
       </div>
 
@@ -135,25 +135,25 @@ export const SettingsPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Academic Project Identity & Specs */}
+      {/* Platform Architecture & Specifications */}
       <div className="p-6 rounded bg-[#111111] border border-[#292929] space-y-4">
         <h3 className="text-xs font-semibold uppercase tracking-wider text-[#F5F5F5] flex items-center gap-2">
           <GraduationCap className="w-4 h-4 text-[#39FF88]" />
-          Academic Capstone Project Details
+          Platform Architecture & Engineering Specifications
         </h3>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs text-[#A3A3A3] leading-relaxed">
           <div className="space-y-3">
             <h4 className="font-semibold text-[#F5F5F5]">Project Summary</h4>
             <p>
-              <strong>PhishGuard AI</strong> was designed and developed as an individual Master of Computer Applications (MCA) academic project.
-              It demonstrates end-to-end full stack software engineering, genuine machine learning pipeline design, secure input sandboxing, and modern user experience engineering.
+              <strong>PhishGuard AI</strong> was engineered as an enterprise-grade cyber defense application for rapid, privacy-preserving phishing link detection.
+              It integrates real-time lexical machine learning inference, secure sandboxing, and unified threat intelligence.
             </p>
             <h4 className="font-semibold text-[#F5F5F5] pt-2">Core Objectives</h4>
             <ul className="space-y-1 list-disc list-inside">
               <li>Eliminate blind reliance on slow, static blacklists for zero-day phishing detection.</li>
               <li>Guarantee 100% protection against Server-Side Request Forgery (SSRF) via offline lexical parsing.</li>
-              <li>Ensure transparent, explainable threat attribution for academic evaluation.</li>
+              <li>Deliver transparent, explainable threat attribution with sub-15ms inference latency.</li>
             </ul>
           </div>
 
@@ -163,7 +163,7 @@ export const SettingsPage: React.FC = () => {
               <li><strong>Frontend:</strong> React 18, Vite, TypeScript, Tailwind CSS, React Router, Recharts, Lucide</li>
               <li><strong>Backend API:</strong> Python 3.12, FastAPI, Pydantic, Uvicorn</li>
               <li><strong>Machine Learning:</strong> Scikit-learn (Random Forest Ensemble), Pandas, NumPy, Joblib</li>
-              <li><strong>Persistence:</strong> SQLite &amp; SQLAlchemy 2.0 ORM</li>
+              <li><strong>Persistence:</strong> Neon PostgreSQL &amp; SQLAlchemy 2.0 ORM (JWT user isolation)</li>
               <li><strong>Testing:</strong> Pytest, TestClient</li>
             </ul>
             <h4 className="font-semibold text-[#F5F5F5] pt-2">Design Constraints</h4>

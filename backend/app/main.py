@@ -37,7 +37,7 @@ async def lifespan(app: FastAPI):
                 record = ModelMetadata(
                     model_version=meta.get("model_version", "1.0.0"),
                     algorithm=meta.get("algorithm", "Random Forest Classifier"),
-                    dataset_name=meta.get("dataset_name", "PhishGuard Academic Benchmark"),
+                    dataset_name=meta.get("dataset_name", "PhishGuard Threat Intelligence Benchmark"),
                     total_samples=meta.get("total_samples", 5000),
                     train_samples=meta.get("train_samples", 4000),
                     test_samples=meta.get("test_samples", 1000)

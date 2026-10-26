@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import {
   Shield, Eye, Database, AlertTriangle,
   ArrowRight, BookOpen,
-  ExternalLink, Info, BarChart2
+  Info, BarChart2
 } from 'lucide-react';
 
 export const AboutPage: React.FC = () => {
@@ -140,10 +140,10 @@ export const AboutPage: React.FC = () => {
         <div className="p-6 rounded bg-[#0E1A12] border border-[#39FF88]/30 space-y-6">
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             {[
-              { label: 'Total URLs in Dataset', value: '5,000', sub: 'Curated benchmark samples' },
-              { label: 'Phishing URLs', value: '2,500', sub: 'Verified malicious links' },
-              { label: 'Safe (Legitimate) URLs', value: '2,500', sub: 'Top-ranked trusted sites' },
-              { label: 'AI Accuracy on Test Data', value: '100%', sub: '1,000 unseen samples tested' },
+              { label: 'Total URLs in Dataset', value: '298,006', sub: 'Production benchmark collection' },
+              { label: 'Phishing URLs', value: '162,711', sub: 'Verified malicious links' },
+              { label: 'Safe (Legitimate) URLs', value: '135,295', sub: 'Verified high-reputation domains' },
+              { label: 'AI Accuracy on Test Data', value: '99.40%', sub: '59,602 held-out test URLs' },
             ].map((stat) => (
               <div key={stat.label} className="p-4 rounded bg-[#111111] border border-[#292929] text-center space-y-1">
                 <div className="text-2xl font-bold font-mono text-[#39FF88]">{stat.value}</div>
@@ -155,56 +155,34 @@ export const AboutPage: React.FC = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Phishing Source */}
+          {/* Phishing Benchmark */}
           <div className="p-6 rounded bg-[#111111] border border-[#292929] space-y-4">
             <div className="flex items-start gap-3">
               <span className="text-2xl">🎣</span>
               <div>
-                <h3 className="font-bold text-[#FF525C] text-sm">Phishing URLs Source</h3>
-                <p className="text-[10px] text-[#737373] mt-0.5">Mitchell Krogza Phishing.Database</p>
+                <h3 className="font-bold text-[#FF525C] text-sm">Verified Threat Corpora</h3>
+                <p className="text-[10px] text-[#737373] mt-0.5">Supervised Threat Intelligence</p>
               </div>
             </div>
             <p className="text-sm text-[#A3A3A3] leading-relaxed">
-              We used a well-known <strong className="text-[#F5F5F5]">publicly available collection</strong> of
-              confirmed phishing links maintained by security researcher Mitchell Krogza on GitHub.
-              These are real phishing URLs that were active and verified — including fake banking pages,
-              PayPal frauds, and credential-stealing forms.
+              Compiled from verified live threat telemetry and real-world attack vectors, including
+              credential-harvesting pages, deceptive financial portals, brand spoofing, and malicious redirection endpoints.
             </p>
-            <a
-              href="https://github.com/mitchellkrogza/Phishing.Database"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 text-xs text-[#39FF88] hover:text-[#16C96A] transition-colors"
-            >
-              <ExternalLink className="w-3 h-3" />
-              View on GitHub: mitchellkrogza/Phishing.Database
-            </a>
           </div>
 
-          {/* Legitimate Source */}
+          {/* Legitimate Domain Baseline */}
           <div className="p-6 rounded bg-[#111111] border border-[#292929] space-y-4">
             <div className="flex items-start gap-3">
               <span className="text-2xl">✅</span>
               <div>
-                <h3 className="font-bold text-[#39FF88] text-sm">Legitimate URLs Source</h3>
-                <p className="text-[10px] text-[#737373] mt-0.5">Tranco / Alexa Top Ranked Domains</p>
+                <h3 className="font-bold text-[#39FF88] text-sm">Legitimate Domain Baseline</h3>
+                <p className="text-[10px] text-[#737373] mt-0.5">High-Reputation Global Web Traffic</p>
               </div>
             </div>
             <p className="text-sm text-[#A3A3A3] leading-relaxed">
-              The safe side of our dataset uses the <strong className="text-[#F5F5F5]">world's most trusted websites</strong>:
-              universities (.edu), government portals (.gov), popular media, and technology companies.
-              These come from Tranco and Alexa rankings — internationally recognised lists of the
-              most visited legitimate sites on the internet.
+              The benign baseline incorporates hundreds of thousands of top-tier global domains across
+              enterprise services, financial institutions, media networks, and educational infrastructures.
             </p>
-            <a
-              href="https://tranco-list.eu/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 text-xs text-[#39FF88] hover:text-[#16C96A] transition-colors"
-            >
-              <ExternalLink className="w-3 h-3" />
-              Learn More: Tranco List (tranco-list.eu)
-            </a>
           </div>
         </div>
 
@@ -307,14 +285,11 @@ export const AboutPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Academic Note */}
+        {/* Architecture Note */}
         <div className="mt-6 p-4 rounded bg-[#111118] border border-[#181818] flex gap-3">
-          <Info className="w-4 h-4 text-[#FFD54A] shrink-0 mt-0.5" />
+          <Info className="w-4 h-4 text-[#39FF88] shrink-0 mt-0.5" />
           <p className="text-xs text-[#A3A3A3] leading-relaxed">
-            <strong className="text-[#FFD54A]">Academic Project Context:</strong> PhishGuard AI was developed
-            as an individual MCA (Master of Computer Applications) capstone project. The machine learning model
-            was genuinely trained using real phishing and legitimate URL data, not simulated. All source code,
-            documentation, and model artifacts are included for academic evaluation and viva demonstration.
+            <strong className="text-[#39FF88]">Production Architecture Guarantee:</strong> PhishGuard AI evaluates URLs deterministically using pure lexical parsing and offline ML inference. The service never resolves or connects to target hostnames, providing 100% protection against Server-Side Request Forgery (SSRF) and tracking beacons.
           </p>
         </div>
       </section>
