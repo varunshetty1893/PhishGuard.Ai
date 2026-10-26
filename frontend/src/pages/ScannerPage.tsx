@@ -56,9 +56,9 @@ export const ScannerPage: React.FC = () => {
 
   const scanStages = [
     { title: 'Safe Ingestion & Normalization', desc: 'Validating scheme and sanitizing control characters' },
-    { title: '16-D Feature Extraction', desc: 'Computing lexical, structural, and semantic vector metrics' },
-    { title: 'Random Forest Inference', desc: 'Evaluating vector through 150-tree decision ensemble' },
-    { title: 'Threat Intelligence Feeds', desc: 'Querying Google Safe Browsing and URLhaus adapters' },
+    { title: 'Checking the Address', desc: 'Looking for common warning signs in the web address' },
+    { title: 'Checking for Phishing Patterns', desc: 'Comparing the address with patterns the system was trained to spot' },
+    { title: 'Checking Known Threats', desc: 'Checking Google Safe Browsing and URLhaus for reported threats' },
   ];
 
   // Auto-fill from query parameter if present
@@ -115,13 +115,13 @@ export const ScannerPage: React.FC = () => {
       <div className="text-center space-y-3">
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded bg-[#111111] border border-[#39FF88]/40 text-xs font-medium text-[#39FF88]">
           <Terminal className="w-3.5 h-3.5 text-[#39FF88]" />
-          <span>Real-Time URL Risk Scanner</span>
+          <span>Website Address Check</span>
         </div>
         <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-[#F5F5F5]">
-          Inspect Suspicious URLs Safely
+          Check a Suspicious Link Safely
         </h1>
         <p className="text-xs sm:text-sm text-[#A3A3A3] max-w-xl mx-auto">
-          Treat untrusted URLs with caution. Our scanner extracts lexical features and evaluates ML risk tiers without ever visiting or executing remote code.
+          Paste a link here to check it without opening it. We look for warning signs and known threats; we never visit the address.
         </p>
       </div>
 

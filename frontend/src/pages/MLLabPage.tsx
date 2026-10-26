@@ -6,11 +6,6 @@ import {
   Target,
   ShieldCheck,
   ShieldAlert,
-  Info,
-  Calendar,
-  Database,
-  BarChart2,
-  FileText
 } from 'lucide-react';
 import {
   ResponsiveContainer,
@@ -36,7 +31,7 @@ export const MLLabPage: React.FC = () => {
         setLoading(false);
       })
       .catch((err) => {
-        setError(err.message || 'Failed to load model transparency metadata.');
+        setError(err.message || 'Could not load detection-system details.');
         setLoading(false);
       });
   }, []);
@@ -45,7 +40,7 @@ export const MLLabPage: React.FC = () => {
     return (
       <div className="max-w-7xl mx-auto px-4 py-20 text-center space-y-4">
         <div className="inline-block w-8 h-8 border-2 border-[#39FF88] border-t-transparent rounded-full animate-spin" />
-        <p className="text-sm text-[#A3A3A3]">Loading machine learning laboratory metadata...</p>
+        <p className="text-sm text-[#A3A3A3]">Loading detection-system details...</p>
       </div>
     );
   }
@@ -54,8 +49,8 @@ export const MLLabPage: React.FC = () => {
     return (
       <div className="max-w-xl mx-auto px-4 py-20 text-center space-y-4">
         <AlertTriangle className="w-8 h-8 text-[#FF525C] mx-auto" />
-        <h2 className="text-lg font-bold text-[#F5F5F5]">ML Metadata Unavailable</h2>
-        <p className="text-xs text-[#A3A3A3]">{error || 'Could not load model info from backend.'}</p>
+        <h2 className="text-lg font-bold text-[#F5F5F5]">Detection Details Unavailable</h2>
+        <p className="text-xs text-[#A3A3A3]">{error || 'Could not load detection-system details.'}</p>
       </div>
     );
   }
@@ -90,13 +85,13 @@ export const MLLabPage: React.FC = () => {
       <div className="pb-6 border-b border-[#292929]">
         <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded bg-[#111111] border border-[#39FF88]/40 text-xs font-medium text-[#39FF88] mb-2">
           <Cpu className="w-3.5 h-3.5 text-[#39FF88]" />
-          <span>Algorithmic Transparency &amp; Empirical Benchmark (v4.1)</span>
+          <span>How the Detection System Is Tested</span>
         </div>
         <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[#F5F5F5]">
-          Machine Learning Laboratory
+          Detection System Details
         </h1>
         <p className="text-xs text-[#A3A3A3] mt-1">
-          Complete empirical audit trail, domain-isolated 3-split evaluation, out-of-distribution stress testing, and known failure mode documentation.
+          Test results, the examples used to train the system, and the situations where it may be less reliable.
         </p>
       </div>
 
@@ -148,7 +143,7 @@ export const MLLabPage: React.FC = () => {
         </div>
 
         <div className="p-4 rounded bg-[#111111] border border-[#292929] space-y-1">
-          <span className="text-[10px] uppercase font-semibold text-[#A3A3A3]">Model Version</span>
+          <span className="text-[10px] uppercase font-semibold text-[#A3A3A3]">Detection System Version</span>
           <div className="text-sm font-bold text-[#F5F5F5]">v{modelInfo.model_version}</div>
           <p className="text-[10px] text-[#A3A3A3]">Decision Threshold: 0.640</p>
         </div>
@@ -198,7 +193,7 @@ export const MLLabPage: React.FC = () => {
           </div>
 
           <div className="p-4 rounded bg-[#0A0A0A] border border-[#292929] text-center space-y-1">
-            <span className="text-[10px] font-semibold uppercase tracking-wider text-[#39FF88]">False Positive Rate</span>
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-[#39FF88]">Safe Links Incorrectly Flagged</span>
             <div className="text-2xl font-bold font-mono text-[#39FF88]">
               {(fpr * 100).toFixed(2)}%
             </div>
@@ -297,27 +292,27 @@ export const MLLabPage: React.FC = () => {
         <div className="flex items-center justify-between pb-3 border-b border-[#181818]">
           <h3 className="text-xs font-semibold uppercase tracking-wider text-[#FF525C] flex items-center gap-2">
             <AlertTriangle className="w-4 h-4 text-[#FF525C]" />
-            Known Model Limitations (What Pure Lexical ML Cannot Catch)
+            What This Check May Miss
           </h3>
           <span className="text-[10px] text-[#A3A3A3]">Transparent Security Engineering</span>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs leading-relaxed">
           <div className="p-3.5 rounded bg-[#0A0A0A] border border-[#292929] space-y-1.5">
-            <div className="font-semibold text-[#FFD54A]">1. Calibrated on 50/50 Data (Not Literal Base-Rate Probability)</div>
+            <div className="font-semibold text-[#FFD54A]">1. The Risk Score Is Not a Guarantee</div>
             <p className="text-[#A3A3A3]">
-              The model was calibrated on an evenly balanced research dataset. In production, phishing prevalence is ~1%-5%. A model probability of 0.65 indicates relative lexical suspicion, not a 65% literal likelihood that the URL is phishing. Always interpret scores as <strong>Low Risk</strong>, <strong>Suspicious</strong>, or <strong>High Risk</strong>.
+              The system was trained with a balanced mix of safe and phishing links. A score of 65/100 means the address has many warning signs; it does not mean there is a 65% chance the site is phishing. Read scores as <strong>Likely Safe</strong>, <strong>Suspicious</strong>, or <strong>Likely Phishing</strong>.
             </p>
           </div>
           <div className="p-3.5 rounded bg-[#0A0A0A] border border-[#292929] space-y-1.5">
             <div className="font-semibold text-[#FFD54A]">2. Authentic Login Portals &amp; Security Keywords</div>
             <p className="text-[#A3A3A3]">
-              Legitimate enterprise SSO pages (e.g. <code>accounts.google.com</code>, <code>login.microsoftonline.com</code>, <code>identity.mit.edu</code>) and paths like <code>/billing/invoices</code> look statistically identical to credential harvesters. This causes elevated false positives (26%-52%) without domain reputation whitelists.
+              Real sign-in pages (for example <code>accounts.google.com</code> or <code>login.microsoftonline.com</code>) and paths like <code>/billing/invoices</code> can resemble fake sign-in pages. This can cause safe links to be flagged incorrectly.
             </p>
           </div>
           <div className="p-3.5 rounded bg-[#0A0A0A] border border-[#292929] space-y-1.5">
             <div className="font-semibold text-[#FF525C]">3. Shortened Links &amp; Clean Cloud Portfolios</div>
             <p className="text-[#A3A3A3]">
-              Phishing hosted on shorteners (e.g., <code>e.vg/xxx</code>) or disguised as developer projects on <code>github.io</code> possess virtually zero lexical anomalies (standard length, normal character entropy, clean protocol). They will evade offline lexical ML and require active reputation feeds (Google Safe Browsing / URLhaus) to detect.
+              Phishing links hidden behind shorteners (such as <code>e.vg/xxx</code>) or developer project pages (such as <code>github.io</code>) can look normal. The address check may miss them, so the known-threat checks are especially useful.
             </p>
           </div>
           <div className="p-3.5 rounded bg-[#0A0A0A] border border-[#292929] space-y-1.5">

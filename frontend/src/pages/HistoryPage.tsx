@@ -46,7 +46,7 @@ export const HistoryPage: React.FC = () => {
       });
       setData(res);
     } catch (err: any) {
-      setError(err.message || 'Failed to retrieve scan history.');
+      setError(err.message || 'Could not load your previously checked links.');
     } finally {
       setLoading(false);
     }
@@ -78,7 +78,7 @@ export const HistoryPage: React.FC = () => {
     try {
       await api.clearAllScans();
       setShowClearModal(false);
-      setActionMessage('All scan history cleared.');
+      setActionMessage('All previously checked links were cleared.');
       setTimeout(() => setActionMessage(''), 2500);
       setPage(1);
       fetchHistory();
@@ -97,10 +97,10 @@ export const HistoryPage: React.FC = () => {
             <span>SQLite Audit Records</span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[#F5F5F5]">
-            Scan History &amp; Audit Logs
+            Previously Checked Links
           </h1>
           <p className="text-xs text-[#A3A3A3] mt-1">
-            Persisted history of inspected URLs, classification outcomes, and threat intelligence matches.
+            Your checked links, results, and known-threat check outcomes.
           </p>
         </div>
 
@@ -180,7 +180,7 @@ export const HistoryPage: React.FC = () => {
           </div>
 
           <div className="flex items-center gap-2">
-            <span>Risk Tier:</span>
+            <span>Risk level:</span>
             <select
               value={riskLevel}
               onChange={(e) => {
@@ -189,10 +189,10 @@ export const HistoryPage: React.FC = () => {
               }}
               className="px-2.5 py-1 rounded bg-[#0A0A0A] border border-[#292929] text-xs text-[#F5F5F5] focus:border-[#39FF88]"
             >
-              <option value="All">All Risk Tiers</option>
-              <option value="Low Risk">Low Risk</option>
+              <option value="All">All Results</option>
+              <option value="Low Risk">Likely Safe</option>
               <option value="Suspicious">Suspicious</option>
-              <option value="High Risk">High Risk</option>
+              <option value="High Risk">Likely Phishing</option>
             </select>
           </div>
 
@@ -262,8 +262,8 @@ export const HistoryPage: React.FC = () => {
                   <tr className="border-b border-[#181818] text-[#737373]">
                     <th className="py-2.5 px-3">Target URL</th>
                     <th className="py-2.5 px-3">ML Prediction</th>
-                    <th className="py-2.5 px-3">Risk Tier</th>
-                    <th className="py-2.5 px-3">Probability</th>
+                    <th className="py-2.5 px-3">Result</th>
+                    <th className="py-2.5 px-3">Risk Score</th>
                     <th className="py-2.5 px-3">Threat Hit</th>
                     <th className="py-2.5 px-3">Timestamp (UTC)</th>
                     <th className="py-2.5 px-3 text-right">Actions</th>

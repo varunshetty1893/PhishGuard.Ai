@@ -39,7 +39,7 @@ export const SettingsPage: React.FC = () => {
           Settings &amp; About PhishGuard AI
         </h1>
         <p className="text-xs text-[#A3A3A3] mt-1">
-          Runtime health telemetry, threat-provider configuration, architecture specifications, and platform security standards.
+          Check whether the app and its optional known-threat services are ready to use.
         </p>
       </div>
 
@@ -47,7 +47,7 @@ export const SettingsPage: React.FC = () => {
       <div className="p-6 rounded bg-[#111111] border border-[#292929] space-y-4">
         <h3 className="text-xs font-semibold uppercase tracking-wider text-[#F5F5F5] flex items-center gap-2">
           <Activity className="w-4 h-4 text-[#39FF88]" />
-          Live Runtime Telemetry
+          App Status
         </h3>
 
         {loading ? (
@@ -92,7 +92,7 @@ export const SettingsPage: React.FC = () => {
         <div className="flex items-center justify-between pb-3 border-b border-[#181818]">
           <h3 className="text-xs font-semibold uppercase tracking-wider text-[#F5F5F5] flex items-center gap-2">
             <Key className="w-4 h-4 text-[#FFD54A]" />
-            External Threat Intelligence Provider Status
+            Known-Threat Check Status
           </h3>
           <span className="text-[10px] text-[#39FF88]">Zero Paid Keys Mandatory</span>
         </div>
@@ -108,7 +108,7 @@ export const SettingsPage: React.FC = () => {
             </div>
             <p className="text-xs text-[#A3A3A3] leading-relaxed">
               Google Safe Browsing requires a free API key generated from Google Cloud Console.
-              If not configured, PhishGuard AI seamlessly falls back to 100% offline Machine Learning classification.
+              If this is not set up, PhishGuard AI can still check the address for phishing warning signs.
             </p>
           </div>
 
@@ -135,11 +135,11 @@ export const SettingsPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Platform Architecture & Specifications */}
+      {/* How the app works */}
       <div className="p-6 rounded bg-[#111111] border border-[#292929] space-y-4">
         <h3 className="text-xs font-semibold uppercase tracking-wider text-[#F5F5F5] flex items-center gap-2">
           <GraduationCap className="w-4 h-4 text-[#39FF88]" />
-          Platform Architecture & Engineering Specifications
+          How PhishGuard AI Works
         </h3>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs text-[#A3A3A3] leading-relaxed">
@@ -147,13 +147,13 @@ export const SettingsPage: React.FC = () => {
             <h4 className="font-semibold text-[#F5F5F5]">Project Summary</h4>
             <p>
               <strong>PhishGuard AI</strong> was engineered as an enterprise-grade cyber defense application for rapid, privacy-preserving phishing link detection.
-              It integrates real-time lexical machine learning inference, secure sandboxing, and unified threat intelligence.
+              It checks the text of web addresses for phishing warning signs and can check known-threat databases.
             </p>
             <h4 className="font-semibold text-[#F5F5F5] pt-2">Core Objectives</h4>
             <ul className="space-y-1 list-disc list-inside">
-              <li>Eliminate blind reliance on slow, static blacklists for zero-day phishing detection.</li>
-              <li>Guarantee 100% protection against Server-Side Request Forgery (SSRF) via offline lexical parsing.</li>
-              <li>Deliver transparent, explainable threat attribution with sub-15ms inference latency.</li>
+              <li>Check for warning signs even when a link is not yet listed in a threat database.</li>
+              <li>Never open or visit the address you submit.</li>
+              <li>Show clear reasons for a result whenever possible.</li>
             </ul>
           </div>
 

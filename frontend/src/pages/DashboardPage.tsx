@@ -49,7 +49,7 @@ export const DashboardPage: React.FC = () => {
       setAnalytics(analyticsData);
       setRecentScans(scanListData.items);
     } catch (err: any) {
-      setError(err.message || 'Failed to load live analytics.');
+      setError(err.message || 'Could not load your scan summary.');
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -69,7 +69,7 @@ export const DashboardPage: React.FC = () => {
     return (
       <div className="max-w-7xl mx-auto px-4 py-20 text-center space-y-4">
         <div className="inline-block w-8 h-8 border-2 border-[#39FF88] border-t-transparent rounded-full animate-spin" />
-        <p className="text-sm text-[#A3A3A3]">Computing live analytics from SQLite database...</p>
+        <p className="text-sm text-[#A3A3A3]">Loading your scan summary...</p>
       </div>
     );
   }
@@ -80,7 +80,7 @@ export const DashboardPage: React.FC = () => {
         <div className="w-12 h-12 rounded-full bg-[#181010] border border-[#FF525C] flex items-center justify-center mx-auto text-[#FF525C]">
           <AlertTriangle className="w-6 h-6" />
         </div>
-        <h2 className="text-xl font-bold text-[#F5F5F5]">Analytics Unavailable</h2>
+        <h2 className="text-xl font-bold text-[#F5F5F5]">Scan Summary Unavailable</h2>
         <p className="text-xs text-[#A3A3A3]">{error || 'Could not query backend database.'}</p>
         <button
           onClick={fetchData}
@@ -104,7 +104,7 @@ export const DashboardPage: React.FC = () => {
             <span>Real-Time Security Intelligence</span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[#F5F5F5]">
-            Threat Analytics Dashboard
+            Your Scan Summary
           </h1>
           <p className="text-xs text-[#A3A3A3] mt-1">
             Aggregated metrics derived dynamically from SQLite persistence. Zero synthetic counts.
@@ -179,12 +179,12 @@ export const DashboardPage: React.FC = () => {
         {/* High Risk Volume */}
         <div className="p-4 rounded bg-[#111111] border border-[#292929] space-y-2">
           <span className="text-[10px] font-semibold uppercase tracking-wider text-[#FF525C]">
-            High-Risk Tiers
+            Likely Phishing
           </span>
           <div className="text-2xl font-bold font-mono text-[#FF525C]">
             {analytics.high_risk_count.toLocaleString()}
           </div>
-          <div className="text-[10px] text-[#A3A3A3]">Severe anomaly score</div>
+          <div className="text-[10px] text-[#A3A3A3]">Links with strong warning signs</div>
         </div>
 
         {/* Threat Intel Matches */}
@@ -218,7 +218,7 @@ export const DashboardPage: React.FC = () => {
           </div>
           <h3 className="text-base font-bold text-[#F5F5F5]">No Scans In Database Yet</h3>
           <p className="text-xs text-[#A3A3A3] max-w-md mx-auto">
-            Scan your first URL to populate real-time metrics, risk distribution charts, and temporal trends.
+            Check your first link to see a simple summary of your results here.
           </p>
           <Link
             to="/scanner"
@@ -272,7 +272,7 @@ export const DashboardPage: React.FC = () => {
               <div className="flex items-center justify-between">
                 <h3 className="text-xs font-semibold uppercase tracking-wider text-[#F5F5F5] flex items-center gap-2">
                   <BarChart2 className="w-4 h-4 text-[#FFD54A]" />
-                  Risk Category Breakdown
+                  Results by Risk Level
                 </h3>
               </div>
 
@@ -344,7 +344,7 @@ export const DashboardPage: React.FC = () => {
                   <tr className="border-b border-[#181818] text-[#737373]">
                     <th className="py-2.5 px-3">Target URL</th>
                     <th className="py-2.5 px-3">Classification</th>
-                    <th className="py-2.5 px-3">Risk Tier</th>
+                    <th className="py-2.5 px-3">Result</th>
                     <th className="py-2.5 px-3">Confidence</th>
                     <th className="py-2.5 px-3">Timestamp</th>
                     <th className="py-2.5 px-3 text-right">Action</th>
@@ -385,7 +385,7 @@ export const DashboardPage: React.FC = () => {
         </>
       )}
 
-      {/* Model & Providers Status Card */}
+      {/* Detection system and known-threat check status */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="p-5 rounded bg-[#0A0A0A] border border-[#292929] space-y-2">
           <span className="text-[10px] font-semibold uppercase tracking-wider text-[#39FF88] flex items-center gap-1.5">
@@ -396,14 +396,14 @@ export const DashboardPage: React.FC = () => {
             {analytics.model_status.algorithm}
           </div>
           <p className="text-xs text-[#A3A3A3]">
-            Semantic version v{analytics.model_status.version} • Status: <span className="text-[#39FF88]">{analytics.model_status.status}</span>
+            Detection system version {analytics.model_status.version} • Status: <span className="text-[#39FF88]">{analytics.model_status.status}</span>
           </p>
         </div>
 
         <div className="p-5 rounded bg-[#0A0A0A] border border-[#292929] space-y-2">
           <span className="text-[10px] font-semibold uppercase tracking-wider text-[#FFD54A] flex items-center gap-1.5">
             <Shield className="w-3.5 h-3.5" />
-            Threat Intelligence Adapters
+            Known-Threat Check Services
           </span>
           <div className="text-xs text-[#F5F5F5] space-y-1">
             <div className="flex justify-between">

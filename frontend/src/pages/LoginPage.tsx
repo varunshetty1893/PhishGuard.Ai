@@ -48,7 +48,7 @@ export const LoginPage: React.FC = () => {
       const destination = (location.state as any)?.from?.pathname || '/dashboard';
       navigate(destination, { replace: true });
     } catch (err: any) {
-      setError(err.message || 'Authentication failed. Please verify your credentials.');
+      setError(err.message || 'Sign-in check failed. Please check your email and password.');
     } finally {
       setLoading(false);
     }

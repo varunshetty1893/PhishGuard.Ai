@@ -42,7 +42,7 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({ type, value, size = 'm
       return (
         <span className={`inline-flex items-center font-medium rounded border bg-[#1A0D0F] text-[#FF525C] border-[#FF525C]/40 ${sizeClasses}`}>
           <ShieldAlert className="w-3.5 h-3.5" />
-          <span>High Risk</span>
+          <span>Likely Phishing</span>
         </span>
       );
     }
@@ -57,7 +57,7 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({ type, value, size = 'm
     return (
       <span className={`inline-flex items-center font-medium rounded border bg-[#0E1A12] text-[#39FF88] border-[#39FF88]/40 ${sizeClasses}`}>
         <ShieldCheck className="w-3.5 h-3.5" />
-        <span>Low Risk</span>
+        <span>Likely Safe</span>
       </span>
     );
   }
@@ -76,7 +76,7 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({ type, value, size = 'm
     return (
       <span className={`inline-flex items-center font-medium rounded border bg-[#0E1A12] text-[#39FF88] border-[#39FF88]/40 ${sizeClasses}`}>
         <CheckCircle className="w-3.5 h-3.5" />
-        <span>No Match Reported</span>
+        <span>No Known Threat Found</span>
       </span>
     );
   }
@@ -84,7 +84,7 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({ type, value, size = 'm
     return (
       <span className={`inline-flex items-center font-medium rounded border bg-[#181818] text-[#A3A3A3] border-[#292929] ${sizeClasses}`}>
         <HelpCircle className="w-3.5 h-3.5" />
-        <span>Not Configured</span>
+        <span>Not Set Up Yet</span>
       </span>
     );
   }

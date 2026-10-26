@@ -58,8 +58,8 @@ export const AboutPage: React.FC = () => {
             <h3 className="font-semibold text-[#39FF88] text-sm">🛡️ What PhishGuard AI Does</h3>
             <p className="text-sm text-[#A3A3A3] leading-relaxed">
               Before you click any suspicious link, you can <strong className="text-[#F5F5F5]">paste it here</strong>.
-              PhishGuard AI analyses the link structure — without visiting the website —
-              and tells you whether it looks dangerous or safe.
+              PhishGuard AI checks the address — without visiting the website —
+              and tells you whether it shows warning signs.
             </p>
             <p className="text-sm text-[#A3A3A3] leading-relaxed">
               Think of it like a <strong className="text-[#F5F5F5]">security guard who examines
@@ -88,22 +88,22 @@ export const AboutPage: React.FC = () => {
               },
               {
                 step: '02',
-                title: 'AI Reads the Link Structure',
-                desc: 'Our AI examines 16 patterns in the link — like how many dots it has, whether it uses HTTPS, or if it uses a raw IP address instead of a real domain name.',
+                title: 'We Check the Address',
+                desc: 'We look for 16 common warning signs, such as extra dots, an unencrypted connection, or a number-based address instead of a website name.',
                 icon: '🔍',
                 color: '#39FF88'
               },
               {
                 step: '03',
-                title: 'Machine Learning Decision',
-                desc: 'A trained AI model — similar to how spam filters work — compares these patterns against thousands of known phishing and safe links to make a risk decision.',
+                title: 'We Compare Warning Signs',
+                desc: 'Our detection system compares these signs with examples of phishing and safe links.',
                 icon: '🤖',
                 color: '#FFD54A'
               },
               {
                 step: '04',
                 title: 'You Get a Safety Report',
-                desc: 'Within seconds, you receive a clear verdict: Safe ✅, Suspicious ⚠️, or Dangerous 🔴, along with an explanation of why.',
+                desc: 'Within seconds, you receive a clear result: Likely Safe ✅, Suspicious ⚠️, or Likely Phishing 🔴, with an explanation of why.',
                 icon: '📊',
                 color: '#FFD54A'
               },
@@ -124,15 +124,15 @@ export const AboutPage: React.FC = () => {
         </div>
       </section>
 
-      {/* Dataset Section */}
+      {/* Training examples section */}
       <section className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-14 space-y-6">
         <div className="flex items-center gap-3 mb-6">
           <div className="w-10 h-10 rounded bg-[#0E1A12] border border-[#39FF88]/40 flex items-center justify-center">
             <Database className="w-5 h-5 text-[#39FF88]" />
           </div>
           <div>
-            <h2 className="text-xl font-bold text-[#F5F5F5]">📂 What Dataset Was Used to Train the AI?</h2>
-            <p className="text-xs text-[#A3A3A3]">Full transparency about our training data</p>
+            <h2 className="text-xl font-bold text-[#F5F5F5]">📂 Examples Used to Train the System</h2>
+            <p className="text-xs text-[#A3A3A3]">A clear look at the examples used for training</p>
           </div>
         </div>
 
@@ -140,10 +140,10 @@ export const AboutPage: React.FC = () => {
         <div className="p-6 rounded bg-[#0E1A12] border border-[#39FF88]/30 space-y-6">
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             {[
-              { label: 'Total URLs in Dataset', value: '298,006', sub: 'Production benchmark collection' },
+              { label: 'Total training examples', value: '298,006', sub: 'Links used to test the system' },
               { label: 'Phishing URLs', value: '162,711', sub: 'Verified malicious links' },
               { label: 'Safe (Legitimate) URLs', value: '135,295', sub: 'Verified high-reputation domains' },
-              { label: 'AI Accuracy on Test Data', value: '99.40%', sub: '59,602 held-out test URLs' },
+              { label: 'Accuracy on test examples', value: '99.40%', sub: '59,602 unseen test links' },
             ].map((stat) => (
               <div key={stat.label} className="p-4 rounded bg-[#111111] border border-[#292929] text-center space-y-1">
                 <div className="text-2xl font-bold font-mono text-[#39FF88]">{stat.value}</div>
@@ -160,13 +160,12 @@ export const AboutPage: React.FC = () => {
             <div className="flex items-start gap-3">
               <span className="text-2xl">🎣</span>
               <div>
-                <h3 className="font-bold text-[#FF525C] text-sm">Verified Threat Corpora</h3>
-                <p className="text-[10px] text-[#737373] mt-0.5">Supervised Threat Intelligence</p>
+                <h3 className="font-bold text-[#FF525C] text-sm">Known Phishing Examples</h3>
+                <p className="text-[10px] text-[#737373] mt-0.5">Reported dangerous links</p>
               </div>
             </div>
             <p className="text-sm text-[#A3A3A3] leading-relaxed">
-              Compiled from verified live threat telemetry and real-world attack vectors, including
-              credential-harvesting pages, deceptive financial portals, brand spoofing, and malicious redirection endpoints.
+              These are reported phishing links, including fake sign-in pages, fake payment pages, and look-alike brand links.
             </p>
           </div>
 
@@ -175,13 +174,12 @@ export const AboutPage: React.FC = () => {
             <div className="flex items-start gap-3">
               <span className="text-2xl">✅</span>
               <div>
-                <h3 className="font-bold text-[#39FF88] text-sm">Legitimate Domain Baseline</h3>
-                <p className="text-[10px] text-[#737373] mt-0.5">High-Reputation Global Web Traffic</p>
+                <h3 className="font-bold text-[#39FF88] text-sm">Known Safe Examples</h3>
+                <p className="text-[10px] text-[#737373] mt-0.5">Examples from established websites</p>
               </div>
             </div>
             <p className="text-sm text-[#A3A3A3] leading-relaxed">
-              The benign baseline incorporates hundreds of thousands of top-tier global domains across
-              enterprise services, financial institutions, media networks, and educational infrastructures.
+              These include many established websites from businesses, banks, news organizations, and schools.
             </p>
           </div>
         </div>
@@ -264,8 +262,8 @@ export const AboutPage: React.FC = () => {
           </div>
           <h2 className="text-2xl font-bold text-[#F5F5F5]">Ready to Check a Suspicious Link?</h2>
           <p className="text-sm text-[#A3A3A3] max-w-xl mx-auto">
-            Go to the Scanner, paste any link you're not sure about, and get an instant safety report.
-            It takes less than 5 seconds and keeps your device completely safe.
+            Go to the Scanner, paste any link you're not sure about, and get a clear result in seconds.
+            The link is not opened during the check.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2">
             <Link
@@ -280,16 +278,16 @@ export const AboutPage: React.FC = () => {
               className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded bg-transparent border border-[#292929] text-[#A3A3A3] hover:text-[#F5F5F5] hover:border-[#39FF88]/50 font-medium text-sm transition-all"
             >
               <BarChart2 className="w-4 h-4" />
-              <span>View ML Performance Report</span>
+              <span>View Detection Details</span>
             </Link>
           </div>
         </div>
 
-        {/* Architecture Note */}
+        {/* Safety note */}
         <div className="mt-6 p-4 rounded bg-[#111118] border border-[#181818] flex gap-3">
           <Info className="w-4 h-4 text-[#39FF88] shrink-0 mt-0.5" />
           <p className="text-xs text-[#A3A3A3] leading-relaxed">
-            <strong className="text-[#39FF88]">Production Architecture Guarantee:</strong> PhishGuard AI evaluates URLs deterministically using pure lexical parsing and offline ML inference. The service never resolves or connects to target hostnames, providing 100% protection against Server-Side Request Forgery (SSRF) and tracking beacons.
+            <strong className="text-[#39FF88]">How we protect you:</strong> PhishGuard AI checks the text of the address without opening or connecting to the submitted website.
           </p>
         </div>
       </section>

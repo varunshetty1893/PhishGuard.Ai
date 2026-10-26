@@ -111,64 +111,26 @@ def fetch_tranco_domains(n: int = 50000):
     return domains
 
 
-def build_legitimate_urls(tranco_domains, target_count=20000, seed=42):
-    """
-    Constructs an authentic legitimate URL distribution:
-    - 40% Bare domains: https://domain.com (or http://)
-    - 20% WWW domains: https://www.domain.com
-    - 40% Real deep links: natural real paths, query strings, and subdomains
-    """
-    rng = random.Random(seed)
-    urls = set()
-    
-    # 1. Bare root domains (40%)
-    n_bare = int(target_count * 0.40)
-    for d in tranco_domains[:n_bare]:
-        proto = "https" if rng.random() > 0.08 else "http"
-        urls.add(f"{proto}://{d}")
-        
-    # 2. WWW root domains (20%)
-    n_www = int(target_count * 0.20)
-    for d in tranco_domains[n_bare:n_bare + n_www]:
-        proto = "https" if rng.random() > 0.05 else "http"
-        # If domain doesn't already have www., prepend
-        host = f"www.{d}" if not d.startswith("www.") else d
-        urls.add(f"{proto}://{host}")
-        
-    # 3. Real deep links & diverse paths (40%)
-    # Include all real deep seeds
-    for u in REAL_DEEP_SEEDS:
-        urls.add(u)
-
-    # Real deep link templates across Tranco domains
-    # Realistic paths with genuine web components, not repetitive fake templates
-    realistic_path_components = [
-        "docs", "wiki", "articles", "news", "blog", "research", "explore",
-        "api/v1", "support", "community", "about", "contact", "search",
-        "category/tech", "releases", "download", "tutorial", "archive"
-    ]
-    file_extensions = ["", ".html", ".php", ".pdf", ""]
-    
-    remaining = target_count - len(urls)
-    for d in tranco_domains[n_bare + n_www: n_bare + n_www + remaining + 1000]:
-        if len(urls) >= target_count:
-            break
-        proto = "https" if rng.random() > 0.10 else "http"
-        host = f"www.{d}" if rng.random() > 0.5 else d
-        comp = rng.choice(realistic_path_components)
-        ext = rng.choice(file_extensions)
-        
-        # Add realistic query parameter 25% of the time
-        if rng.random() < 0.25:
-            q_terms = ["security", "overview", "guide", "update", "research", "standard"]
-            query = f"?q={rng.choice(q_terms)}&page={rng.randint(1, 5)}"
-            urls.add(f"{proto}://{host}/{comp}{ext}{query}")
-        else:
-            urls.add(f"{proto}://{host}/{comp}{ext}")
-            
-    res = list(urls)[:target_count]
-    print(f"[+] Generated {len(res):,} high-quality legitimate URLs")
-    return res
+def build_legitimate_urls(_tranco_domains, target_count=20000, seed=42):
+    """Use observed PhiUSIIL legitimate URLs; never generate paths from words."""
+    source = DATA_DIR / "dataset.csv"
+    if not source.exists():
+        raise FileNotFoundError(f"Missing observed-URL source: {source}")
+    df = pd.read_csv(source, usecols=["url", "label"])
+    legit = df[df["label"] == 0]["url"].dropna().astype(str)
+    legit = legit[legit.str.match(r"^https?://", na=False)].drop_duplicates()
+    keywords = r"login|signin|secure|account|billing|portal|verify|update|auth"
+    login_pages = legit[legit.str.contains(keywords, case=False, regex=True)]
+    if len(login_pages) < 1000:
+        raise RuntimeError(
+            f"Only {len(login_pages)} observed login/account URLs are available. "
+            "Add at least 1,000 verified real login URLs before retraining; synthetic paths are prohibited."
+        )
+    chosen_login = login_pages.sample(n=1000, random_state=seed)
+    remainder = legit.drop(chosen_login.index).sample(n=target_count - len(chosen_login), random_state=seed)
+    urls = pd.concat([chosen_login, remainder]).drop_duplicates().tolist()
+    print(f"[+] Selected {len(urls):,} observed legitimate URLs, including {len(chosen_login):,} login/account URLs")
+    return urls
 
 
 def load_phishing_urls(target_count=20000, seed=42):
@@ -188,10 +150,16 @@ def load_phishing_urls(target_count=20000, seed=42):
         p_urls2 = df2[df2["ClassLabel"] == 0]["URL"].dropna().astype(str).tolist()
         phish_urls.update(p_urls2)
         
-    phish_list = list(phish_urls)
-    random.Random(seed).shuffle(phish_list)
-    phish_list = phish_list[:target_count]
-    print(f"[+] Sampled {len(phish_list):,} genuine verified phishing URLs")
+    rows = []
+    for url in phish_urls:
+        host = (urlparse(str(url)).hostname or "").lower()
+        apex = ".".join(host.split(".")[-2:])
+        if host:
+            rows.append((str(url), apex))
+    phish_df = pd.DataFrame(rows, columns=["url", "apex"]).drop_duplicates("url")
+    phish_df = phish_df.sample(frac=1, random_state=seed).drop_duplicates("apex")
+    phish_list = phish_df["url"].head(target_count).tolist()
+    print(f"[+] Sampled {len(phish_list):,} phishing URLs after apex-domain deduplication")
     return phish_list
 
 

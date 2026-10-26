@@ -88,7 +88,7 @@ export const RegisterPage: React.FC = () => {
             Create Your Account
           </h1>
           <p className="text-xs text-[#A3A3A3]">
-            Individual user access with private, isolated scan history
+            Your account keeps your previously checked links private
           </p>
         </div>
 

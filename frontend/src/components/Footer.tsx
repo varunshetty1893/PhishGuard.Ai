@@ -19,7 +19,7 @@ export const Footer: React.FC = () => {
             </div>
             <p className="text-xs text-[#A3A3A3] max-w-md leading-relaxed">
               Next-generation AI-powered phishing URL detection and cyber defense platform.
-              Combines a genuinely trained Random Forest classifier with multi-source threat intelligence.
+              Checks web addresses for phishing warning signs and known threats without opening them.
             </p>
             <div className="flex items-center gap-4 text-[11px] text-[#A3A3A3]">
               <span className="flex items-center gap-1.5">
@@ -47,12 +47,12 @@ export const Footer: React.FC = () => {
               </li>
               <li>
                 <Link to="/dashboard" className="hover:text-[#39FF88] transition-colors">
-                  Analytics Dashboard
+                  Your Scan Summary
                 </Link>
               </li>
               <li>
                 <Link to="/history" className="hover:text-[#39FF88] transition-colors">
-                  Scan History & Export
+                  Previously Checked Links
                 </Link>
               </li>
               <li>
@@ -74,13 +74,13 @@ export const Footer: React.FC = () => {
             </ul>
           </div>
 
-          {/* Platform Architecture */}
+          {/* How the safety check works */}
           <div>
             <h4 className="text-xs font-semibold uppercase tracking-wider text-[#F5F5F5] mb-3">
-              Platform Architecture
+              How We Check Links
             </h4>
             <p className="text-[11px] text-[#A3A3A3] leading-relaxed mb-3">
-              Enterprise-grade threat intelligence and deterministic ML inference.
+              Address warning signs plus known-threat checks. Your submitted links are never opened.
               Built with Scikit-learn, FastAPI, React 18, and Neon PostgreSQL.
             </p>
             <div className="space-y-2">
@@ -108,7 +108,7 @@ export const Footer: React.FC = () => {
         {/* Responsible Use Disclaimer Banner */}
         <div className="pt-6 border-t border-[#181818] text-[11px] text-[#737373] leading-normal flex flex-col md:flex-row justify-between items-center gap-4">
           <p>
-            <strong>Responsible-Use Disclaimer:</strong> PhishGuard AI provides statistical probability estimates and third-party lookups.
+            <strong>Important:</strong> PhishGuard AI gives guidance based on address patterns and known-threat checks. It cannot guarantee that every dangerous link will be found.
             A legitimate rating is never an absolute guarantee of website safety. Never download unexpected software or submit credentials blindly.
           </p>
           <p className="shrink-0 text-[#A3A3A3]">

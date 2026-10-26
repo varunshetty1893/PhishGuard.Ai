@@ -47,7 +47,7 @@ export const LandingPage: React.FC = () => {
           </h1>
 
           <p className="text-base sm:text-lg text-[#A3A3A3] max-w-2xl mx-auto leading-relaxed">
-            Paste any suspicious link below. Our AI instantly analyses it for phishing patterns
+            Paste any suspicious link below. We check it for common phishing warning signs without opening it.
             — <strong className="text-[#F5F5F5]">without ever visiting the website</strong>.
             Get a clear safety verdict in under 2 seconds.
           </p>
@@ -117,9 +117,9 @@ export const LandingPage: React.FC = () => {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {[
               { num: '01', title: 'Safe Ingestion', desc: 'URL is sanitized and validated in-memory. No browser rendering or network connection to the target.' },
-              { num: '02', title: 'Feature Extraction', desc: 'Extracts 16 deterministic lexical dimensions: dots, hyphens, subdomains, raw IP presence, shortening services, and authentication keywords.' },
-              { num: '03', title: 'Random Forest ML', desc: 'A 150-tree Random Forest classifier evaluates the feature vector, yielding class prediction and confidence probability.' },
-              { num: '04', title: 'Threat Feeds & Report', desc: 'Cross-references Google Safe Browsing and URLhaus threat feeds. Delivers an explainable report with actionable safety recommendations.' },
+              { num: '02', title: 'Look for Warning Signs', desc: 'We check the address for signs such as unusual dots, hyphens, subdomains, number-based addresses, shorteners, and sign-in words.' },
+              { num: '03', title: 'Compare Phishing Patterns', desc: 'Our detection system compares these signs with examples of phishing and safe links.' },
+              { num: '04', title: 'Check Known Threats', desc: 'We also check Google Safe Browsing and URLhaus, then give you clear next steps.' },
             ].map((item) => (
               <div key={item.num} className="p-5 rounded bg-[#111111] border border-[#292929] relative space-y-3">
                 <div className="w-8 h-8 rounded bg-[#181818] border border-[#39FF88]/40 flex items-center justify-center text-[#39FF88] font-bold text-xs">
@@ -150,29 +150,29 @@ export const LandingPage: React.FC = () => {
             <ul className="space-y-3 text-xs text-[#F5F5F5]">
               <li className="flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 text-[#39FF88] shrink-0" />
-                <span>16 Lexical & Structural Feature Dimensions</span>
+                <span>16 common address warning signs</span>
               </li>
               <li className="flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 text-[#39FF88] shrink-0" />
-                <span>Calibrated Risk Scoring (Low Risk, Suspicious, High Risk)</span>
+                <span>Clear results: Likely Safe, Suspicious, or Likely Phishing</span>
               </li>
               <li className="flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 text-[#39FF88] shrink-0" />
-                <span>Deterministic offline inference in under 15ms</span>
+                <span>Your submitted link is never opened</span>
               </li>
             </ul>
           </div>
 
-          {/* Column 2: External Threat Intelligence */}
+          {/* Column 2: Known threat checks */}
           <div className="p-8 rounded bg-[#0A0A0A] border border-[#292929] space-y-6">
             <div className="inline-flex p-3 rounded bg-[#111111] border border-[#FFD54A]/40">
               <Shield className="w-6 h-6 text-[#FFD54A]" />
             </div>
             <h3 className="text-xl font-bold text-[#F5F5F5]">
-              Multi-Source Threat Intelligence
+              Known Threat Check
             </h3>
             <p className="text-xs text-[#A3A3A3] leading-relaxed">
-              Server-side adapters query industry-standard threat databases. Each provider maintains an independent status,
+              We securely check trusted threat databases. Each service reports its own status,
               and external network failures never disrupt local machine learning classification.
             </p>
             <ul className="space-y-3 text-xs text-[#F5F5F5]">
@@ -182,7 +182,7 @@ export const LandingPage: React.FC = () => {
               </li>
               <li className="flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 text-[#FFD54A] shrink-0" />
-                <span>abuse.ch URLhaus Malware Repository Adapter</span>
+                <span>abuse.ch URLhaus malware database</span>
               </li>
               <li className="flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 text-[#FFD54A] shrink-0" />
@@ -193,7 +193,7 @@ export const LandingPage: React.FC = () => {
         </div>
       </section>
 
-      {/* Security & Architecture Highlights */}
+          {/* Safety highlights */}
       <section className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pb-4">
         <div className="p-8 rounded bg-[#111111] border border-[#292929] space-y-6">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -230,9 +230,9 @@ export const LandingPage: React.FC = () => {
               </p>
             </div>
             <div className="space-y-2">
-              <h4 className="font-semibold text-[#39FF88]">Decoupled Architecture</h4>
+              <h4 className="font-semibold text-[#39FF88]">Your Link Stays Closed</h4>
               <p className="text-[#A3A3A3] leading-relaxed">
-                FastAPI REST endpoints handle inference, with user-isolated scan persistence in Neon PostgreSQL and reactive visualization via React & Recharts.
+                We examine the text of the address without opening it in your browser.
               </p>
             </div>
           </div>

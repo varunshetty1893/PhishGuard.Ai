@@ -4,7 +4,6 @@ import {
   Shield,
   LayoutDashboard,
   History,
-  Cpu,
   Settings,
   Menu,
   X,
@@ -28,16 +27,14 @@ export const Navbar: React.FC = () => {
   };
 
   const authenticatedNavItems = [
-    { label: 'Scanner', path: '/scanner', icon: Terminal },
+    { label: 'Check a Link', path: '/scanner', icon: Terminal },
     { label: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
     { label: 'History', path: '/history', icon: History },
-    { label: 'ML Lab', path: '/ml-lab', icon: Cpu },
     { label: 'How It Works', path: '/about', icon: BookOpen },
     { label: 'Settings', path: '/settings', icon: Settings },
   ];
 
   const publicNavItems = [
-    { label: 'ML Lab', path: '/ml-lab', icon: Cpu },
     { label: 'How It Works', path: '/about', icon: BookOpen },
   ];
 
@@ -63,7 +60,7 @@ export const Navbar: React.FC = () => {
                   PhishGuard<span className="text-[#39FF88]">.AI</span>
                 </span>
                 <span className="text-[10px] uppercase tracking-wider font-semibold px-1.5 py-0.5 rounded bg-[#181818] text-[#39FF88] border border-[#39FF88]/30">
-                  ML v2.1
+                  v2.1
                 </span>
               </div>
               <p className="text-[10px] text-[#A3A3A3] hidden sm:block">

@@ -110,21 +110,21 @@ export const ResultsPage: React.FC = () => {
 
   // Calibrated score for display
     // Determine cautious, professional headline text
-  let verdictHeadline = 'Legitimate Structure';
-  let verdictSubtext = 'Conforms to expected web address patterns';
+  let verdictHeadline = 'Likely Safe';
+  let verdictSubtext = 'No major warning signs were found. Safety is not guaranteed.';
 
   if (hasThreatMatch) {
-    verdictHeadline = 'Confirmed Threat Match';
-    verdictSubtext = 'Flagged by external security threat intelligence database';
+    verdictHeadline = 'Confirmed Dangerous Link';
+    verdictSubtext = 'A known-threat service has flagged this address. Do not open it or enter information.';
   } else if (isVerifiedDomain) {
-    verdictHeadline = 'Verified Domain Authority';
-    verdictSubtext = `Authenticated high-reputation infrastructure (${apexDomain})`;
+    verdictHeadline = 'Website Identity Check Passed';
+    verdictSubtext = `This address uses the verified ${apexDomain} domain. This alone does not guarantee safety.`;
   } else if (isHighRisk) {
-    verdictHeadline = 'Elevated Phishing Risk';
-    verdictSubtext = `High Risk Tier · Deceptive lexical anomalies detected (Decision index: ${assessedMlPercent}%)`;
+    verdictHeadline = 'Likely Phishing';
+    verdictSubtext = `Strong warning signs were found (risk score: ${assessedMlPercent}/100). Do not enter passwords or payment details.`;
   } else if (isSuspicious) {
-    verdictHeadline = 'Suspicious URL Structure';
-    verdictSubtext = `Medium Risk Tier · Borderline lexical attributes detected (Decision index: ${assessedMlPercent}%)`;
+    verdictHeadline = 'Suspicious';
+    verdictSubtext = `Some warning signs were found (risk score: ${assessedMlPercent}/100). Verify the link before entering information.`;
   }
 
   const bannerTheme = isHighRisk
@@ -153,6 +153,27 @@ export const ResultsPage: React.FC = () => {
     ? 'bg-gradient-to-r from-[#FF8C42] to-[#FFD54A]'
     : 'bg-gradient-to-r from-[#39FF88] to-[#00E676]';
 
+  // Translate only warning signs the detector actually returned; this keeps
+  // the explanation accurate while avoiding specialist security vocabulary.
+  const plainWarning = (reason: string) => {
+    if (/Raw IP address/i.test(reason)) return 'This address uses numbers instead of a normal website name.';
+    if (/Contains '@'/i.test(reason)) return 'This address uses an @ symbol, which can hide the real website name.';
+    if (/subdomain nesting/i.test(reason)) return 'This address has many sections before the main website name, which can be misleading.';
+    if (/hyphens/i.test(reason)) return 'This address has many hyphens, which are sometimes used to imitate a trusted name.';
+    if (/dot count/i.test(reason)) return 'This address has an unusual number of dots.';
+    if (/unencrypted HTTP/i.test(reason)) return 'This website uses an unencrypted connection.';
+    if (/sensitive keywords/i.test(reason)) return `This address contains words often used to trick people into signing in.${reason.match(/: (.+)\.$/) ? ` (${reason.match(/: (.+)\.$/)![1]})` : ''}`;
+    if (/shortening service/i.test(reason)) return 'This shortened link hides where it leads.';
+    if (/special characters/i.test(reason)) return 'This address contains an unusual number of special characters.';
+    if (/Long URL length/i.test(reason)) return 'This address is unusually long, which can make the real destination harder to see.';
+    if (/High-risk TLD/i.test(reason)) return 'This address ends in a domain type that is often abused for phishing.';
+    if (/resembles a well-known brand/i.test(reason)) return 'This address uses a name that resembles a well-known company.';
+    if (/trusted brand name appears/i.test(reason)) return 'This address mentions a trusted brand in a misleading part of the name.';
+    if (/Punycode/i.test(reason)) return 'This address uses encoded characters that can make a fake name look real.';
+    if (/hostname entropy/i.test(reason)) return 'This address has a random-looking website name.';
+    return reason;
+  };
+
   // Helper for provider state styling
   const renderProviderState = (name: string, provider: any) => {
     const status = provider?.status || 'Not Configured';
@@ -166,7 +187,7 @@ export const ResultsPage: React.FC = () => {
     );
         let cardBg = 'bg-[#0A0A0A] border-[#181818]';
     let icon = <HelpCircle className="w-4 h-4 text-[#737373]" />;
-    let stateBadge = <span className="text-[11px] px-2 py-0.5 rounded bg-[#181818] border border-[#292929] text-[#737373]">Not Configured</span>;
+    let stateBadge = <span className="text-[11px] px-2 py-0.5 rounded bg-[#181818] border border-[#292929] text-[#737373]">Not Set Up Yet</span>;
 
     if (isThreat) {
       cardBg = 'bg-[#1A0D0F] border-[#FF525C]/40';
@@ -175,7 +196,7 @@ export const ResultsPage: React.FC = () => {
     } else if (isNoMatch) {
       cardBg = 'bg-[#0A0A0A] border-[#292929]';
       icon = <CheckCircle2 className="w-4 h-4 text-[#39FF88]" />;
-      stateBadge = <span className="text-[11px] px-2 py-0.5 rounded bg-[#0E1A12] border border-[#39FF88]/40 text-[#39FF88]">No Match Reported</span>;
+      stateBadge = <span className="text-[11px] px-2 py-0.5 rounded bg-[#0E1A12] border border-[#39FF88]/40 text-[#39FF88]">No Known Threat Found</span>;
     } else if (isInvalidKey) {
       // Orange: API key is present but rejected by the provider
       cardBg = 'bg-[#1A1100] border-[#FF8C42]/40';
@@ -188,7 +209,7 @@ export const ResultsPage: React.FC = () => {
     } else if (isUnavailable) {
       cardBg = 'bg-[#14120A] border-[#FFD54A]/30';
       icon = <AlertTriangle className="w-4 h-4 text-[#FFD54A]" />;
-      stateBadge = <span className="text-[11px] px-2 py-0.5 rounded bg-[#1A170A] border border-[#FFD54A]/40 text-[#FFD54A]">Unavailable</span>;
+      stateBadge = <span className="text-[11px] px-2 py-0.5 rounded bg-[#1A170A] border border-[#FFD54A]/40 text-[#FFD54A]">Threat Check Temporarily Unavailable</span>;
     }
 
     return (
@@ -215,12 +236,12 @@ export const ResultsPage: React.FC = () => {
               and update <code className="text-[#F5F5F5] bg-[#292929] px-1 rounded">URLHAUS_AUTH_KEY</code> in backend .env.
             </>
           ) : (
-            provider?.details || 'Provider query evaluation record.'
+            provider?.details || 'No details were returned by this known-threat check.'
           )}
         </p>
         {provider?.category && (
           <span className="inline-block text-[10px] font-mono px-2 py-0.5 rounded bg-[#181010] text-[#FF525C] border border-[#FF525C]/30">
-            Identified Threat Category: {provider.category}
+            Known threat type: {provider.category}
           </span>
         )}
       </div>
@@ -282,7 +303,7 @@ export const ResultsPage: React.FC = () => {
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded bg-[#0E1A12] border border-[#39FF88]/40 text-[#39FF88] text-xs">
             <CheckCircle2 className="w-4 h-4 shrink-0" />
             <span>
-              <strong>Verified Domain Authority:</strong> This link points to authentic enterprise infrastructure under{' '}
+              <strong>Website Identity Check:</strong> This link uses verified infrastructure under{' '}
               <strong className="underline">{apexDomain}</strong>.
             </span>
           </div>
@@ -317,17 +338,17 @@ export const ResultsPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Dedicated Side-by-Side: ML Probability vs Final Risk Assessment */}
+          {/* Risk score and plain-language verdict */}
           <div className="flex flex-col sm:flex-row gap-3">
-            {/* 1. Machine Learning Probability Box */}
+            {/* Phishing risk score */}
             <div className="bg-[#050505] p-4 rounded border border-[#292929] min-w-[210px] space-y-2">
               <div className="flex items-center justify-between text-xs">
                 <span className="text-[#A3A3A3] flex items-center gap-1.5">
                   <Cpu className="w-3.5 h-3.5 text-[#39FF88]" />
-                  ML Probability
+                  Phishing Risk Score
                 </span>
                 <span className={`font-mono font-bold ${mlScoreColor}`}>
-                  {assessedMlPercent}%
+                  {assessedMlPercent}/100
                 </span>
               </div>
               <div className="w-full bg-[#181818] rounded-full h-2 overflow-hidden">
@@ -337,19 +358,19 @@ export const ResultsPage: React.FC = () => {
                 />
               </div>
               <p className="text-[10px] text-[#737373]">
-                Green = safe, amber = borderline, red = unsafe. Calibrated on a 50/50 dataset.
+                This score shows how suspicious the address looks. A higher score means more warning signs. It does not guarantee a site is dangerous or safe.
               </p>
             </div>
 
-            {/* 2. Final Risk Assessment Box */}
+            {/* Plain-language verdict */}
             <div className="bg-[#050505] p-4 rounded border border-[#292929] min-w-[210px] space-y-2">
               <div className="flex items-center justify-between text-xs">
                 <span className="text-[#A3A3A3] flex items-center gap-1.5">
                   <Shield className="w-3.5 h-3.5 text-[#FFD54A]" />
-                  Final Assessment
+                  Our Verdict
                 </span>
                 <span className="font-semibold text-xs text-[#F5F5F5]">
-                  {result.risk_level}
+                  {isHighRisk ? 'Likely Phishing' : isSuspicious ? 'Suspicious' : 'Likely Safe'}
                 </span>
               </div>
               <div className="flex items-center gap-2 pt-0.5">
@@ -361,7 +382,7 @@ export const ResultsPage: React.FC = () => {
                 )}
               </div>
               <p className="text-[10px] text-[#737373]">
-                Synthesized from ML, domain authority &amp; threat feeds
+                Based on the address check, website identity check, and known-threat checks
               </p>
             </div>
           </div>
@@ -369,20 +390,20 @@ export const ResultsPage: React.FC = () => {
 
         {/* Plain Language Interpretation */}
         <div className="pt-4 border-t border-[#292929]/50 text-xs text-[#F5F5F5] leading-relaxed">
-          <strong className="text-[#39FF88]">Security Synthesis:</strong> {result.combined_interpretation}
+          <strong className="text-[#39FF88]">What this means:</strong> {result.combined_interpretation}
         </div>
       </div>
 
       {/* Two Column Grid: Threat Intel vs Heuristic Warnings */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Threat Intelligence Findings */}
+        {/* Known-threat findings */}
         <div className="p-6 rounded bg-[#111111] border border-[#292929] space-y-4">
           <div className="flex items-center justify-between pb-3 border-b border-[#181818]">
             <h3 className="text-xs font-semibold uppercase tracking-wider text-[#F5F5F5] flex items-center gap-2">
               <Database className="w-4 h-4 text-[#FFD54A]" />
-              Threat Intelligence Feeds
+              Known Threat Check
             </h3>
-            <span className="text-[10px] text-[#A3A3A3]">Active Databases</span>
+            <span className="text-[10px] text-[#A3A3A3]">Threat databases</span>
           </div>
 
           <div className="space-y-4">
@@ -396,24 +417,24 @@ export const ResultsPage: React.FC = () => {
             <div className="p-3 rounded bg-[#0A0A0A] border border-[#292929] space-y-1">
               <div className="flex items-center gap-1.5 text-[11px] font-semibold text-[#FFD54A]">
                 <Info className="w-3.5 h-3.5 shrink-0" />
-                <span>Absence From Databases Does Not Imply Safety</span>
+                <span>No Known Threat Does Not Mean a Link Is Safe</span>
               </div>
               <p className="text-[11px] text-[#A3A3A3] leading-relaxed">
-                Threat databases are retrospective registries. Zero-day phishing campaigns and newly registered domains are absent from threat feeds initially. A &quot;No Match Reported&quot; result simply confirms the URL is not yet indexed; our ML engine independently evaluates structural risks.
+                Threat databases list links that have already been reported. New phishing links may not be listed yet. “No known threat found” only means this address is not currently in that database.
               </p>
             </div>
           </div>
         </div>
 
-        {/* Explainable Heuristics & Anomaly Indicators */}
+        {/* Plain-language warning signs */}
         <div className="p-6 rounded bg-[#111111] border border-[#292929] space-y-4">
           <div className="flex items-center justify-between pb-3 border-b border-[#181818]">
             <h3 className="text-xs font-semibold uppercase tracking-wider text-[#F5F5F5] flex items-center gap-2">
               <AlertTriangle className="w-4 h-4 text-[#FF525C]" />
-              Detected Anomaly Explanations
+              What Looks Suspicious
             </h3>
             <span className="text-[10px] text-[#A3A3A3]">
-              {result.suspicious_reasons.length} Indicator{result.suspicious_reasons.length === 1 ? '' : 's'}
+              {result.suspicious_reasons.length} Warning Sign{result.suspicious_reasons.length === 1 ? '' : 's'}
             </span>
           </div>
 
@@ -433,16 +454,16 @@ export const ResultsPage: React.FC = () => {
                   ) : (
                     <XCircle className="w-4 h-4 text-[#FF525C] shrink-0 mt-0.5" />
                   )}
-                  <span className="leading-relaxed">{reason}</span>
+                  <span className="leading-relaxed">{plainWarning(reason)}</span>
                 </li>
               ))}
             </ul>
           ) : (
             <div className="p-6 rounded bg-[#0E1A12] border border-[#39FF88]/20 text-center space-y-2">
               <CheckCircle2 className="w-6 h-6 text-[#39FF88] mx-auto" />
-              <p className="text-xs text-[#F5F5F5] font-medium">No Structural Anomalies Detected</p>
+              <p className="text-xs text-[#F5F5F5] font-medium">No Major Warning Signs Found</p>
               <p className="text-[11px] text-[#A3A3A3]">
-                The URL adheres to clean conventions with no deceptive keywords, raw IP address structures, or suspicious token lengths.
+                This address does not show the common warning signs we check for. Stay alert for unexpected requests for passwords or payment details.
               </p>
             </div>
           )}
