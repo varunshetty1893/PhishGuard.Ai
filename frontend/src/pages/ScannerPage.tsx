@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { Terminal, Shield, ArrowRight, AlertTriangle, CheckCircle2, Loader2, Sparkles } from 'lucide-react';
+import { Terminal, Shield, ArrowRight, CheckCircle2, Loader2, Sparkles, AlertOctagon } from 'lucide-react';
 import { api } from '../services/api';
 import type { ScanResult } from '../types';
+import { validateScanUrl } from '../utils/urlValidator';
 
 export const ScannerPage: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -13,28 +14,44 @@ export const ScannerPage: React.FC = () => {
   const [currentStep, setCurrentStep] = useState(0);
   const [errorMessage, setErrorMessage] = useState('');
 
-  // Sample demo URLs representing distinct security profiles
-  const demoSamples = [
+  // Benchmark test scenarios for testing diverse URL categories
+  const benchmarkSamples = [
     {
-      title: 'Phishing Attack Demo',
+      title: 'Legitimate Web Portal',
+      url: 'https://www.google.com',
+      badge: 'Legitimate',
+      badgeColor: 'text-[#39FF88] border-[#39FF88]/40 bg-[#0E1A12]',
+      description: 'Authentic apex domain with standard HTTPS encryption and high reputation'
+    },
+    {
+      title: 'Phishing Impersonation',
       url: 'http://login.paypal.com.account-verify.xyz/signin',
-      description: 'Chained subdomains, suspicious keywords, unencrypted HTTP'
+      badge: 'Phishing',
+      badgeColor: 'text-[#FF525C] border-[#FF525C]/40 bg-[#1A0D0F]',
+      description: 'Chained subdomains, deceptive keywords, and unencrypted HTTP scheme'
     },
     {
-      title: 'Legitimate Portal Demo',
-      url: 'https://wikipedia.org/wiki/Computer_science',
-      description: 'Authentic HTTPS portal with clean semantic directory structure'
+      title: 'External Public IP Hostname',
+      url: 'http://203.0.113.195/secure/login.php',
+      badge: 'Suspicious IP',
+      badgeColor: 'text-[#FFD54A] border-[#FFD54A]/40 bg-[#1A170A]',
+      description: 'Direct numeric IPv4 destination bypassing standard domain name resolution'
     },
     {
-      title: 'Raw IP Hostname Demo',
-      url: 'http://192.168.1.105:8080/admin/login.php',
-      description: 'Direct IPv4 address and non-standard network port'
-    },
-    {
-      title: 'Shortened Link Demo',
-      url: 'https://bit.ly/3xY9kL1-secure-banking',
-      description: 'URL shortening service concealing true destination'
+      title: 'Deceptive Banking Domain',
+      url: 'https://secure-update-banking.co.uk/verify/index.html',
+      badge: 'Anomalous',
+      badgeColor: 'text-[#FFD54A] border-[#FFD54A]/40 bg-[#1A170A]',
+      description: 'Compound hyphenated brand keywords and suspicious lexical structure'
     }
+  ];
+
+  // Quick tests for validation rejection behavior
+  const rejectionTests = [
+    { label: 'Test Localhost', value: 'http://localhost:5173' },
+    { label: 'Test Internal IP', value: 'http://192.168.1.1' },
+    { label: 'Test Local Route', value: '/scanner' },
+    { label: 'Test Malformed String', value: 'jhsahjvahvhasvkhgksghewvfv' }
   ];
 
   const scanStages = [
@@ -54,34 +71,13 @@ export const ScannerPage: React.FC = () => {
   }, [searchParams]);
 
   const executeScan = async (targetUrl: string) => {
-    const trimmed = targetUrl.trim();
-    if (!trimmed) {
-      setErrorMessage('Please enter a URL to scan.');
-      return;
-    }
-    if (trimmed.length > 2048) {
-      setErrorMessage('URL exceeds maximum permitted limit of 2,048 characters.');
-      return;
-    }
-    if (/\s/.test(trimmed)) {
-      setErrorMessage('A web address cannot contain spaces. Please check your input.');
+    const validation = validateScanUrl(targetUrl);
+    if (!validation.isValid) {
+      setErrorMessage(validation.error || 'Invalid URL entered.');
       return;
     }
 
-    // Validate that the input contains a valid domain, IP, or localhost
-    let domainCandidate = trimmed.replace(/^[a-zA-Z][a-zA-Z0-9+.-]*:\/\//, '').split('/')[0].split('?')[0].split('#')[0];
-    domainCandidate = domainCandidate.replace(/:\d+$/, '');
-
-    const isIp = /^(\d{1,3}\.){3}\d{1,3}$/.test(domainCandidate) || /^\[[0-9a-fA-F:]+\]$/.test(domainCandidate);
-    const isLocalhost = domainCandidate.toLowerCase() === 'localhost';
-    const isDomain = /^[a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?)*\.[a-zA-Z]{2,}$/.test(domainCandidate);
-
-    if (!isIp && !isLocalhost && !isDomain) {
-      setErrorMessage(
-        `"${trimmed}" is not a recognized web address. Please enter a valid URL with a proper domain extension (e.g. example.com or https://company.org).`
-      );
-      return;
-    }
+    const sanitized = validation.sanitizedUrl || targetUrl.trim();
 
     setErrorMessage('');
     setIsLoading(true);
@@ -96,7 +92,7 @@ export const ScannerPage: React.FC = () => {
     }, 450);
 
     try {
-      const result: ScanResult = await api.scanUrl(trimmed);
+      const result: ScanResult = await api.scanUrl(sanitized);
       clearInterval(stepInterval);
       setCurrentStep(scanStages.length);
       // Navigate to detailed results report
@@ -125,7 +121,7 @@ export const ScannerPage: React.FC = () => {
           Inspect Suspicious URLs Safely
         </h1>
         <p className="text-xs sm:text-sm text-[#A3A3A3] max-w-xl mx-auto">
-          Treat untrusted URLs with caution. Our scanner extracts lexical features and evaluates ML risk tiers without executing remote code.
+          Treat untrusted URLs with caution. Our scanner extracts lexical features and evaluates ML risk tiers without ever visiting or executing remote code.
         </p>
       </div>
 
@@ -154,16 +150,37 @@ export const ScannerPage: React.FC = () => {
           </div>
 
           {errorMessage && (
-            <div className="p-3 rounded bg-[#181010] border border-[#FF525C]/40 text-xs text-[#FF525C] flex items-center gap-2">
-              <AlertTriangle className="w-4 h-4 shrink-0" />
-              <span>{errorMessage}</span>
+            <div className="p-3.5 rounded bg-[#181010] border border-[#FF525C]/40 text-xs text-[#FF525C] flex items-start gap-2.5">
+              <AlertOctagon className="w-4 h-4 shrink-0 mt-0.5" />
+              <div className="space-y-1">
+                <span className="font-semibold">Input Validation Rejection:</span>
+                <p className="text-[#F5F5F5] leading-relaxed">{errorMessage}</p>
+              </div>
             </div>
           )}
+
+          {/* Quick Rejection Test Buttons */}
+          <div className="flex flex-wrap items-center gap-2 pt-1">
+            <span className="text-[10px] uppercase font-semibold text-[#737373] mr-1">Quick Validation Checks:</span>
+            {rejectionTests.map((test, idx) => (
+              <button
+                key={idx}
+                type="button"
+                onClick={() => {
+                  setUrlInput(test.value);
+                  executeScan(test.value);
+                }}
+                className="text-[11px] font-mono px-2.5 py-1 rounded bg-[#0A0A0A] hover:bg-[#181818] border border-[#292929] hover:border-[#FF525C] text-[#A3A3A3] hover:text-[#FF525C] transition-colors"
+              >
+                {test.label}
+              </button>
+            ))}
+          </div>
 
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-2">
             <div className="flex items-center gap-2 text-[11px] text-[#A3A3A3]">
               <Shield className="w-3.5 h-3.5 text-[#39FF88]" />
-              <span>Strict Zero-Crawl Rule: Target URL is never fetched or visited.</span>
+              <span>Strict Zero-Crawl Rule: Target URL is parsed strictly in-memory and never fetched.</span>
             </div>
 
             <button
@@ -234,7 +251,7 @@ export const ScannerPage: React.FC = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {demoSamples.map((sample, idx) => (
+          {benchmarkSamples.map((sample, idx) => (
             <div
               key={idx}
               onClick={() => {
@@ -247,7 +264,9 @@ export const ScannerPage: React.FC = () => {
                 <h3 className="font-medium text-xs text-[#F5F5F5] group-hover:text-[#39FF88]">
                   {sample.title}
                 </h3>
-                <span className="text-[10px] text-[#39FF88] uppercase font-semibold">Test Sample</span>
+                <span className={`text-[10px] uppercase font-semibold px-2 py-0.5 rounded border ${sample.badgeColor}`}>
+                  {sample.badge}
+                </span>
               </div>
               <p className="text-xs font-mono text-[#A3A3A3] truncate bg-[#050505] px-2 py-1 rounded border border-[#292929]">
                 {sample.url}

@@ -42,7 +42,7 @@ async def scan_url(
     """
     raw_url = request.url
 
-    # 1. Run Machine Learning Inference
+    # 1. Run Machine Learning Inference (Offline, in-memory, zero outbound crawl)
     try:
         ml_result = MLInferenceService.predict(raw_url)
     except Exception as e:
@@ -57,26 +57,106 @@ async def scan_url(
     gsb_res = threat_results["google_safe_browsing"]
     urlhaus_res = threat_results["urlhaus"]
 
-    # 3. Create Unique Scan ID
+    # 3. Combine Threat Intel and ML Results
+    raw_ml_prob = float(ml_result.get("raw_ml_score", ml_result.get("model_score", 0.0)))
+    is_verified = bool(ml_result.get("is_verified_domain", False))
+    apex = ml_result.get("apex_domain")
+    suspicious_reasons = list(ml_result.get("suspicious_reasons", []))
+    precautions = list(ml_result.get("recommended_precautions", []))
+
+    threat_intel_match = bool(gsb_res.threat_found or urlhaus_res.threat_found)
+
+    if threat_intel_match:
+        # Threat intelligence confirmed match overrides ML
+        predicted_class = "Phishing"
+        risk_level = "High Risk"
+        final_model_score = 1.0
+
+        flagged_providers = []
+        if gsb_res.threat_found:
+            flagged_providers.append(f"Google Safe Browsing ({gsb_res.category or 'Threat Detected'})")
+        if urlhaus_res.threat_found:
+            flagged_providers.append(f"URLhaus ({urlhaus_res.category or 'Malware/Phishing'})")
+
+        provider_str = ", ".join(flagged_providers)
+        combined_interpretation = (
+            f"Confirmed Threat: Malicious match detected by active threat intelligence ({provider_str}). "
+            f"The URL is actively listed in global threat feeds. Do not visit this destination under any circumstances."
+        )
+        suspicious_reasons.insert(0, f"Confirmed threat listed in {provider_str}.")
+        precautions = [
+            "DO NOT click this link, navigate to this destination, or download any files.",
+            "DO NOT submit usernames, passwords, credit card numbers, or personal data.",
+            "If received via email, SMS, or chat, report the message as a confirmed threat to your security team."
+        ]
+    else:
+        # Threat feeds returned No Match, Not Configured, or Unavailable.
+        # CRITICAL: Never label a URL safe just because it is absent from threat databases.
+        # Final risk assessment is governed by the offline ML structural prediction & verified domain authority.
+        predicted_class = ml_result["predicted_class"]
+        risk_level = ml_result["risk_level"]
+        final_model_score = float(ml_result["model_score"])
+
+        # Construct clear provider status notes
+        provider_states = []
+        for name, res in [("Google Safe Browsing", gsb_res), ("URLhaus", urlhaus_res)]:
+            if res.status == "No Match Reported":
+                provider_states.append(f"{name}: No match listed")
+            elif res.status == "Not Configured":
+                provider_states.append(f"{name}: Not configured")
+            elif res.status == "Unavailable":
+                provider_states.append(f"{name}: Service unavailable")
+            else:
+                provider_states.append(f"{name}: {res.status}")
+        provider_notes = "; ".join(provider_states)
+
+        if is_verified:
+            combined_interpretation = (
+                f"Verified authentic infrastructure ({apex}). Structural metrics and apex authority confirm legitimate ownership. "
+                f"External threat status: {provider_notes}."
+            )
+        elif risk_level == "High Risk":
+            combined_interpretation = (
+                f"High Risk (ML Phishing Probability: {raw_ml_prob*100:.1f}%). "
+                f"Although external threat databases reported no active listing ({provider_notes}), "
+                f"the machine learning engine detected multiple deceptive lexical anomalies. "
+                f"Threat databases are retrospective blocklists and often have zero visibility into newly registered or zero-day phishing links. "
+                f"Exercise extreme caution."
+            )
+        elif risk_level == "Suspicious":
+            combined_interpretation = (
+                f"Suspicious URL (ML Probability: {raw_ml_prob*100:.1f}%). "
+                f"External threat status: {provider_notes}. "
+                f"The URL exhibits structural variations that deviate from typical legitimate websites. "
+                f"Exercise caution and verify the source directly."
+            )
+        else:
+            combined_interpretation = (
+                f"Low Risk (ML Probability: {raw_ml_prob*100:.1f}%). "
+                f"Conforms to standard web address conventions. External threat status: {provider_notes}. "
+                f"Note: Absence from threat databases does not guarantee 100% safety; practice standard digital hygiene."
+            )
+
+    # 4. Create Unique Scan ID
     scan_id = str(uuid.uuid4())
 
-    # 4. Persist Scan Record Strictly Bound to Authenticated User
+    # 5. Persist Scan Record Strictly Bound to Authenticated User
     scan_record = ScanHistory(
         scan_id=scan_id,
         user_id=current_user.id,
         submitted_url=ml_result["submitted_url"],
         normalized_url=ml_result["normalized_url"],
-        predicted_class=ml_result["predicted_class"],
-        risk_level=ml_result["risk_level"],
-        model_score=ml_result["model_score"],
-        combined_interpretation=ml_result["combined_interpretation"],
+        predicted_class=predicted_class,
+        risk_level=risk_level,
+        model_score=final_model_score,
+        combined_interpretation=combined_interpretation,
         model_version=ml_result["model_version"]
     )
     scan_record.extracted_features = ml_result["extracted_features"]
-    scan_record.suspicious_reasons = ml_result["suspicious_reasons"]
+    scan_record.suspicious_reasons = suspicious_reasons
     db.add(scan_record)
 
-    # 5. Persist Threat Logs tied to this scan
+    # 6. Persist Threat Logs tied to this scan
     gsb_log = ThreatCheckLog(
         scan_id=scan_id,
         provider_name="Google Safe Browsing",
@@ -121,15 +201,17 @@ async def scan_url(
         normalized_url=scan_record.normalized_url,
         predicted_class=scan_record.predicted_class,
         risk_level=scan_record.risk_level,
+        ml_probability=raw_ml_prob,
         model_score=scan_record.model_score,
-        raw_ml_score=ml_result.get("raw_ml_score"),
-        is_verified_domain=ml_result.get("is_verified_domain", False),
-        apex_domain=ml_result.get("apex_domain"),
+        raw_ml_score=raw_ml_prob,
+        is_verified_domain=is_verified,
+        apex_domain=apex,
+        threat_intel_match=threat_intel_match,
         extracted_features=scan_record.extracted_features,
         suspicious_reasons=scan_record.suspicious_reasons,
         threat_intelligence=threat_summary,
         combined_interpretation=scan_record.combined_interpretation,
-        recommended_precautions=ml_result["recommended_precautions"],
+        recommended_precautions=precautions,
         model_version=scan_record.model_version,
         created_at=scan_record.created_at
     )
@@ -260,6 +342,8 @@ def get_scan_detail(
     feats = record.extracted_features or {}
     apex_dom = feats.get("apex_domain")
     is_ver = bool(feats.get("is_verified_domain", 0))
+    raw_score = float(feats.get("raw_ml_score", record.model_score or 0.0))
+    threat_found = any(t.threat_found for t in record.threat_logs)
 
     return ScanResultResponse(
         scan_id=record.scan_id,
@@ -267,10 +351,12 @@ def get_scan_detail(
         normalized_url=record.normalized_url,
         predicted_class=record.predicted_class,
         risk_level=record.risk_level,
+        ml_probability=raw_score,
         model_score=record.model_score,
-        raw_ml_score=feats.get("raw_ml_score", record.model_score),
+        raw_ml_score=raw_score,
         is_verified_domain=is_ver,
         apex_domain=apex_dom,
+        threat_intel_match=threat_found,
         extracted_features=record.extracted_features,
         suspicious_reasons=record.suspicious_reasons,
         threat_intelligence=threat_summary,

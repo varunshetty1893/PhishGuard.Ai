@@ -1,4 +1,4 @@
-export interface ExtractedFeatures {
+﻿export interface ExtractedFeatures {
   url_length: number;
   hostname_length: number;
   path_length: number;
@@ -38,10 +38,12 @@ export interface ScanResult {
   normalized_url: string;
   predicted_class: 'Legitimate' | 'Phishing';
   risk_level: 'Low Risk' | 'Suspicious' | 'High Risk';
+  ml_probability: number;
   model_score: number | null;
   raw_ml_score?: number | null;
   is_verified_domain?: boolean;
   apex_domain?: string | null;
+  threat_intel_match?: boolean;
   extracted_features: ExtractedFeatures;
   suspicious_reasons: string[];
   threat_intelligence: ThreatIntelligenceSummary;

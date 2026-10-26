@@ -23,10 +23,15 @@ def get_model_info():
         }
 
         feature_names = meta.get("feature_names") or meta.get("feature_schema", [])
+        raw_algo = meta.get("model_name") or meta.get("algorithm", "Random Forest Classifier")
+        if "RandomForest" in raw_algo:
+            algo_display = "Random Forest (RandomForestClassifier)"
+        else:
+            algo_display = raw_algo
 
         return {
             "model_version": meta.get("version") or meta.get("model_version", "3.0.0"),
-            "algorithm": meta.get("model_name") or meta.get("algorithm", "Random Forest Classifier (150 Trees)"),
+            "algorithm": algo_display,
             "dataset_name": meta.get("dataset_name", "PhishGuard Threat Intelligence Benchmark"),
             "training_date": meta.get("trained_at") or meta.get("training_date", ""),
             "total_samples": meta.get("total_samples", 298006),

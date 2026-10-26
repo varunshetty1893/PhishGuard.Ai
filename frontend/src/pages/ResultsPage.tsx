@@ -12,8 +12,10 @@ import {
   Shield,
   CheckCircle2,
   XCircle,
-  Layers,
-  Info
+  HelpCircle,
+  Info,
+  Cpu,
+  Database
 } from 'lucide-react';
 import { api } from '../services/api';
 import type { ScanResult } from '../types';
@@ -90,23 +92,35 @@ export const ResultsPage: React.FC = () => {
   const isVerifiedDomain = Boolean(result.is_verified_domain || result.extracted_features?.is_verified_domain);
   const apexDomain = result.apex_domain || result.extracted_features?.apex_domain || '';
 
-  const scorePercent = result.model_score !== null ? (result.model_score * 100).toFixed(1) : null;
-  const rawScorePercent = result.raw_ml_score !== null && result.raw_ml_score !== undefined
-    ? (result.raw_ml_score * 100).toFixed(1)
-    : null;
+  const hasThreatMatch = Boolean(
+    result.threat_intel_match ||
+    result.threat_intelligence?.google_safe_browsing?.threat_found ||
+    result.threat_intelligence?.urlhaus?.threat_found
+  );
 
-  // Determine cautious, professional headline text
+  // Machine Learning raw probability (lexical statistics)
+  const rawMlProb = typeof result.ml_probability === 'number'
+    ? result.ml_probability
+    : (result.raw_ml_score ?? result.model_score ?? 0);
+  const rawMlPercent = (rawMlProb * 100).toFixed(1);
+
+  // Calibrated score for display
+    // Determine cautious, professional headline text
   let verdictHeadline = 'Legitimate Structure';
   let verdictSubtext = 'Conforms to expected web address patterns';
-  if (isVerifiedDomain) {
+
+  if (hasThreatMatch) {
+    verdictHeadline = 'Confirmed Threat Match';
+    verdictSubtext = 'Flagged by external security threat intelligence database';
+  } else if (isVerifiedDomain) {
     verdictHeadline = 'Verified Domain Authority';
-    verdictSubtext = `Authenticated enterprise infrastructure (${apexDomain})`;
+    verdictSubtext = `Authenticated high-reputation infrastructure (${apexDomain})`;
   } else if (isHighRisk) {
     verdictHeadline = 'Elevated Phishing Risk';
-    verdictSubtext = `Heuristic pattern match (${scorePercent}% statistical probability)`;
+    verdictSubtext = `Lexical pattern match (${rawMlPercent}% statistical ML probability)`;
   } else if (isSuspicious) {
     verdictHeadline = 'Suspicious URL Structure';
-    verdictSubtext = `Anomalous structural attributes detected (${scorePercent}% risk score)`;
+    verdictSubtext = `Anomalous structural attributes detected (${rawMlPercent}% ML risk score)`;
   }
 
   const bannerTheme = isHighRisk
@@ -121,17 +135,62 @@ export const ResultsPage: React.FC = () => {
     ? 'bg-[#FFD54A]/10 border-[#FFD54A]/40 text-[#FFD54A]'
     : 'bg-[#39FF88]/10 border-[#39FF88]/40 text-[#39FF88]';
 
-  const scoreColor = isHighRisk
+  const mlScoreColor = Number(rawMlPercent) >= 75
     ? 'text-[#FF525C]'
-    : isSuspicious
+    : Number(rawMlPercent) >= 45
     ? 'text-[#FFD54A]'
     : 'text-[#39FF88]';
 
-  const gaugeBarColor = isHighRisk
+  const mlGaugeColor = Number(rawMlPercent) >= 75
     ? 'bg-[#FF525C]'
-    : isSuspicious
+    : Number(rawMlPercent) >= 45
     ? 'bg-[#FFD54A]'
     : 'bg-[#39FF88]';
+
+  // Helper for provider state styling
+  const renderProviderState = (name: string, provider: any) => {
+    const status = provider?.status || 'Not Configured';
+    const isThreat = provider?.threat_found;
+    const isNoMatch = status === 'No Match Reported';
+    const isUnavailable = status === 'Unavailable';
+        let cardBg = 'bg-[#0A0A0A] border-[#181818]';
+    let icon = <HelpCircle className="w-4 h-4 text-[#737373]" />;
+    let stateBadge = <span className="text-[11px] px-2 py-0.5 rounded bg-[#181818] border border-[#292929] text-[#737373]">Not Configured</span>;
+
+    if (isThreat) {
+      cardBg = 'bg-[#1A0D0F] border-[#FF525C]/40';
+      icon = <XCircle className="w-4 h-4 text-[#FF525C]" />;
+      stateBadge = <span className="text-[11px] font-semibold px-2 py-0.5 rounded bg-[#2A0E12] border border-[#FF525C] text-[#FF525C]">Threat Reported</span>;
+    } else if (isNoMatch) {
+      cardBg = 'bg-[#0A0A0A] border-[#292929]';
+      icon = <CheckCircle2 className="w-4 h-4 text-[#39FF88]" />;
+      stateBadge = <span className="text-[11px] px-2 py-0.5 rounded bg-[#0E1A12] border border-[#39FF88]/40 text-[#39FF88]">No Match Reported</span>;
+    } else if (isUnavailable) {
+      cardBg = 'bg-[#14120A] border-[#FFD54A]/30';
+      icon = <AlertTriangle className="w-4 h-4 text-[#FFD54A]" />;
+      stateBadge = <span className="text-[11px] px-2 py-0.5 rounded bg-[#1A170A] border border-[#FFD54A]/40 text-[#FFD54A]">Unavailable</span>;
+    }
+
+    return (
+      <div className={`p-4 rounded border ${cardBg} space-y-2`}>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            {icon}
+            <span className="text-xs font-semibold text-[#F5F5F5]">{name}</span>
+          </div>
+          {stateBadge}
+        </div>
+        <p className="text-xs text-[#A3A3A3] leading-relaxed">
+          {provider?.details || 'Provider query evaluation record.'}
+        </p>
+        {provider?.category && (
+          <span className="inline-block text-[10px] font-mono px-2 py-0.5 rounded bg-[#181010] text-[#FF525C] border border-[#FF525C]/30">
+            Identified Threat Category: {provider.category}
+          </span>
+        )}
+      </div>
+    );
+  };
 
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
@@ -188,7 +247,7 @@ export const ResultsPage: React.FC = () => {
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded bg-[#0E1A12] border border-[#39FF88]/40 text-[#39FF88] text-xs">
             <CheckCircle2 className="w-4 h-4 shrink-0" />
             <span>
-              <strong>Verified Domain Authority:</strong> This link points to genuine infrastructure under{' '}
+              <strong>Verified Domain Authority:</strong> This link points to authentic enterprise infrastructure under{' '}
               <strong className="underline">{apexDomain}</strong>.
             </span>
           </div>
@@ -223,40 +282,59 @@ export const ResultsPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Model Probability Gauge */}
-          {scorePercent !== null && (
-            <div className="bg-[#050505] p-4 rounded border border-[#292929] min-w-[240px] space-y-2">
-              <div className="flex justify-between text-xs">
-                <span className="text-[#A3A3A3]">
-                  {isVerifiedDomain ? 'Calibrated Risk Score' : 'Phishing Probability'}
+          {/* Dedicated Side-by-Side: ML Probability vs Final Risk Assessment */}
+          <div className="flex flex-col sm:flex-row gap-3">
+            {/* 1. Machine Learning Probability Box */}
+            <div className="bg-[#050505] p-4 rounded border border-[#292929] min-w-[210px] space-y-2">
+              <div className="flex items-center justify-between text-xs">
+                <span className="text-[#A3A3A3] flex items-center gap-1.5">
+                  <Cpu className="w-3.5 h-3.5 text-[#39FF88]" />
+                  ML Probability
                 </span>
-                <span className={`font-mono font-bold ${scoreColor}`}>
-                  {scorePercent}%
+                <span className={`font-mono font-bold ${mlScoreColor}`}>
+                  {rawMlPercent}%
                 </span>
               </div>
-              <div className="w-full bg-[#181818] rounded-full h-2.5 overflow-hidden">
+              <div className="w-full bg-[#181818] rounded-full h-2 overflow-hidden">
                 <div
-                  className={`h-full rounded-full transition-all duration-500 ${gaugeBarColor}`}
-                  style={{ width: `${Math.min(100, Math.max(2, Number(scorePercent)))}%` }}
+                  className={`h-full rounded-full transition-all duration-500 ${mlGaugeColor}`}
+                  style={{ width: `${Math.min(100, Math.max(2, Number(rawMlPercent)))}%` }}
                 />
               </div>
-              <div className="flex justify-between text-[10px] text-[#737373]">
-                <span>Low &lt;45%</span>
-                <span>Suspicious 45-74%</span>
-                <span>High &ge;75%</span>
-              </div>
-              {isVerifiedDomain && rawScorePercent && Number(rawScorePercent) > 50 && (
-                <p className="text-[10px] text-[#A3A3A3] pt-1 border-t border-[#181818]">
-                  * Raw lexical complexity score: {rawScorePercent}%. Calibrated to safe due to verified domain authority.
-                </p>
-              )}
+              <p className="text-[10px] text-[#737373]">
+                Raw 150-tree Random Forest lexical inference score
+              </p>
             </div>
-          )}
+
+            {/* 2. Final Risk Assessment Box */}
+            <div className="bg-[#050505] p-4 rounded border border-[#292929] min-w-[210px] space-y-2">
+              <div className="flex items-center justify-between text-xs">
+                <span className="text-[#A3A3A3] flex items-center gap-1.5">
+                  <Shield className="w-3.5 h-3.5 text-[#FFD54A]" />
+                  Final Assessment
+                </span>
+                <span className="font-semibold text-xs text-[#F5F5F5]">
+                  {result.risk_level}
+                </span>
+              </div>
+              <div className="flex items-center gap-2 pt-0.5">
+                <StatusBadge type="class" value={result.predicted_class} size="sm" />
+                {hasThreatMatch && (
+                  <span className="text-[10px] uppercase font-bold text-[#FF525C] px-1.5 py-0.5 rounded bg-[#1A0D0F] border border-[#FF525C]/30">
+                    Feed Match
+                  </span>
+                )}
+              </div>
+              <p className="text-[10px] text-[#737373]">
+                Synthesized from ML, domain authority &amp; threat feeds
+              </p>
+            </div>
+          </div>
         </div>
 
         {/* Plain Language Interpretation */}
         <div className="pt-4 border-t border-[#292929]/50 text-xs text-[#F5F5F5] leading-relaxed">
-          <strong>Security Analysis Summary:</strong> {result.combined_interpretation}
+          <strong className="text-[#39FF88]">Security Synthesis:</strong> {result.combined_interpretation}
         </div>
       </div>
 
@@ -266,48 +344,29 @@ export const ResultsPage: React.FC = () => {
         <div className="p-6 rounded bg-[#111111] border border-[#292929] space-y-4">
           <div className="flex items-center justify-between pb-3 border-b border-[#181818]">
             <h3 className="text-xs font-semibold uppercase tracking-wider text-[#F5F5F5] flex items-center gap-2">
-              <Shield className="w-4 h-4 text-[#FFD54A]" />
-              External Threat Intelligence
+              <Database className="w-4 h-4 text-[#FFD54A]" />
+              Threat Intelligence Feeds
             </h3>
-            <span className="text-[10px] text-[#A3A3A3]">Third-Party Blacklists</span>
+            <span className="text-[10px] text-[#A3A3A3]">Active Databases</span>
           </div>
 
           <div className="space-y-4">
             {/* Google Safe Browsing */}
-            <div className="p-4 rounded bg-[#0A0A0A] border border-[#181818] space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-medium text-[#F5F5F5]">Google Safe Browsing v4</span>
-                <StatusBadge type="threat" value={result.threat_intelligence.google_safe_browsing.status} size="sm" />
-              </div>
-              <p className="text-xs text-[#A3A3A3] leading-relaxed">
-                {result.threat_intelligence.google_safe_browsing.details || 'Lookup status available in report.'}
-              </p>
-              {result.threat_intelligence.google_safe_browsing.category && (
-                <span className="inline-block text-[10px] font-mono px-2 py-0.5 rounded bg-[#1A0D0F] text-[#FF525C] border border-[#FF525C]/30">
-                  Category: {result.threat_intelligence.google_safe_browsing.category}
-                </span>
-              )}
-            </div>
+            {renderProviderState('Google Safe Browsing v4', result.threat_intelligence.google_safe_browsing)}
 
             {/* URLhaus */}
-            <div className="p-4 rounded bg-[#0A0A0A] border border-[#181818] space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-medium text-[#F5F5F5]">abuse.ch URLhaus</span>
-                <StatusBadge type="threat" value={result.threat_intelligence.urlhaus.status} size="sm" />
-              </div>
-              <p className="text-xs text-[#A3A3A3] leading-relaxed">
-                {result.threat_intelligence.urlhaus.details || 'Malware and distribution lookup status.'}
-              </p>
-              {result.threat_intelligence.urlhaus.category && (
-                <span className="inline-block text-[10px] font-mono px-2 py-0.5 rounded bg-[#1A0D0F] text-[#FF525C] border border-[#FF525C]/30">
-                  Tag: {result.threat_intelligence.urlhaus.category}
-                </span>
-              )}
-            </div>
+            {renderProviderState('abuse.ch URLhaus', result.threat_intelligence.urlhaus)}
 
-            <p className="text-[11px] text-[#737373] leading-tight pt-1">
-              * A &quot;No Match Reported&quot; result indicates the URL has not been indexed in active malware feeds yet; zero-day phishing is detected by lexical ML.
-            </p>
+            {/* Critical Security Clarification Notice */}
+            <div className="p-3 rounded bg-[#0A0A0A] border border-[#292929] space-y-1">
+              <div className="flex items-center gap-1.5 text-[11px] font-semibold text-[#FFD54A]">
+                <Info className="w-3.5 h-3.5 shrink-0" />
+                <span>Absence From Databases Does Not Imply Safety</span>
+              </div>
+              <p className="text-[11px] text-[#A3A3A3] leading-relaxed">
+                Threat databases are retrospective registries. Zero-day phishing campaigns and newly registered domains are absent from threat feeds initially. A &quot;No Match Reported&quot; result simply confirms the URL is not yet indexed; our ML engine independently evaluates structural risks.
+              </p>
+            </div>
           </div>
         </div>
 
@@ -319,7 +378,7 @@ export const ResultsPage: React.FC = () => {
               Detected Anomaly Explanations
             </h3>
             <span className="text-[10px] text-[#A3A3A3]">
-              {result.suspicious_reasons.length} Flag{result.suspicious_reasons.length === 1 ? '' : 's'}
+              {result.suspicious_reasons.length} Indicator{result.suspicious_reasons.length === 1 ? '' : 's'}
             </span>
           </div>
 
@@ -328,7 +387,7 @@ export const ResultsPage: React.FC = () => {
               {result.suspicious_reasons.map((reason, idx) => (
                 <li
                   key={idx}
-                  className={`p-2.5 rounded border text-xs text-[#F5F5F5] flex items-start gap-2.5 ${
+                  className={`p-3 rounded border text-xs text-[#F5F5F5] flex items-start gap-2.5 ${
                     isVerifiedDomain
                       ? 'bg-[#0E1A12] border-[#39FF88]/20'
                       : 'bg-[#181010] border-[#FF525C]/20'
@@ -339,7 +398,7 @@ export const ResultsPage: React.FC = () => {
                   ) : (
                     <XCircle className="w-4 h-4 text-[#FF525C] shrink-0 mt-0.5" />
                   )}
-                  <span>{reason}</span>
+                  <span className="leading-relaxed">{reason}</span>
                 </li>
               ))}
             </ul>
@@ -348,77 +407,30 @@ export const ResultsPage: React.FC = () => {
               <CheckCircle2 className="w-6 h-6 text-[#39FF88] mx-auto" />
               <p className="text-xs text-[#F5F5F5] font-medium">No Structural Anomalies Detected</p>
               <p className="text-[11px] text-[#A3A3A3]">
-                The URL structure adheres to expected domain formatting without deceptive character patterns.
+                The URL adheres to clean conventions with no deceptive keywords, raw IP address structures, or suspicious token lengths.
               </p>
             </div>
           )}
 
-          {/* Recommended Precautions */}
-          <div className="pt-3 border-t border-[#181818] space-y-2">
-            <h4 className="text-[11px] font-semibold uppercase tracking-wider text-[#A3A3A3]">
-              Recommended Precautions
-            </h4>
-            <ul className="space-y-1.5 text-xs text-[#A3A3A3]">
-              {result.recommended_precautions.map((p, idx) => (
-                <li key={idx} className="flex items-start gap-2">
-                  <span className="text-[#39FF88]">&bull;</span>
-                  <span>{p}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
+          {/* Recommended Protective Action Checklist */}
+          {result.recommended_precautions && result.recommended_precautions.length > 0 && (
+            <div className="pt-3 border-t border-[#181818] space-y-2">
+              <span className="text-[10px] font-semibold uppercase tracking-wider text-[#A3A3A3]">
+                Actionable Protective Guidance
+              </span>
+              <ul className="space-y-1.5">
+                {result.recommended_precautions.map((precaution, idx) => (
+                  <li key={idx} className="text-xs text-[#A3A3A3] flex items-start gap-2">
+                    <span className="text-[#39FF88] font-mono mt-0.5">&bull;</span>
+                    <span>{precaution}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
         </div>
-      </div>
-
-      {/* 16 Extracted Security Features Table */}
-      <div className="p-6 rounded bg-[#111111] border border-[#292929] space-y-4">
-        <div className="flex items-center justify-between pb-3 border-b border-[#181818]">
-          <div>
-            <h3 className="text-xs font-semibold uppercase tracking-wider text-[#F5F5F5] flex items-center gap-2">
-              <Layers className="w-4 h-4 text-[#39FF88]" />
-              Extracted Lexical Feature Matrix (16 Dimensions)
-            </h3>
-            <p className="text-[11px] text-[#A3A3A3] mt-0.5">
-              Exact numerical vector evaluated by the Random Forest decision ensemble.
-            </p>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
-          {Object.entries(result.extracted_features)
-            .filter(([key]) => !['apex_domain', 'is_verified_domain'].includes(key))
-            .map(([key, val]) => {
-              const isHighlight =
-                (typeof val === 'number' && val > 0 && ['has_ip', 'count_at', 'has_suspicious_keywords'].includes(key)) ||
-                (key === 'is_https' && val === 0) ||
-                (typeof val === 'number' && val >= 3 && ['count_hyphens', 'count_subdomains'].includes(key)) ||
-                (key === 'count_dots' && typeof val === 'number' && val >= 4);
-
-              return (
-                <div
-                  key={key}
-                  className={`p-3 rounded border ${
-                    isHighlight
-                      ? 'bg-[#181010] border-[#FF525C]/30 text-[#FF525C]'
-                      : 'bg-[#0A0A0A] border-[#181818] text-[#F5F5F5]'
-                  }`}
-                >
-                  <div className="text-[10px] text-[#A3A3A3] font-mono truncate" title={key}>
-                    {key}
-                  </div>
-                  <div className="text-base font-bold font-mono mt-1">
-                    {typeof val === 'number' ? val : String(val)}
-                  </div>
-                </div>
-              );
-            })}
-        </div>
-
-        {/* Responsible Disclaimer */}
-        <p className="text-[11px] text-[#737373] leading-relaxed pt-3 border-t border-[#181818]">
-          <strong className="text-[#A3A3A3]">Methodology Note:</strong> PhishGuard AI evaluates lexical and structural features without downloading or rendering untrusted web content. Automated probability scores serve as statistical guidance and do not guarantee the presence or absence of novel threats.
-        </p>
       </div>
     </div>
   );
 };
+
