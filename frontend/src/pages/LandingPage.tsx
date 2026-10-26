@@ -1,5 +1,5 @@
 ﻿import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import {
   Shield,
   Terminal,
@@ -7,9 +7,6 @@ import {
   ArrowRight,
   CheckCircle2,
   AlertTriangle,
-  Database,
-  BookOpen,
-  Eye
 } from 'lucide-react';
 
 export const LandingPage: React.FC = () => {
@@ -109,79 +106,6 @@ export const LandingPage: React.FC = () => {
                 </button>
               ))}
             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Plain English - How it works */}
-      <section className="bg-[#0A0A0A] border-b border-[#181818]">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-lg font-bold text-[#F5F5F5]">How Does It Work? <span className="text-[#39FF88]">(Simple Explanation)</span></h2>
-              <p className="text-xs text-[#A3A3A3] mt-1">No technical background required to understand this</p>
-            </div>
-            <Link
-              to="/about"
-              className="hidden sm:inline-flex items-center gap-1.5 text-xs text-[#39FF88] hover:text-[#16C96A] transition-colors"
-            >
-              <BookOpen className="w-3.5 h-3.5" />
-              Full Guide
-            </Link>
-          </div>
-
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {[
-              { step: '1', emoji: '📋', title: 'Paste the Link', desc: 'Copy-paste any suspicious URL. We never click or open it.' },
-              { step: '2', emoji: '🔍', title: 'AI Reads the Address', desc: 'The AI looks for 16 danger signs in the URL text itself.' },
-              { step: '3', emoji: '🤖', title: 'ML Model Decides', desc: 'Trained on real phishing data, it spots patterns that trick humans.' },
-              { step: '4', emoji: '✅', title: 'You Get a Verdict', desc: 'Safe, Suspicious, or Dangerous — clearly explained.' },
-            ].map((item) => (
-              <div key={item.step} className="p-4 rounded bg-[#111111] border border-[#292929] space-y-2">
-                <span className="text-2xl">{item.emoji}</span>
-                <div className="text-[10px] font-bold text-[#39FF88] uppercase tracking-wider">Step {item.step}</div>
-                <h3 className="text-sm font-semibold text-[#F5F5F5]">{item.title}</h3>
-                <p className="text-[11px] text-[#A3A3A3] leading-relaxed">{item.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Dataset Transparency Banner */}
-      <section className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="p-6 rounded bg-[#0E1A12] border border-[#39FF88]/30 space-y-5">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded bg-[#111111] border border-[#39FF88]/40 flex items-center justify-center">
-                <Database className="w-5 h-5 text-[#39FF88]" />
-              </div>
-              <div>
-                <h2 className="font-bold text-[#F5F5F5] text-base">Training Dataset — Full Transparency</h2>
-                <p className="text-xs text-[#A3A3A3]">Where our AI learned to detect phishing</p>
-              </div>
-            </div>
-            <Link
-              to="/about"
-              className="inline-flex items-center gap-2 text-xs px-4 py-2 rounded border border-[#39FF88]/40 text-[#39FF88] hover:bg-[#0E1A12] transition-colors"
-            >
-              <Eye className="w-3.5 h-3.5" />
-              Full Dataset Details
-            </Link>
-          </div>
-
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {[
-              { label: 'Total Dataset URLs', value: '298,006', color: '#39FF88' },
-              { label: 'Phishing URLs', value: '162,711', color: '#FF525C' },
-              { label: 'Legitimate (Safe) URLs', value: '135,295', color: '#39FF88' },
-              { label: 'AI Test Accuracy', value: '99.40%', color: '#39FF88' },
-            ].map((s) => (
-              <div key={s.label} className="p-4 rounded bg-[#111111] border border-[#292929] text-center">
-                <div className="text-2xl font-bold font-mono" style={{ color: s.color }}>{s.value}</div>
-                <div className="text-[11px] text-[#A3A3A3] mt-1">{s.label}</div>
-              </div>
-            ))}
           </div>
         </div>
       </section>
@@ -308,7 +232,7 @@ export const LandingPage: React.FC = () => {
             <div className="space-y-2">
               <h4 className="font-semibold text-[#39FF88]">Decoupled Architecture</h4>
               <p className="text-[#A3A3A3] leading-relaxed">
-                FastAPI REST endpoints handle inference, with persistent audit logging in SQLite and reactive visualization via React & Recharts.
+                FastAPI REST endpoints handle inference, with user-isolated scan persistence in Neon PostgreSQL and reactive visualization via React & Recharts.
               </p>
             </div>
           </div>
