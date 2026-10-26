@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
 import {
   ShieldAlert,
@@ -101,11 +101,12 @@ export const ResultsPage: React.FC = () => {
     result.threat_intelligence?.urlhaus?.threat_found
   );
 
-  // Machine Learning raw probability (lexical statistics)
-  const rawMlProb = typeof result.ml_probability === 'number'
+  // This is the calibrated score used for the final assessment. A raw lexical
+  // score can be high for a known, verified domain with a complex URL.
+  const assessedMlProbability = typeof result.ml_probability === 'number'
     ? result.ml_probability
-    : (result.raw_ml_score ?? result.model_score ?? 0);
-  const rawMlPercent = (rawMlProb * 100).toFixed(1);
+    : (result.model_score ?? result.raw_ml_score ?? 0);
+  const assessedMlPercent = (assessedMlProbability * 100).toFixed(1);
 
   // Calibrated score for display
     // Determine cautious, professional headline text
@@ -120,10 +121,10 @@ export const ResultsPage: React.FC = () => {
     verdictSubtext = `Authenticated high-reputation infrastructure (${apexDomain})`;
   } else if (isHighRisk) {
     verdictHeadline = 'Elevated Phishing Risk';
-    verdictSubtext = `High Risk Tier ? Deceptive lexical anomalies detected (Decision index: ${rawMlPercent}%)`;
+    verdictSubtext = `High Risk Tier · Deceptive lexical anomalies detected (Decision index: ${assessedMlPercent}%)`;
   } else if (isSuspicious) {
     verdictHeadline = 'Suspicious URL Structure';
-    verdictSubtext = `Medium Risk Tier ? Borderline lexical attributes detected (Decision index: ${rawMlPercent}%)`;
+    verdictSubtext = `Medium Risk Tier · Borderline lexical attributes detected (Decision index: ${assessedMlPercent}%)`;
   }
 
   const bannerTheme = isHighRisk
@@ -138,17 +139,19 @@ export const ResultsPage: React.FC = () => {
     ? 'bg-[#FFD54A]/10 border-[#FFD54A]/40 text-[#FFD54A]'
     : 'bg-[#39FF88]/10 border-[#39FF88]/40 text-[#39FF88]';
 
-  const mlScoreColor = Number(rawMlPercent) >= 75
+  // Keep the colour language aligned with the final risk assessment:
+  // safe = green, borderline = amber/orange, unsafe = red.
+  const mlScoreColor = (hasThreatMatch || isHighRisk)
     ? 'text-[#FF525C]'
-    : Number(rawMlPercent) >= 45
-    ? 'text-[#FFD54A]'
+    : isSuspicious
+    ? 'text-[#FF8C42]'
     : 'text-[#39FF88]';
 
-  const mlGaugeColor = Number(rawMlPercent) >= 75
-    ? 'bg-[#FF525C]'
-    : Number(rawMlPercent) >= 45
-    ? 'bg-[#FFD54A]'
-    : 'bg-[#39FF88]';
+  const mlGaugeColor = (hasThreatMatch || isHighRisk)
+    ? 'bg-gradient-to-r from-[#FF525C] to-[#FF1A2E]'
+    : isSuspicious
+    ? 'bg-gradient-to-r from-[#FF8C42] to-[#FFD54A]'
+    : 'bg-gradient-to-r from-[#39FF88] to-[#00E676]';
 
   // Helper for provider state styling
   const renderProviderState = (name: string, provider: any) => {
@@ -156,6 +159,11 @@ export const ResultsPage: React.FC = () => {
     const isThreat = provider?.threat_found;
     const isNoMatch = status === 'No Match Reported';
     const isUnavailable = status === 'Unavailable';
+    const isInvalidKey = (
+      (provider?.details || '').includes('unknown_auth_key') ||
+      (provider?.details || '').includes('Invalid URLhaus Auth-Key') ||
+      status === 'Invalid Auth Key'
+    );
         let cardBg = 'bg-[#0A0A0A] border-[#181818]';
     let icon = <HelpCircle className="w-4 h-4 text-[#737373]" />;
     let stateBadge = <span className="text-[11px] px-2 py-0.5 rounded bg-[#181818] border border-[#292929] text-[#737373]">Not Configured</span>;
@@ -168,6 +176,15 @@ export const ResultsPage: React.FC = () => {
       cardBg = 'bg-[#0A0A0A] border-[#292929]';
       icon = <CheckCircle2 className="w-4 h-4 text-[#39FF88]" />;
       stateBadge = <span className="text-[11px] px-2 py-0.5 rounded bg-[#0E1A12] border border-[#39FF88]/40 text-[#39FF88]">No Match Reported</span>;
+    } else if (isInvalidKey) {
+      // Orange: API key is present but rejected by the provider
+      cardBg = 'bg-[#1A1100] border-[#FF8C42]/40';
+      icon = <AlertTriangle className="w-4 h-4 text-[#FF8C42]" />;
+      stateBadge = (
+        <span className="text-[11px] font-semibold px-2 py-0.5 rounded bg-[#2A1A00] border border-[#FF8C42] text-[#FF8C42]">
+          Invalid API Key
+        </span>
+      );
     } else if (isUnavailable) {
       cardBg = 'bg-[#14120A] border-[#FFD54A]/30';
       icon = <AlertTriangle className="w-4 h-4 text-[#FFD54A]" />;
@@ -184,7 +201,22 @@ export const ResultsPage: React.FC = () => {
           {stateBadge}
         </div>
         <p className="text-xs text-[#A3A3A3] leading-relaxed">
-          {provider?.details || 'Provider query evaluation record.'}
+          {isInvalidKey ? (
+            <>
+              Auth Key rejected (unknown_auth_key). Generate a new key at{' '}
+              <a
+                href="https://urlhaus.abuse.ch/api/"
+                target="_blank"
+                rel="noreferrer"
+                className="text-[#FF8C42] underline hover:text-[#FFD54A] transition-colors"
+              >
+                urlhaus.abuse.ch/api
+              </a>{' '}
+              and update <code className="text-[#F5F5F5] bg-[#292929] px-1 rounded">URLHAUS_AUTH_KEY</code> in backend .env.
+            </>
+          ) : (
+            provider?.details || 'Provider query evaluation record.'
+          )}
         </p>
         {provider?.category && (
           <span className="inline-block text-[10px] font-mono px-2 py-0.5 rounded bg-[#181010] text-[#FF525C] border border-[#FF525C]/30">
@@ -295,17 +327,17 @@ export const ResultsPage: React.FC = () => {
                   ML Probability
                 </span>
                 <span className={`font-mono font-bold ${mlScoreColor}`}>
-                  {rawMlPercent}%
+                  {assessedMlPercent}%
                 </span>
               </div>
               <div className="w-full bg-[#181818] rounded-full h-2 overflow-hidden">
                 <div
                   className={`h-full rounded-full transition-all duration-500 ${mlGaugeColor}`}
-                  style={{ width: `${Math.min(100, Math.max(2, Number(rawMlPercent)))}%` }}
+                  style={{ width: `${Math.min(100, Math.max(2, Number(assessedMlPercent)))}%` }}
                 />
               </div>
               <p className="text-[10px] text-[#737373]">
-                Calibrated on 50/50 dataset; represents risk tier, not population probability
+                Green = safe, amber = borderline, red = unsafe. Calibrated on a 50/50 dataset.
               </p>
             </div>
 

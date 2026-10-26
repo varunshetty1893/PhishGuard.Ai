@@ -201,7 +201,7 @@ async def scan_url(
         normalized_url=scan_record.normalized_url,
         predicted_class=scan_record.predicted_class,
         risk_level=scan_record.risk_level,
-        ml_probability=raw_ml_prob,
+        ml_probability=final_model_score,  # final score after allowlist/threat-intel overrides
         model_score=scan_record.model_score,
         raw_ml_score=raw_ml_prob,
         is_verified_domain=is_verified,
@@ -316,13 +316,13 @@ def get_scan_detail(
             status=gsb_log.check_status if gsb_log else "Not Configured",
             threat_found=gsb_log.threat_found if gsb_log else False,
             category=gsb_log.threat_category if gsb_log else None,
-            details=gsb_log.raw_response if gsb_log else None
+            details=(gsb_log.raw_response or gsb_log.error_message) if gsb_log else None
         ),
         urlhaus=ThreatProviderResult(
             status=urlhaus_log.check_status if urlhaus_log else "No Match Reported",
             threat_found=urlhaus_log.threat_found if urlhaus_log else False,
             category=urlhaus_log.threat_category if urlhaus_log else None,
-            details=urlhaus_log.raw_response if urlhaus_log else None
+            details=(urlhaus_log.raw_response or urlhaus_log.error_message) if urlhaus_log else None
         )
     )
 
@@ -346,6 +346,9 @@ def get_scan_detail(
     if raw_val is None:
         raw_val = record.model_score if record.model_score is not None else 0.0
     raw_score = float(raw_val)
+    # Preserve the calibrated score used by the final verdict when a saved
+    # report is reopened; the raw lexical score remains available separately.
+    assessed_score = float(record.model_score) if record.model_score is not None else raw_score
     threat_found = any(t.threat_found for t in record.threat_logs)
 
     return ScanResultResponse(
@@ -354,7 +357,7 @@ def get_scan_detail(
         normalized_url=record.normalized_url,
         predicted_class=record.predicted_class,
         risk_level=record.risk_level,
-        ml_probability=raw_score,
+        ml_probability=assessed_score,
         model_score=record.model_score,
         raw_ml_score=raw_score,
         is_verified_domain=is_ver,
