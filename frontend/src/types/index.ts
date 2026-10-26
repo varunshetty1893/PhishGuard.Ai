@@ -112,12 +112,18 @@ export interface ModelMetadata {
   total_samples: number;
   train_samples: number;
   test_samples: number;
+  train_domains?: number;
+  test_domains?: number;
+  domain_leakage_count?: number;
   evaluation_metrics: {
     accuracy: number;
     precision: number;
     recall: number;
     f1_score: number;
     roc_auc: number;
+    false_positive_rate?: number;
+    false_negative_rate?: number;
+    missed_threats_count?: number;
   };
   confusion_matrix: {
     tn: number;
