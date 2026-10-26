@@ -89,3 +89,5 @@ ml/data/*.parquet
 # ------ Logs ------
 *.log
 logs/
+ml/data/*.txt
+

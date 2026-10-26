@@ -181,16 +181,16 @@ class MLInferenceService:
 
         else:
             is_verified_domain = False
+            threshold = float(cls.get_metadata().get("optimal_threshold", 0.64))
             n_signals = len(suspicious_reasons)
 
-            if raw_phish_prob >= 0.75 or n_signals >= 4:
+            if raw_phish_prob >= threshold:
                 predicted_class = "Phishing"
-                risk_level      = "High Risk"
+                risk_level      = "High Risk" if raw_phish_prob >= 0.75 else "Suspicious"
                 interpretation = (
                     f"The ML model assigned a phishing probability of {raw_phish_prob*100:.1f}% "
-                    f"based on {n_signals} structural anomalies. "
-                    "URL patterns are statistically consistent with deceptive or credential-harvesting pages. "
-                    "Treat with extreme caution."
+                    f"(optimal threshold: {threshold*100:.1f}%) based on {n_signals} structural indicators. "
+                    "URL patterns deviate from legitimate web address baselines."
                 )
                 precautions = [
                     "Do NOT submit credentials, passwords, or payment details on this destination.",
@@ -198,24 +198,23 @@ class MLInferenceService:
                     "Inspect the address bar for subtle misspellings, unusual TLDs, or unexpected subdomains.",
                     "If received via email or SMS, report the message as phishing to your security team.",
                 ]
-            elif raw_phish_prob >= 0.45 or n_signals >= 2:
-                predicted_class = "Suspicious"
+            elif raw_phish_prob >= 0.35 and n_signals >= 2:
+                predicted_class = "Legitimate"
                 risk_level      = "Suspicious"
                 interpretation = (
-                    f"Structural anomalies detected (ML score: {raw_phish_prob*100:.1f}%, "
-                    f"{n_signals} indicator(s)). URL characteristics deviate from typical "
-                    "legitimate patterns. Proceed with caution."
+                    f"Elevated structural indicators detected ({n_signals} flags, ML probability: {raw_phish_prob*100:.1f}%), "
+                    f"though below the phishing threshold of {threshold*100:.1f}%. Proceed with standard caution."
                 )
                 precautions = [
-                    "Exercise caution before entering any information.",
-                    "Verify the domain matches the expected sender or organisation.",
+                    "Exercise caution before entering any sensitive information.",
+                    "Verify the domain matches the expected sender or organization.",
                     "If received in an unsolicited message, confirm through an alternate verified channel.",
                 ]
             else:
                 predicted_class = "Legitimate"
                 risk_level      = "Low Risk"
                 interpretation = (
-                    f"URL conforms to standard web address patterns (ML score: {raw_phish_prob*100:.1f}%). "
+                    f"URL conforms to standard web address patterns (ML probability: {raw_phish_prob*100:.1f}%). "
                     "No prominent deception indicators identified."
                 )
                 precautions = [

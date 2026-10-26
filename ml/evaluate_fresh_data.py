@@ -1,300 +1,199 @@
-import warnings
-warnings.filterwarnings('ignore')
 """
-PhishGuard AI - Fresh Data Evaluation Script (Priority 1)
-=========================================================
-Tests the CURRENT deployed model against genuinely new data it has NEVER seen:
-  - ~500 phishing URLs from OpenPhish (live feed, fetched now)
-  - ~500 legitimate URLs from Tranco top-1M list (fetched now)
+PhishGuard AI - Fresh Data Evaluation Script (Vectorized & Suppressed Warnings)
+=============================================================================
+Tests the RETRAINED model against genuinely new data it has NEVER seen:
+  - ~500 phishing URLs from OpenPhish / URLhaus live feeds
+  - ~500 legitimate URLs from Tranco top-1M list (newly sampled)
 
 Reports:
-  - Accuracy, Precision, Phishing Recall, False Positive Rate
-  - Side-by-side with the training-set numbers
-  - Honest assessment of how much the 99.2% claim holds up on fresh data
+  - Accuracy, Precision, Phishing Recall, False Positive Rate, F1, ROC-AUC
+  - Evaluated at both Default (0.50) and Tuned Threshold (0.64)
+  - Side-by-side with training set metrics
 """
-import sys, json, time, io, zipfile
+
+import sys
+import json
+import time
+import io
+import zipfile
+import warnings
 from pathlib import Path
 from urllib.parse import urlparse
 import urllib.request
 
+warnings.filterwarnings("ignore")
+
 ROOT = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(ROOT / "ml"))
 sys.path.insert(0, str(ROOT / "backend"))
+from app.ml.feature_extraction import (
+    FEATURE_NAMES, extract_url_features, features_to_vector
+)
 
 import joblib
 import numpy as np
 import pandas as pd
-
-from feature_extraction import (
-    FEATURE_NAMES, normalize_url, is_valid_ip, count_subdomains,
-    extract_apex_domain, SUSPICIOUS_KEYWORDS
+from sklearn.metrics import (
+    accuracy_score, precision_score, recall_score,
+    f1_score, roc_auc_score, confusion_matrix
 )
 
 ARTIFACTS_DIR = ROOT / "ml" / "artifacts"
 REPORTS_DIR   = ROOT / "ml" / "reports"
 REPORTS_DIR.mkdir(parents=True, exist_ok=True)
 
-# ──────────────────────────────────────────────
-# Feature extraction (same 16-feature schema)
-# ──────────────────────────────────────────────
-def extract_features(url: str):
-    try:
-        norm = normalize_url(url)
-        p = urlparse(norm)
-        hostname = (p.hostname or "").lower().strip(".")
-        path = p.path or ""
-        scheme = (p.scheme or "").lower()
 
-        total_len = len(norm)
-        h_len = len(hostname)
-        p_len = len(path)
-
-        c_dots    = norm.count(".")
-        c_hyphens = norm.count("-")
-        c_at      = norm.count("@")
-        c_q       = norm.count("?")
-        c_eq      = norm.count("=")
-        c_sl      = norm.count("/")
-        digits    = sum(c.isdigit() for c in norm)
-        specials  = sum(not c.isalnum() and c not in "/;:." for c in norm)
-
-        sub    = count_subdomains(hostname)
-        ip_f   = is_valid_ip(hostname)
-        https_f = 1 if scheme == "https" else 0
-        has_kw  = 1 if any(kw in norm.lower() for kw in SUSPICIOUS_KEYWORDS) else 0
-
-        d_ratio = round(digits / max(total_len, 1), 6)
-        s_ratio = round(specials / max(total_len, 1), 6)
-
-        return [total_len, h_len, p_len, c_dots, c_hyphens, c_at,
-                c_q, c_eq, c_sl, digits, sub, ip_f, https_f, has_kw,
-                d_ratio, s_ratio]
-    except Exception:
-        return None
-
-# ──────────────────────────────────────────────
-# Data fetchers
-# ──────────────────────────────────────────────
 def fetch_openphish(n=500):
-    """Fetch live phishing URLs from OpenPhish public feed."""
-    print("[*] Fetching OpenPhish live feed...")
+    print("[*] Fetching live phishing URLs from OpenPhish...")
     try:
         req = urllib.request.Request(
             "https://openphish.com/feed.txt",
             headers={"User-Agent": "PhishGuardAI-Research/1.0"}
         )
-        with urllib.request.urlopen(req, timeout=20) as r:
-            lines = r.read().decode("utf-8", errors="ignore").splitlines()
-        urls = [l.strip() for l in lines if l.strip().startswith("http")]
-        urls = list(dict.fromkeys(urls))[:n]   # dedup, take first n
-        print(f"    Fetched {len(urls):,} phishing URLs from OpenPhish")
+        with urllib.request.urlopen(req, timeout=15) as r:
+            lines = [line.decode("utf-8", errors="ignore").strip() for line in r]
+        urls = [u for u in lines if u.startswith(("http://", "https://"))][:n]
+        print(f"    Fetched {len(urls):,} live phishing URLs from OpenPhish")
         return urls
     except Exception as e:
-        print(f"    [WARN] OpenPhish unavailable ({e}). Trying PhishTank RSS...")
-        return fetch_phishtank_fallback(n)
+        print(f"    [WARN] OpenPhish unavailable ({e}), using fallback feed...")
+        # Fallback to URLhaus recent URLs
+        try:
+            req2 = urllib.request.Request(
+                "https://urlhaus.abuse.ch/downloads/text_recent/",
+                headers={"User-Agent": "PhishGuardAI-Research/1.0"}
+            )
+            with urllib.request.urlopen(req2, timeout=15) as r:
+                lines = [line.decode("utf-8", errors="ignore").strip() for line in r]
+            urls = [u for u in lines if u.startswith("http") and not u.startswith("#")][:n]
+            print(f"    Fetched {len(urls):,} phishing URLs from URLhaus fallback")
+            return urls
+        except Exception as e2:
+            print(f"    [FAIL] Fallback also failed ({e2})")
+            return []
 
-def fetch_phishtank_fallback(n=500):
-    """Fallback: recent known phishing domains from URLhaus."""
-    try:
-        req = urllib.request.Request(
-            "https://urlhaus.abuse.ch/downloads/csv_recent/",
-            headers={"User-Agent": "PhishGuardAI-Research/1.0"}
-        )
-        with urllib.request.urlopen(req, timeout=20) as r:
-            content = r.read().decode("utf-8", errors="ignore")
-        urls = []
-        for line in content.splitlines():
-            if line.startswith("#") or not line.strip():
-                continue
-            parts = line.split(",")
-            if len(parts) >= 3:
-                url = parts[2].strip().strip('"')
-                if url.startswith("http"):
-                    urls.append(url)
-        urls = list(dict.fromkeys(urls))[:n]
-        print(f"    Fetched {len(urls):,} phishing URLs from URLhaus (fallback)")
-        return urls
-    except Exception as e:
-        print(f"    [WARN] URLhaus also unavailable ({e}). Using cached minimal set.")
-        return []
 
 def fetch_tranco(n=500):
-    """Fetch Tranco top-1M list and sample n legitimate domains."""
-    print("[*] Fetching Tranco top-1M list...")
-    try:
-        req = urllib.request.Request(
-            "https://tranco-list.eu/top-1m.csv.zip",
-            headers={"User-Agent": "PhishGuardAI-Research/1.0"}
-        )
-        with urllib.request.urlopen(req, timeout=60) as r:
-            data = r.read()
-        with zipfile.ZipFile(io.BytesIO(data)) as z:
-            with z.open(z.namelist()[0]) as f:
-                lines = f.read().decode("utf-8", errors="ignore").splitlines()
-        domains = []
-        for line in lines:
-            parts = line.strip().split(",")
-            if len(parts) >= 2:
-                domains.append(parts[1].strip())
-        # Sample evenly from top-500, 500-5000, 5000-50000 rank bands
-        band1  = [f"https://{d}" for d in domains[:500]][:n//3]
-        band2  = [f"https://{d}" for d in domains[500:5000]][:n//3]
-        band3  = [f"https://{d}" for d in domains[5000:50000]][:n//3]
-        urls = band1 + band2 + band3
-        import random; random.seed(42); random.shuffle(urls)
-        urls = urls[:n]
-        print(f"    Sampled {len(urls):,} legitimate URLs from Tranco")
+    print("[*] Fetching Tranco top-sites list for fresh testing...")
+    cache_path = ROOT / "ml" / "data" / "tranco_top50k.txt"
+    if cache_path.exists():
+        domains = [line.strip() for line in open(cache_path, encoding="utf-8") if line.strip()]
+        # Sample from ranks 5000-50000 (test domains not in top 1k)
+        sample_doms = domains[5000:15000]
+        import random; random.seed(999); random.shuffle(sample_doms)
+        urls = [f"https://{d}" for d in sample_doms[:n]]
+        print(f"    Sampled {len(urls):,} fresh legitimate URLs from Tranco ranks 5,000-15,000")
         return urls
-    except Exception as e:
-        print(f"    [WARN] Tranco unavailable ({e})")
-        return []
+    return []
 
-# ──────────────────────────────────────────────
-# Evaluation
-# ──────────────────────────────────────────────
-def evaluate(clf, urls, label, threshold=0.5):
-    """Run inference on a list of URLs. Returns list of (url, prob, pred, label)."""
-    results = []
-    skipped = 0
-    for url in urls:
-        feats = extract_features(url)
-        if feats is None:
-            skipped += 1
-            continue
-        prob = clf.predict_proba([feats])[0][1]
-        pred = 1 if prob >= threshold else 0
-        results.append({"url": url, "prob": prob, "pred": pred, "label": label})
-    if skipped:
-        print(f"    Skipped {skipped} URLs (feature extraction failed)")
-    return results
 
-def metrics(rows):
-    """Compute precision/recall/FPR from result rows."""
-    y_true = [r["label"] for r in rows]
-    y_pred = [r["pred"]  for r in rows]
-    y_prob = [r["prob"]  for r in rows]
-    from sklearn.metrics import (accuracy_score, precision_score, recall_score,
-                                  f1_score, roc_auc_score, confusion_matrix)
-    acc  = accuracy_score(y_true, y_pred)
-    prec = precision_score(y_true, y_pred, zero_division=0)
-    rec  = recall_score(y_true, y_pred, zero_division=0)
-    f1   = f1_score(y_true, y_pred, zero_division=0)
-    try:
-        auc = roc_auc_score(y_true, y_prob)
-    except Exception:
-        auc = float("nan")
-    tn, fp, fn, tp = confusion_matrix(y_true, y_pred, labels=[0,1]).ravel()
-    fpr = fp / (fp + tn) if (fp + tn) > 0 else 0.0
-    fnr = fn / (fn + tp) if (fn + tp) > 0 else 0.0
-    return dict(acc=acc, prec=prec, rec=rec, f1=f1, auc=auc,
-                tn=int(tn), fp=int(fp), fn=int(fn), tp=int(tp),
-                fpr=fpr, fnr=fnr)
+def evaluate_batch(clf, urls, label):
+    vectors = []
+    valid_urls = []
+    for u in urls:
+        try:
+            f, _ = extract_url_features(u)
+            vec = features_to_vector(f)
+            vectors.append(vec)
+            valid_urls.append(u)
+        except Exception:
+            pass
+
+    X = np.array(vectors, dtype=np.float32)
+    probs = clf.predict_proba(X)[:, 1]
+    return valid_urls, probs, [label] * len(valid_urls)
+
+
+def compute_metrics(y_true, probs, threshold):
+    preds = (probs >= threshold).astype(int)
+    tn, fp, fn, tp = confusion_matrix(y_true, preds, labels=[0, 1]).ravel()
+    return dict(
+        acc=float(accuracy_score(y_true, preds)),
+        prec=float(precision_score(y_true, preds, zero_division=0)),
+        rec=float(recall_score(y_true, preds, zero_division=0)),
+        f1=float(f1_score(y_true, preds, zero_division=0)),
+        auc=float(roc_auc_score(y_true, probs)),
+        fpr=float(fp / (fp + tn) if (fp + tn) > 0 else 0.0),
+        fnr=float(fn / (fn + tp) if (fn + tp) > 0 else 0.0),
+        tn=int(tn), fp=int(fp), fn=int(fn), tp=int(tp)
+    )
+
 
 def main():
-    print("=" * 68)
-    print("  PHISHGUARD AI - FRESH DATA EVALUATION (External Sources)")
-    print("  This test uses URLs the model has NEVER seen before.")
-    print("=" * 68)
+    print("=" * 70)
+    print("  PHISHGUARD AI - FRESH EXTERNAL DATA EVALUATION")
+    print("=" * 70)
 
-    # Load trained model
     model_path = ARTIFACTS_DIR / "phishguard_rf_model.joblib"
-    clf = joblib.load(model_path)
-    print(f"\n[+] Loaded model: {model_path.name}")
+    meta_path  = ARTIFACTS_DIR / "model_metadata.json"
 
-    # Load training-set metrics for comparison
-    meta_path = ARTIFACTS_DIR / "model_metadata.json"
-    with open(meta_path) as f:
+    clf = joblib.load(model_path)
+    with open(meta_path, "r", encoding="utf-8") as f:
         meta = json.load(f)
 
-    # Fetch fresh data
-    phishing_urls = fetch_openphish(500)
-    legit_urls    = fetch_tranco(500)
+    opt_thresh = float(meta.get("optimal_threshold", 0.64))
+    print(f"[+] Loaded Model: {meta['algorithm']} (v{meta['version']})")
+    print(f"[+] Optimal Threshold Configured: {opt_thresh:.3f}")
 
-    if not phishing_urls:
-        print("\n[!] No phishing URLs fetched. Check internet connection or feed status.")
-        print("    Evaluation cannot proceed without phishing samples.")
+    phish_urls = fetch_openphish(500)
+    legit_urls = fetch_tranco(500)
+
+    if not phish_urls or not legit_urls:
+        print("[!] Failed to obtain fresh URLs. Exiting.")
         sys.exit(1)
 
-    if not legit_urls:
-        print("\n[!] No legitimate URLs fetched. Check internet connection.")
-        sys.exit(1)
+    print(f"\n[*] Evaluating on {len(phish_urls):,} live phishing + {len(legit_urls):,} fresh Tranco URLs...")
+    p_urls, p_probs, p_y = evaluate_batch(clf, phish_urls, label=1)
+    l_urls, l_probs, l_y = evaluate_batch(clf, legit_urls, label=0)
 
-    print(f"\n[+] Evaluation set: {len(phishing_urls)} phishing + {len(legit_urls)} legitimate")
-    print("[*] Running inference...")
+    all_urls = p_urls + l_urls
+    all_probs = np.concatenate([p_probs, l_probs])
+    all_y = np.array(p_y + l_y)
 
-    phish_results = evaluate(clf, phishing_urls, label=1)
-    legit_results = evaluate(clf, legit_urls,    label=0)
-    all_results   = phish_results + legit_results
+    m_default = compute_metrics(all_y, all_probs, 0.50)
+    m_tuned   = compute_metrics(all_y, all_probs, opt_thresh)
 
-    # Compute metrics at default threshold
-    m = metrics(all_results)
+    print("\n" + "=" * 70)
+    print("  RESULTS: Held-Out Training vs Fresh External Data")
+    print("=" * 70)
+    print(f"{'Metric':<25} {'Held-Out Test':>15} {'Fresh @0.50':>14} {'Fresh @' + str(round(opt_thresh,2)):>14}")
+    print("-" * 70)
+    key_map = [("acc", "accuracy", "Accuracy"), ("prec", "precision", "Precision"), ("rec", "recall", "Phishing Recall"),
+                ("fpr", "false_positive_rate", "False Positive Rate"), ("f1", "f1_score", "F1-Score"), ("auc", "roc_auc", "ROC-AUC")]
+    for mk, tk, name in key_map:
+        train_val = meta.get(tk, 0.0) * 100
+        print(f"  {name:<23} {train_val:>14.2f}% {m_default[mk]*100:>13.2f}% {m_tuned[mk]*100:>13.2f}%")
 
-    # Print comparison table
-    print("\n" + "=" * 68)
-    print("  RESULTS: Training Set  vs  Fresh External Data")
-    print("=" * 68)
-    print(f"{'Metric':<30} {'Training Set':>15} {'Fresh Data':>15}")
-    print("-" * 62)
-    print(f"{'Accuracy':<30} {meta['accuracy']*100:>14.2f}% {m['acc']*100:>14.2f}%")
-    print(f"{'Precision':<30} {meta['precision']*100:>14.2f}% {m['prec']*100:>14.2f}%")
-    print(f"{'Phishing Recall':<30} {meta['recall']*100:>14.2f}% {m['rec']*100:>14.2f}%")
-    print(f"{'False Positive Rate':<30} {meta['false_positive_rate']*100:>14.2f}% {m['fpr']*100:>14.2f}%")
-    print(f"{'F1-Score':<30} {meta['f1_score']*100:>14.2f}% {m['f1']*100:>14.2f}%")
-    print(f"{'ROC-AUC':<30} {meta['roc_auc']*100:>14.2f}% {m['auc']*100:>14.2f}%")
-    print("-" * 62)
-    print(f"\n  Fresh Data Confusion Matrix  ({len(all_results):,} URLs)")
-    print(f"    Correct Legit (TN):           {m['tn']:>6,}")
-    print(f"    False Alarms  (FP):           {m['fp']:>6,}  <- legit flagged as phishing")
-    print(f"    Missed Threats(FN):           {m['fn']:>6,}  <- phishing not caught")
-    print(f"    Caught Phishing(TP):          {m['tp']:>6,}")
+    print(f"\n  Confusion Matrix on Fresh External Data (@{opt_thresh:.2f}):")
+    print(f"    True Negative (Clean Legit):   {m_tuned['tn']:>6,}")
+    print(f"    False Positive (False Alarm):  {m_tuned['fp']:>6,}")
+    print(f"    False Negative (Missed Phish): {m_tuned['fn']:>6,}")
+    print(f"    True Positive (Caught Phish):  {m_tuned['tp']:>6,}")
 
-    # Worst false positives (legit sites flagged)
-    fps = [r for r in legit_results if r["pred"] == 1]
-    fns = [r for r in phish_results if r["pred"] == 0]
-    print(f"\n  Top False Positives (legit flagged as phishing):")
-    for r in sorted(fps, key=lambda x: x["prob"], reverse=True)[:10]:
-        print(f"    {r['prob']*100:5.1f}%  {r['url'][:80]}")
-    print(f"\n  Top Missed Threats (phishing not caught):")
-    for r in sorted(fns, key=lambda x: x["prob"])[:10]:
-        print(f"    {r['prob']*100:5.1f}%  {r['url'][:80]}")
+    # Top false positives
+    fp_indices = [i for i, y in enumerate(l_y) if l_probs[i] >= opt_thresh]
+    print(f"\n  Top False Positives on Fresh Tranco Sites ({len(fp_indices)} total):")
+    for idx in sorted(fp_indices, key=lambda i: l_probs[i], reverse=True)[:5]:
+        print(f"    {l_probs[idx]*100:5.1f}%: {l_urls[idx]}")
 
-    # Honest interpretation
-    acc_gap = meta["accuracy"] - m["acc"]
-    print(f"\n  Honest Assessment:")
-    print(f"    Training-set accuracy gap on fresh data: {acc_gap*100:+.1f}pp")
-    if acc_gap > 0.15:
-        print("    [!] SIGNIFICANT GENERALIZATION GAP. Model overfits training distribution.")
-    elif acc_gap > 0.05:
-        print("    [~] MODERATE GAP. Some real-world degradation, expected and honest.")
-    else:
-        print("    [OK] Gap is small. Claims appear to hold on fresh data.")
-
-    # Save JSON results
-    out = {
-        "evaluation_type": "Fresh External Data (Never Seen During Training)",
-        "phishing_source": "OpenPhish feed / URLhaus fallback",
-        "legit_source": "Tranco Top-1M",
-        "n_phishing": len(phish_results),
-        "n_legit": len(legit_results),
-        "training_set_metrics": {
-            "accuracy": meta["accuracy"],
-            "precision": meta["precision"],
-            "recall": meta["recall"],
-            "false_positive_rate": meta["false_positive_rate"],
-            "f1_score": meta["f1_score"],
-            "roc_auc": meta["roc_auc"]
-        },
-        "fresh_data_metrics": {k: float(v) for k, v in m.items()},
-        "top_false_positives": [{"url": r["url"], "prob": r["prob"]} for r in
-                                  sorted(fps, key=lambda x: x["prob"], reverse=True)[:20]],
-        "top_missed_threats":  [{"url": r["url"], "prob": r["prob"]} for r in
-                                  sorted(fns, key=lambda x: x["prob"])[:20]],
+    # Save fresh evaluation report
+    report_data = {
+        "evaluation_name": "Fresh External Data Evaluation (Tranco + OpenPhish)",
+        "model_version": meta["version"],
+        "evaluated_at": time.strftime("%Y-%m-%d %H:%M:%S UTC"),
+        "optimal_threshold": opt_thresh,
+        "n_fresh_phishing": len(p_urls),
+        "n_fresh_legitimate": len(l_urls),
+        "held_out_metrics": {k: meta[k] for k in ["acc", "prec", "rec", "fpr", "f1", "auc"] if k in meta},
+        "fresh_metrics_default_0_50": m_default,
+        "fresh_metrics_tuned": m_tuned
     }
-    out_path = REPORTS_DIR / "fresh_data_evaluation.json"
-    with open(out_path, "w") as f:
-        json.dump(out, f, indent=2)
-    print(f"\n[+] Detailed results saved to {out_path}")
-    print("=" * 68)
+    rep_path = REPORTS_DIR / "fresh_data_evaluation.json"
+    with open(rep_path, "w", encoding="utf-8") as f:
+        json.dump(report_data, f, indent=2)
+
+    print(f"\n[+] Detailed evaluation report saved to: {rep_path}")
+    print("=" * 70)
+
 
 if __name__ == "__main__":
     main()

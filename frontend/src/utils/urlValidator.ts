@@ -26,6 +26,8 @@ const FORBIDDEN_SCHEMES = [
   'tel:'
 ];
 
+const EMAIL_PATTERN = /^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/;
+
 export interface ValidationResult {
   isValid: boolean;
   error?: string;
@@ -83,7 +85,23 @@ export function validateScanUrl(rawInput: string): ValidationResult {
     return { isValid: false, error: 'Web addresses cannot contain spaces or whitespace characters.' };
   }
 
-  // 1. Reject internal application routes
+  // 1. Reject email addresses (e.g. shettybvarun@gmail.com)
+  if (EMAIL_PATTERN.test(trimmed)) {
+    return {
+      isValid: false,
+      error: `'${trimmed}' is an email address, not a website URL. PhishGuard AI analyzes website destinations (e.g., https://gmail.com).`
+    };
+  }
+
+  // 2. Reject social handles (e.g. @username)
+  if (trimmed.startsWith('@')) {
+    return {
+      isValid: false,
+      error: `'${trimmed}' is a social username/handle, not a website URL. Please provide a full web address.`
+    };
+  }
+
+  // 3. Reject internal application routes
   if (trimmed.startsWith('/')) {
     return {
       isValid: false,
@@ -93,7 +111,7 @@ export function validateScanUrl(rawInput: string): ValidationResult {
 
   const lower = trimmed.toLowerCase();
 
-  // 2. Reject non-HTTP/HTTPS schemes
+  // 4. Reject non-HTTP/HTTPS schemes
   for (const forbidden of FORBIDDEN_SCHEMES) {
     if (lower.startsWith(forbidden)) {
       return {
@@ -134,7 +152,7 @@ export function validateScanUrl(rawInput: string): ValidationResult {
 
   const cleanHost = hostname.toLowerCase().replace(/\.+$/, '');
 
-  // 3. Reject localhost and local dev domains
+  // 5. Reject localhost and local dev domains
   if (cleanHost === 'localhost' || LOCAL_DOMAIN_SUFFIXES.some((s) => cleanHost.endsWith(s))) {
     return {
       isValid: false,
@@ -142,7 +160,7 @@ export function validateScanUrl(rawInput: string): ValidationResult {
     };
   }
 
-  // 4. Reject loopback and internal addresses
+  // 6. Reject loopback and internal addresses
   if (['localhost', '127.0.0.1', '0.0.0.0', '::1', '[::1]'].includes(cleanHost)) {
     return {
       isValid: false,
@@ -150,7 +168,7 @@ export function validateScanUrl(rawInput: string): ValidationResult {
     };
   }
 
-  // 5. Check if host is a private or internal IP address
+  // 7. Check if host is a private or internal IP address
   const isIpv4Pattern = /^(\d{1,3}\.){3}\d{1,3}$/.test(cleanHost);
   const isIpv6Pattern = cleanHost.includes(':');
 
@@ -168,7 +186,7 @@ export function validateScanUrl(rawInput: string): ValidationResult {
     };
   }
 
-  // 6. Reject our own active application ports on loopback/localhost
+  // 8. Reject our own active application ports on loopback/localhost
   const portNum = parsed.port ? parseInt(parsed.port, 10) : null;
   if (portNum && APP_PORTS.has(portNum) && ['localhost', '127.0.0.1', '0.0.0.0'].includes(cleanHost)) {
     return {
@@ -177,7 +195,7 @@ export function validateScanUrl(rawInput: string): ValidationResult {
     };
   }
 
-  // 7. Validate domain structure if not an IP address
+  // 9. Validate domain structure if not an IP address
   if (!isIpv4Pattern && !isIpv6Pattern) {
     const parts = cleanHost.split('.').filter(Boolean);
     if (parts.length < 2) {
