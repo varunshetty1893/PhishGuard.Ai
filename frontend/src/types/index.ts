@@ -1,0 +1,130 @@
+export interface ExtractedFeatures {
+  url_length: number;
+  hostname_length: number;
+  path_length: number;
+  query_length: number;
+  count_dots: number;
+  count_hyphens: number;
+  count_subdomains: number;
+  count_digits: number;
+  count_special_chars: number;
+  is_ip_address: number;
+  is_https: number;
+  has_at_symbol: number;
+  has_suspicious_encoding: number;
+  is_shortened_service: number;
+  has_unusual_port: number;
+  has_suspicious_keywords: number;
+}
+
+export interface ThreatProviderResult {
+  status: 'Not Configured' | 'No Match Reported' | 'Threat Reported' | 'Unavailable' | 'Inconclusive';
+  threat_found: boolean;
+  category: string | null;
+  details: string | null;
+}
+
+export interface ThreatIntelligenceSummary {
+  google_safe_browsing: ThreatProviderResult;
+  urlhaus: ThreatProviderResult;
+}
+
+export interface ScanResult {
+  scan_id: string;
+  submitted_url: string;
+  normalized_url: string;
+  predicted_class: 'Legitimate' | 'Phishing';
+  risk_level: 'Low Risk' | 'Suspicious' | 'High Risk';
+  model_score: number | null;
+  extracted_features: ExtractedFeatures;
+  suspicious_reasons: string[];
+  threat_intelligence: ThreatIntelligenceSummary;
+  combined_interpretation: string;
+  recommended_precautions: string[];
+  model_version: string;
+  created_at: string;
+}
+
+export interface ScanListItem {
+  scan_id: string;
+  submitted_url: string;
+  predicted_class: 'Legitimate' | 'Phishing';
+  risk_level: 'Low Risk' | 'Suspicious' | 'High Risk';
+  model_score: number | null;
+  created_at: string;
+  threat_intel_match: boolean;
+}
+
+export interface ScanListResponse {
+  total_records: number;
+  page: number;
+  page_size: number;
+  total_pages: number;
+  items: ScanListItem[];
+}
+
+export interface ChartSlice {
+  name: string;
+  value: number;
+  color: string;
+}
+
+export interface TemporalDataPoint {
+  date: string;
+  scans: number;
+  phishing: number;
+}
+
+export interface AnalyticsData {
+  total_scans: number;
+  phishing_count: number;
+  legitimate_count: number;
+  high_risk_count: number;
+  threat_intel_matches: number;
+  threat_intel_failures: number;
+  classification_distribution: ChartSlice[];
+  risk_distribution: ChartSlice[];
+  scans_over_time: TemporalDataPoint[];
+  model_status: {
+    version: string;
+    algorithm: string;
+    status: string;
+  };
+  threat_provider_status: {
+    google_safe_browsing: string;
+    urlhaus: string;
+  };
+}
+
+export interface ModelMetadata {
+  model_version: string;
+  algorithm: string;
+  dataset_name: string;
+  training_date: string;
+  total_samples: number;
+  train_samples: number;
+  test_samples: number;
+  evaluation_metrics: {
+    accuracy: number;
+    precision: number;
+    recall: number;
+    f1_score: number;
+    roc_auc: number;
+  };
+  confusion_matrix: {
+    tn: number;
+    fp: number;
+    fn: number;
+    tp: number;
+  };
+  feature_schema: string[];
+  feature_importances: Record<string, number>;
+}
+
+export interface HealthData {
+  status: string;
+  database: string;
+  ml_model_loaded: boolean;
+  model_version: string;
+  timestamp: string;
+}

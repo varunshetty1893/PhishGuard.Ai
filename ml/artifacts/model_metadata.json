@@ -1,0 +1,68 @@
+{
+  "model_version": "1.0.0",
+  "algorithm": "Random Forest Classifier (n_estimators=150, max_depth=16)",
+  "dataset_name": "PhishGuard Academic Benchmark (Curated Mitchell Krogza & Tranco Seeds)",
+  "training_date": "2026-10-26T04:29:54.126516+00:00",
+  "total_samples": 5000,
+  "train_samples": 4000,
+  "test_samples": 1000,
+  "evaluation_metrics": {
+    "accuracy": 1.0,
+    "precision": 1.0,
+    "recall": 1.0,
+    "f1_score": 1.0,
+    "roc_auc": 1.0
+  },
+  "baseline_comparison": {
+    "logistic_regression": {
+      "accuracy": 0.999,
+      "precision": 1.0,
+      "recall": 0.998,
+      "f1_score": 0.999,
+      "roc_auc": 1.0
+    }
+  },
+  "confusion_matrix": {
+    "tn": 500,
+    "fp": 0,
+    "fn": 0,
+    "tp": 500
+  },
+  "feature_schema": [
+    "url_length",
+    "hostname_length",
+    "path_length",
+    "query_length",
+    "count_dots",
+    "count_hyphens",
+    "count_subdomains",
+    "count_digits",
+    "count_special_chars",
+    "is_ip_address",
+    "is_https",
+    "has_at_symbol",
+    "has_suspicious_encoding",
+    "is_shortened_service",
+    "has_unusual_port",
+    "has_suspicious_keywords"
+  ],
+  "feature_importances": {
+    "count_digits": 0.3317,
+    "is_https": 0.2281,
+    "count_dots": 0.181,
+    "hostname_length": 0.1222,
+    "is_ip_address": 0.054,
+    "path_length": 0.0296,
+    "url_length": 0.0209,
+    "count_subdomains": 0.013,
+    "count_special_chars": 0.0094,
+    "query_length": 0.0049,
+    "has_suspicious_keywords": 0.0031,
+    "is_shortened_service": 0.001,
+    "count_hyphens": 0.0008,
+    "has_suspicious_encoding": 0.0,
+    "has_at_symbol": 0.0,
+    "has_unusual_port": 0.0
+  },
+  "model_file": "phishguard_rf_model.joblib"
+}

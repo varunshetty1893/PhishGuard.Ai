@@ -1,0 +1,72 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bg-main: #050505;
+  --color-bg-secondary: #0A0A0A;
+  --color-bg-card: #111111;
+  --color-bg-elevated: #181818;
+  
+  --color-primary-green: #39FF88;
+  --color-secondary-green: #16C96A;
+  
+  --color-warning-yellow: #FFD54A;
+  --color-secondary-yellow: #EABF32;
+  
+  --color-danger-red: #FF525C;
+  --color-secondary-red: #D93645;
+  
+  --color-text-primary: #F5F5F5;
+  --color-text-secondary: #A3A3A3;
+  --color-border-subtle: #292929;
+}
+
+:root {
+  color-scheme: dark;
+  background-color: #050505;
+  color: #F5F5F5;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #050505;
+  color: #F5F5F5;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Custom Scrollbar in Dark Charcoal & Green */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #0A0A0A;
+}
+::-webkit-scrollbar-thumb {
+  background: #292929;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #39FF88;
+}
+
+/* Ensure no default browser blue highlights on focus or selection */
+::selection {
+  background: #16C96A;
+  color: #050505;
+}
+
+input:focus, button:focus, textarea:focus, select:focus {
+  outline: 2px solid #39FF88 !important;
+  outline-offset: 1px !important;
+}
+
+/* Subtle grid texture for cybersecurity atmosphere */
+.cyber-grid {
+  background-size: 32px 32px;
+  background-image: 
+    linear-gradient(to right, #111111 1px, transparent 1px),
+    linear-gradient(to bottom, #111111 1px, transparent 1px);
+}
