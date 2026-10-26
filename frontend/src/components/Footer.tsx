@@ -86,7 +86,7 @@ export const Footer: React.FC = () => {
             <div className="space-y-2">
               <div className="text-[11px]">
                 <span className="text-[#F5F5F5] font-medium">Benchmark:</span>{' '}
-                298,006 Supervised Training & Test URLs (99.40% Accuracy)
+                Current model: 40,000 training examples; 96.82% accuracy on 7,118 held-out test links
               </div>
               <div className="text-[11px]">
                 <span className="text-[#F5F5F5] font-medium">Model:</span>{' '}

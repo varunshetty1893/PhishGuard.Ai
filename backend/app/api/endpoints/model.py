@@ -39,7 +39,7 @@ def get_model_info():
         return {
             "model_version": meta.get("model_version", "4.1.0"),
             "algorithm": meta.get("algorithm", "Random Forest (class_weight=balanced, isotonic calibrated, domain-isolated 3-split)"),
-            "dataset_name": "Curated Tranco Top-50k + Real Deep Links + Verified Phishing",
+            "dataset_name": "Current curated 40,000-link training set",
             "training_date": meta.get("trained_date", "2026-10-26 10:27:28 UTC"),
             "total_samples": 40000,
             "train_samples": meta.get("training_samples", 23913),

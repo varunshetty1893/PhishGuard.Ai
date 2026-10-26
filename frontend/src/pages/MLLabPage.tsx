@@ -104,20 +104,20 @@ export const MLLabPage: React.FC = () => {
               <h2 className="text-base font-bold text-[#F5F5F5]">Domain-Isolated 3-Way Partitioning (Zero Domain Leakage)</h2>
             </div>
             <p className="text-xs text-[#A3A3A3] leading-relaxed max-w-3xl">
-              Trained using a strict 3-way partition grouped by registered apex domain: <strong>60% Train (18,384 domains)</strong>, 
-              <strong> 20% Validation (6,128 domains)</strong>, and <strong>20% Test (6,128 domains)</strong>. The decision threshold (0.640) 
-              was tuned exclusively on the validation set, and the test set was evaluated exactly once.
+              The current model used separate website groups for training, validation, and testing: <strong>60% training (18,384 website groups)</strong>,
+              <strong> 20% validation (6,128 groups)</strong>, and <strong>20% testing (6,128 groups)</strong>. The risk cutoff (0.640)
+              was selected using the validation set, not the test set.
             </p>
           </div>
           <span className="self-start px-2.5 py-1 rounded bg-[#111111] border border-[#39FF88]/40 text-[#39FF88] font-mono text-[11px] font-semibold">
-            0 Shared Domains Across Splits
+            No shared website groups between splits
           </span>
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div className="p-3 rounded bg-[#111111] border border-[#292929] text-center">
             <div className="text-2xl font-bold font-mono text-[#39FF88]">{modelInfo.total_samples?.toLocaleString() || '40,000'}</div>
-            <div className="text-[11px] text-[#A3A3A3] mt-1">Curated v4 Samples</div>
+            <div className="text-[11px] text-[#A3A3A3] mt-1">Current model samples</div>
           </div>
           <div className="p-3 rounded bg-[#111111] border border-[#292929] text-center">
             <div className="text-2xl font-bold font-mono text-[#39FF88]">{modelInfo.train_samples?.toLocaleString() || '23,913'}</div>
@@ -139,7 +139,7 @@ export const MLLabPage: React.FC = () => {
         <div className="p-4 rounded bg-[#111111] border border-[#292929] space-y-1">
           <span className="text-[10px] uppercase font-semibold text-[#A3A3A3]">Active Classifier</span>
           <div className="text-sm font-bold text-[#F5F5F5]">{modelInfo.algorithm}</div>
-          <p className="text-[10px] text-[#39FF88]">200 Trees &bull; Isotonic Calibrated</p>
+          <p className="text-[10px] text-[#39FF88]">200 decision trees; scores are adjusted for consistency</p>
         </div>
 
         <div className="p-4 rounded bg-[#111111] border border-[#292929] space-y-1">
@@ -150,14 +150,14 @@ export const MLLabPage: React.FC = () => {
 
         <div className="p-4 rounded bg-[#111111] border border-[#292929] space-y-1">
           <span className="text-[10px] uppercase font-semibold text-[#A3A3A3]">Collection Windows</span>
-          <div className="text-sm font-bold text-[#F5F5F5]">Historical Train vs Live Eval</div>
-          <p className="text-[10px] text-[#A3A3A3]">Train: 2020-2023 | Eval: Oct 2026</p>
+          <div className="text-sm font-bold text-[#F5F5F5]">Training and evaluation dates</div>
+          <p className="text-[10px] text-[#A3A3A3]">Training links: 2020–2023 | Extra checks: October 2026</p>
         </div>
 
         <div className="p-4 rounded bg-[#111111] border border-[#292929] space-y-1">
           <span className="text-[10px] uppercase font-semibold text-[#A3A3A3]">Decision Principle</span>
-          <div className="text-sm font-bold text-[#F5F5F5]">Categorical Risk Tiering</div>
-          <p className="text-[10px] text-[#39FF88]">Low / Suspicious / High Risk</p>
+          <div className="text-sm font-bold text-[#F5F5F5]">Result categories</div>
+          <p className="text-[10px] text-[#39FF88]">Likely Safe / Suspicious / Likely Phishing</p>
         </div>
       </div>
 
@@ -165,7 +165,7 @@ export const MLLabPage: React.FC = () => {
       <div className="space-y-4">
         <h3 className="text-xs font-semibold uppercase tracking-wider text-[#A3A3A3] flex items-center gap-2">
           <Target className="w-4 h-4 text-[#39FF88]" />
-          Held-Out Domain-Separated Test Set Metrics (7,118 Samples, Evaluated Once)
+          Held-Out Test Results (7,118 links from separate website groups)
         </h3>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
           <div className="p-4 rounded bg-[#0A0A0A] border border-[#292929] text-center space-y-1">
@@ -227,11 +227,11 @@ export const MLLabPage: React.FC = () => {
               Hard Long-Tail Legitimate Stress Test (1,080 URLs)
             </h3>
             <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#181818] text-[#FFD54A]">
-              13.06% FPR [95% CI: 11.05% - 15.06%]
+              13.06% flagged incorrectly (141 of 1,080)
             </span>
           </div>
           <p className="text-xs text-[#A3A3A3] leading-relaxed">
-            Tested on 1,080 completely unseen legitimate URLs outside Tranco top-50k (ranks 200k-1M, authentic SSO login portals, SMBs, and URLs containing security keywords).
+            Tested on 1,080 legitimate links outside the main training selection, including lower-ranked websites, real sign-in pages, small organizations, and links with account-related words.
           </p>
           <div className="space-y-2 text-xs">
             <div className="flex justify-between py-1.5 border-b border-[#1A1A1A]">
@@ -260,11 +260,11 @@ export const MLLabPage: React.FC = () => {
               Hard Phishing Test Set (600 URLs, Live 2026 Feeds)
             </h3>
             <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#181818] text-[#39FF88]">
-              96.67% Overall Recall (580/600)
+              Flagged 580 of 600 known phishing links (96.67%)
             </span>
           </div>
           <p className="text-xs text-[#A3A3A3] leading-relaxed">
-            Evaluated against live OpenPhish 2026 feeds and un-used held-out phishing URLs specifically targeting difficult deception modalities.
+            Checked against an October 2026 OpenPhish collection and other phishing links kept out of the training selection.
           </p>
           <div className="space-y-2 text-xs">
             <div className="flex justify-between py-1.5 border-b border-[#1A1A1A]">
@@ -294,7 +294,7 @@ export const MLLabPage: React.FC = () => {
             <AlertTriangle className="w-4 h-4 text-[#FF525C]" />
             What This Check May Miss
           </h3>
-          <span className="text-[10px] text-[#A3A3A3]">Transparent Security Engineering</span>
+          <span className="text-[10px] text-[#A3A3A3]">Important limits</span>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs leading-relaxed">
           <div className="p-3.5 rounded bg-[#0A0A0A] border border-[#292929] space-y-1.5">
@@ -316,9 +316,9 @@ export const MLLabPage: React.FC = () => {
             </p>
           </div>
           <div className="p-3.5 rounded bg-[#0A0A0A] border border-[#292929] space-y-1.5">
-            <div className="font-semibold text-[#FF525C]">4. Zero-Day Temporal Concept Drift</div>
+            <div className="font-semibold text-[#FF525C]">4. New Phishing Patterns Can Change</div>
             <p className="text-[#A3A3A3]">
-              Attackers continually register obscure ccTLDs and adopt novel URL structures. While our time-based split shows strong short-term stability (99.14% temporal recall), continuous ingestion of daily feeds is necessary to prevent long-term performance decay.
+              Attackers change their links and techniques over time. This model is not continuously retrained, so its performance may change as new phishing patterns appear.
             </p>
           </div>
         </div>

@@ -26,9 +26,9 @@ export const LandingPage: React.FC = () => {
   };
 
   const sampleUrls = [
-    { label: 'Phishing Demo', url: 'http://login.paypal.com.account-verify.xyz/signin', badge: 'DANGEROUS', color: '#FF525C' },
-    { label: 'Safe Website Demo', url: 'https://wikipedia.org/wiki/Computer_science', badge: 'SAFE', color: '#39FF88' },
-    { label: 'Suspicious Shortener', url: 'https://tinyurl.com/secure-banking-login-test', badge: 'SUSPICIOUS', color: '#FFD54A' },
+    { label: 'Phishing-style example', url: 'http://login.paypal.com.account-verify.xyz/signin', badge: 'EXAMPLE', color: '#FF525C' },
+    { label: 'Known-site example', url: 'https://wikipedia.org/wiki/Computer_science', badge: 'EXAMPLE', color: '#39FF88' },
+    { label: 'Short-link example', url: 'https://tinyurl.com/secure-banking-login-test', badge: 'EXAMPLE', color: '#FFD54A' },
   ];
 
   return (
@@ -38,7 +38,7 @@ export const LandingPage: React.FC = () => {
         <div className="max-w-4xl mx-auto text-center space-y-6">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#111111] border border-[#39FF88]/40 text-xs font-medium text-[#39FF88]">
             <span className="w-2 h-2 rounded-full bg-[#39FF88] animate-pulse" />
-            <span>PhishGuard AI v3.0 - AI-Powered Threat Defense</span>
+            <span>PhishGuard AI — Link Safety Check</span>
           </div>
 
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-[#F5F5F5] leading-tight">
@@ -49,7 +49,7 @@ export const LandingPage: React.FC = () => {
           <p className="text-base sm:text-lg text-[#A3A3A3] max-w-2xl mx-auto leading-relaxed">
             Paste any suspicious link below. We check it for common phishing warning signs without opening it.
             — <strong className="text-[#F5F5F5]">without ever visiting the website</strong>.
-            Get a clear safety verdict in under 2 seconds.
+            Get a clear result without opening the submitted link.
           </p>
 
           {/* Quick Scanner Box */}
@@ -119,7 +119,7 @@ export const LandingPage: React.FC = () => {
               { num: '01', title: 'Safe Ingestion', desc: 'URL is sanitized and validated in-memory. No browser rendering or network connection to the target.' },
               { num: '02', title: 'Look for Warning Signs', desc: 'We check the address for signs such as unusual dots, hyphens, subdomains, number-based addresses, shorteners, and sign-in words.' },
               { num: '03', title: 'Compare Phishing Patterns', desc: 'Our detection system compares these signs with examples of phishing and safe links.' },
-              { num: '04', title: 'Check Known Threats', desc: 'We also check Google Safe Browsing and URLhaus, then give you clear next steps.' },
+              { num: '04', title: 'Check Known Threats', desc: 'When these services are set up, we check Google Safe Browsing and URLhaus, then give you clear next steps.' },
             ].map((item) => (
               <div key={item.num} className="p-5 rounded bg-[#111111] border border-[#292929] relative space-y-3">
                 <div className="w-8 h-8 rounded bg-[#181818] border border-[#39FF88]/40 flex items-center justify-center text-[#39FF88] font-bold text-xs">
@@ -145,7 +145,7 @@ export const LandingPage: React.FC = () => {
               Genuine Supervised Machine Learning
             </h3>
             <p className="text-xs text-[#A3A3A3] leading-relaxed">
-              Trained on 298,006 verified phishing and legitimate URLs across recognized security benchmarks. Evaluated on held-out test splits with exact metrics.
+              The current model was trained on 40,000 links and tested on 7,118 separate links. It is a guide, not a guarantee.
             </p>
             <ul className="space-y-3 text-xs text-[#F5F5F5]">
               <li className="flex items-center gap-2">
@@ -172,21 +172,21 @@ export const LandingPage: React.FC = () => {
               Known Threat Check
             </h3>
             <p className="text-xs text-[#A3A3A3] leading-relaxed">
-              We securely check trusted threat databases. Each service reports its own status,
-              and external network failures never disrupt local machine learning classification.
+              When configured, we check trusted threat databases. Each service reports its own status,
+              and a failed external check does not stop the address-pattern check.
             </p>
             <ul className="space-y-3 text-xs text-[#F5F5F5]">
               <li className="flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 text-[#FFD54A] shrink-0" />
-                <span>Google Safe Browsing API v4 Integration</span>
+                <span>Optional Google Safe Browsing check</span>
               </li>
               <li className="flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 text-[#FFD54A] shrink-0" />
-                <span>abuse.ch URLhaus malware database</span>
+                <span>Optional abuse.ch URLhaus check</span>
               </li>
               <li className="flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 text-[#FFD54A] shrink-0" />
-                <span>Zero Mandatory Paid APIs — Fully operational offline</span>
+                <span>The address-pattern check works without these services</span>
               </li>
             </ul>
           </div>
@@ -199,16 +199,16 @@ export const LandingPage: React.FC = () => {
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
               <h3 className="text-lg font-bold text-[#F5F5F5]">
-                🔒 Zero-Execution Security Sandbox
+                🔒 Address Safety Design
               </h3>
               <p className="text-xs text-[#A3A3A3] mt-1">
-                PhishGuard AI treats every URL as potentially hostile untrusted input.
-                <strong className="text-[#F5F5F5]"> Your device is never exposed.</strong>
+                PhishGuard AI treats every submitted address as untrusted input.
+                <strong className="text-[#F5F5F5]"> The scanner does not fetch the submitted website.</strong>
               </p>
             </div>
             <div className="flex items-center gap-2 text-xs">
               <span className="px-3 py-1 rounded bg-[#0E1A12] text-[#39FF88] border border-[#39FF88]/30 font-medium">
-                SSRF-Immune
+                No target fetch
               </span>
               <span className="px-3 py-1 rounded bg-[#181818] text-[#F5F5F5] border border-[#292929] font-medium">
                 No Crawlers
@@ -220,13 +220,13 @@ export const LandingPage: React.FC = () => {
             <div className="space-y-2">
               <h4 className="font-semibold text-[#39FF88]">No Webpage Rendering</h4>
               <p className="text-[#A3A3A3] leading-relaxed">
-                Untrusted HTML or JavaScript is never executed. Drive-by malware and browser exploit payloads cannot trigger.
+                The scanner does not render the submitted webpage or run its HTML and JavaScript.
               </p>
             </div>
             <div className="space-y-2">
               <h4 className="font-semibold text-[#39FF88]">No Outbound Target Connections</h4>
               <p className="text-[#A3A3A3] leading-relaxed">
-                Backend feature extraction inspects strings purely in-memory. Zero TCP sockets or DNS requests are opened toward target hosts.
+                The address-pattern check inspects the URL text in memory. Optional known-threat checks contact only their own configured service endpoints.
               </p>
             </div>
             <div className="space-y-2">

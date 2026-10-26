@@ -101,7 +101,7 @@ export const DashboardPage: React.FC = () => {
         <div>
           <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded bg-[#111111] border border-[#39FF88]/40 text-xs font-medium text-[#39FF88] mb-2">
             <Activity className="w-3.5 h-3.5 text-[#39FF88]" />
-            <span>Real-Time Security Intelligence</span>
+            <span>Your Security Summary</span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[#F5F5F5]">
             Your Scan Summary
