@@ -26,7 +26,7 @@ export const App: React.FC = () => {
               <Route path="/" element={<LandingPage />} />
               <Route path="/register" element={<RegisterPage />} />
               <Route path="/login" element={<LoginPage />} />
-              <Route path="/ml-lab" element={<Navigate to="/about#detection-details" replace />} />
+              <Route path="/ml-lab" element={<Navigate to="/about" replace />} />
               <Route path="/about" element={<AboutPage />} />
 
               {/* Protected Routes (Require Authenticated User Session) */}
