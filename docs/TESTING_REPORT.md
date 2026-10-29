@@ -88,7 +88,7 @@ graph TD
 | `test_security.py` | `test_sql_injection_resilience_in_search` | Parameterized SQL query safety | **PASSED** |
 | `test_security.py` | `test_no_secrets_leaked_in_public_endpoints` | API key isolation verification | **PASSED** |
 | `test_threat_intel.py` | `test_google_safe_browsing_not_configured` | Graceful fallback when key absent | **PASSED** |
-| `test_threat_intel.py` | `test_urlhaus_not_configured` | Graceful fallback without auth key | **PASSED** |
+| `test_threat_intel.py` | `test_openphish_matches_exact_full_url` | Local feed exact-URL match | **PASSED** |
 | `test_threat_intel.py` | `test_threat_aggregator_safe_fallback` | Provider fault tolerance | **PASSED** |
 | `test_threat_intel.py` | `test_provider_status_reporting` | Runtime provider status mapping | **PASSED** |
 

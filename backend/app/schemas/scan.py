@@ -162,8 +162,11 @@ class ThreatProviderResult(BaseModel):
 
 
 class ThreatIntelligenceSummary(BaseModel):
-    google_safe_browsing: ThreatProviderResult
-    urlhaus: ThreatProviderResult
+    openphish: Optional[ThreatProviderResult] = None
+    phishing_database: Optional[ThreatProviderResult] = None
+    phish_destroy: Optional[ThreatProviderResult] = None
+    phishstats: Optional[ThreatProviderResult] = None
+    google_safe_browsing: Optional[ThreatProviderResult] = None
 
 
 class ScanResultResponse(BaseModel):

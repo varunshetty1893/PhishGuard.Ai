@@ -46,13 +46,19 @@ graph TD
     Router --> SQLite
     AnalyticsService --> SQLite
     
-    subgraph External_APIs["External Threat Intelligence (Optional)"]
+    subgraph Threat_Intelligence["Threat Intelligence Sources"]
+        OpenPhish["OpenPhish local feed"]
+        PhishingDatabase["Phishing.Database local feeds"]
+        PhishDestroy["PhishDestroy API"]
+        PhishStats["PhishStats API"]
         GSB["Google Safe Browsing v4 API"]
-        URLhaus["abuse.ch URLhaus API"]
     end
     
+    ThreatIntelService --> OpenPhish
+    ThreatIntelService --> PhishingDatabase
+    ThreatIntelService -.->|Server-to-Server| PhishDestroy
+    ThreatIntelService -.->|Server-to-Server| PhishStats
     ThreatIntelService -.->|Optional Server-to-Server| GSB
-    ThreatIntelService -.->|Optional Server-to-Server| URLhaus
 ```
 
 ---
@@ -99,8 +105,15 @@ classDiagram
         -api_key: Optional[str]
         +check_url(url: str) ThreatCheckResult
     }
-    class URLhausAdapter {
-        -auth_key: Optional[str]
+    class LocalThreatFeeds {
+        +check_openphish(url: str) ThreatCheckResult
+        +check_phishing_database(url: str) ThreatCheckResult
+    }
+    class PhishDestroyAdapter {
+        +check_url(url: str) ThreatCheckResult
+    }
+    class PhishStatsAdapter {
+        -api_key: Optional[str]
         +check_url(url: str) ThreatCheckResult
     }
     class ThreatIntelAggregator {
@@ -108,7 +121,9 @@ classDiagram
         +execute_checks(url: str) Dict
     }
     ThreatProvider <|-- GoogleSafeBrowsingAdapter
-    ThreatProvider <|-- URLhausAdapter
+    ThreatProvider <|-- LocalThreatFeeds
+    ThreatProvider <|-- PhishDestroyAdapter
+    ThreatProvider <|-- PhishStatsAdapter
     ThreatIntelAggregator o-- ThreatProvider
 ```
 

@@ -97,8 +97,7 @@ export const ResultsPage: React.FC = () => {
 
   const hasThreatMatch = Boolean(
     result.threat_intel_match ||
-    result.threat_intelligence?.google_safe_browsing?.threat_found ||
-    result.threat_intelligence?.urlhaus?.threat_found
+    Object.values(result.threat_intelligence || {}).some((provider) => provider?.threat_found)
   );
 
   // This is the calibrated score used for the final assessment. A raw lexical
@@ -179,33 +178,26 @@ export const ResultsPage: React.FC = () => {
     const status = provider?.status || 'Not Configured';
     const isThreat = provider?.threat_found;
     const isNoMatch = status === 'No Match Reported';
+    const isUnverifiedReport = status === 'Unverified Reported';
     const isUnavailable = status === 'Unavailable';
-    const isInvalidKey = (
-      (provider?.details || '').includes('unknown_auth_key') ||
-      (provider?.details || '').includes('Invalid URLhaus Auth-Key') ||
-      status === 'Invalid Auth Key'
-    );
-        let cardBg = 'bg-[#0A0A0A] border-[#181818]';
+    let cardBg = 'bg-[#0A0A0A] border-[#181818]';
     let icon = <HelpCircle className="w-4 h-4 text-[#737373]" />;
     let stateBadge = <span className="text-[11px] px-2 py-0.5 rounded bg-[#181818] border border-[#292929] text-[#737373]">Not Set Up Yet</span>;
 
     if (isThreat) {
       cardBg = 'bg-[#1A0D0F] border-[#FF525C]/40';
       icon = <XCircle className="w-4 h-4 text-[#FF525C]" />;
-      stateBadge = <span className="text-[11px] font-semibold px-2 py-0.5 rounded bg-[#2A0E12] border border-[#FF525C] text-[#FF525C]">Threat Reported</span>;
+      stateBadge = isUnverifiedReport
+        ? <span className="text-[11px] font-semibold px-2 py-0.5 rounded bg-[#2A0E12] border border-[#FF525C] text-[#FF525C]">Listed - Treated as Harmful</span>
+        : <span className="text-[11px] font-semibold px-2 py-0.5 rounded bg-[#2A0E12] border border-[#FF525C] text-[#FF525C]">Threat Reported</span>;
     } else if (isNoMatch) {
       cardBg = 'bg-[#0A0A0A] border-[#292929]';
       icon = <CheckCircle2 className="w-4 h-4 text-[#39FF88]" />;
       stateBadge = <span className="text-[11px] px-2 py-0.5 rounded bg-[#0E1A12] border border-[#39FF88]/40 text-[#39FF88]">No Known Threat Found</span>;
-    } else if (isInvalidKey) {
-      // Orange: API key is present but rejected by the provider
-      cardBg = 'bg-[#1A1100] border-[#FF8C42]/40';
-      icon = <AlertTriangle className="w-4 h-4 text-[#FF8C42]" />;
-      stateBadge = (
-        <span className="text-[11px] font-semibold px-2 py-0.5 rounded bg-[#2A1A00] border border-[#FF8C42] text-[#FF8C42]">
-          Invalid API Key
-        </span>
-      );
+    } else if (isUnverifiedReport) {
+      cardBg = 'bg-[#14120A] border-[#FFD54A]/30';
+      icon = <AlertTriangle className="w-4 h-4 text-[#FFD54A]" />;
+      stateBadge = <span className="text-[11px] font-semibold px-2 py-0.5 rounded bg-[#1A170A] border border-[#FFD54A]/40 text-[#FFD54A]">Reported, Not Verified</span>;
     } else if (isUnavailable) {
       cardBg = 'bg-[#14120A] border-[#FFD54A]/30';
       icon = <AlertTriangle className="w-4 h-4 text-[#FFD54A]" />;
@@ -222,22 +214,7 @@ export const ResultsPage: React.FC = () => {
           {stateBadge}
         </div>
         <p className="text-xs text-[#A3A3A3] leading-relaxed">
-          {isInvalidKey ? (
-            <>
-              Auth Key rejected (unknown_auth_key). Generate a new key at{' '}
-              <a
-                href="https://urlhaus.abuse.ch/api/"
-                target="_blank"
-                rel="noreferrer"
-                className="text-[#FF8C42] underline hover:text-[#FFD54A] transition-colors"
-              >
-                urlhaus.abuse.ch/api
-              </a>{' '}
-              and update <code className="text-[#F5F5F5] bg-[#292929] px-1 rounded">URLHAUS_AUTH_KEY</code> in backend .env.
-            </>
-          ) : (
-            provider?.details || 'No details were returned by this known-threat check.'
-          )}
+          {provider?.details || 'No details were returned by this known-threat check.'}
         </p>
         {provider?.category && (
           <span className="inline-block text-[10px] font-mono px-2 py-0.5 rounded bg-[#181010] text-[#FF525C] border border-[#FF525C]/30">
@@ -407,11 +384,20 @@ export const ResultsPage: React.FC = () => {
           </div>
 
           <div className="space-y-4">
-            {/* Google Safe Browsing */}
-            {renderProviderState('Google Safe Browsing v4', result.threat_intelligence.google_safe_browsing)}
-
-            {/* URLhaus */}
-            {renderProviderState('abuse.ch URLhaus', result.threat_intelligence.urlhaus)}
+            {([
+              ['openphish', 'OpenPhish'],
+              ['phishing_database', 'Phishing.Database'],
+              ['phish_destroy', 'PhishDestroy'],
+              ['phishstats', 'PhishStats'],
+              ['google_safe_browsing', 'Google Safe Browsing v4'],
+            ] as const).map(([key, label]) => {
+              const provider = result.threat_intelligence[key];
+              return provider ? (
+                <React.Fragment key={key}>
+                  {renderProviderState(label, provider)}
+                </React.Fragment>
+              ) : null;
+            })}
 
             {/* Critical Security Clarification Notice */}
             <div className="p-3 rounded bg-[#0A0A0A] border border-[#292929] space-y-1">
@@ -489,6 +475,3 @@ export const ResultsPage: React.FC = () => {
     </div>
   );
 };
-
-
-

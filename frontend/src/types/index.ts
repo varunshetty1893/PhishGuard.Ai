@@ -21,15 +21,18 @@ export interface ExtractedFeatures {
 }
 
 export interface ThreatProviderResult {
-  status: 'Not Configured' | 'No Match Reported' | 'Threat Reported' | 'Unavailable' | 'Inconclusive';
+  status: 'Not Configured' | 'No Match Reported' | 'Threat Reported' | 'Unverified Reported' | 'Unavailable' | 'Inconclusive';
   threat_found: boolean;
   category: string | null;
   details: string | null;
 }
 
 export interface ThreatIntelligenceSummary {
-  google_safe_browsing: ThreatProviderResult;
-  urlhaus: ThreatProviderResult;
+  openphish?: ThreatProviderResult | null;
+  phishing_database?: ThreatProviderResult | null;
+  phish_destroy?: ThreatProviderResult | null;
+  phishstats?: ThreatProviderResult | null;
+  google_safe_browsing?: ThreatProviderResult | null;
 }
 
 export interface ScanResult {
@@ -98,10 +101,7 @@ export interface AnalyticsData {
     algorithm: string;
     status: string;
   };
-  threat_provider_status: {
-    google_safe_browsing: string;
-    urlhaus: string;
-  };
+  threat_provider_status: Record<string, string>;
 }
 
 export interface ModelMetadata {
@@ -154,10 +154,7 @@ export interface HealthData {
   database: string;
   ml_model_loaded: boolean;
   model_version: string;
-  threat_providers?: {
-    google_safe_browsing: string;
-    urlhaus: string;
-  };
+  threat_providers?: Record<string, string>;
   timestamp: string;
 }
 

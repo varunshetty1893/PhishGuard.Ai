@@ -21,6 +21,14 @@ from app.api.deps import get_current_user, verify_csrf
 
 router = APIRouter()
 
+PROVIDER_LABELS = {
+    "openphish": "OpenPhish",
+    "phishing_database": "Phishing.Database",
+    "phish_destroy": "PhishDestroy",
+    "phishstats": "PhishStats",
+    "google_safe_browsing": "Google Safe Browsing",
+}
+
 
 @router.post(
     "/scan",
@@ -54,72 +62,61 @@ async def scan_url(
     # 2. Run External Threat Intelligence (Independent & Optional)
     normalized_url = ml_result["normalized_url"]
     threat_results = await ThreatIntelAggregator.evaluate_url(normalized_url)
-    gsb_res = threat_results["google_safe_browsing"]
-    urlhaus_res = threat_results["urlhaus"]
 
     # 3. Combine Threat Intel and ML Results
     raw_ml_prob = float(ml_result.get("raw_ml_score", ml_result.get("model_score", 0.0)))
+    ml_probability = float(ml_result.get("model_score", raw_ml_prob))
     is_verified = bool(ml_result.get("is_verified_domain", False))
     apex = ml_result.get("apex_domain")
     suspicious_reasons = list(ml_result.get("suspicious_reasons", []))
     precautions = list(ml_result.get("recommended_precautions", []))
 
-    threat_intel_match = bool(gsb_res.threat_found or urlhaus_res.threat_found)
+    matched_providers = [
+        (key, result)
+        for key, result in threat_results.items()
+        if result.threat_found
+    ]
+    threat_intel_match = bool(matched_providers)
 
     if threat_intel_match:
-        # Threat intelligence confirmed match overrides ML
+        # A positive threat-feed result overrides the model's classification,
+        # while the displayed probability remains the model's own score.
         predicted_class = "Phishing"
         risk_level = "High Risk"
-        final_model_score = 1.0
-
-        flagged_providers = []
-        if gsb_res.threat_found:
-            flagged_providers.append(f"Google Safe Browsing ({gsb_res.category or 'Threat Detected'})")
-        if urlhaus_res.threat_found:
-            flagged_providers.append(f"URLhaus ({urlhaus_res.category or 'Malware/Phishing'})")
-
-        provider_str = ", ".join(flagged_providers)
+        provider_str = ", ".join(
+            f"{PROVIDER_LABELS[key]} ({result.category or 'Threat detected'})"
+            for key, result in matched_providers
+        )
         combined_interpretation = (
-            f"Confirmed Threat: Malicious match detected by active threat intelligence ({provider_str}). "
-            f"The URL is actively listed in global threat feeds. Do not visit this destination under any circumstances."
+            f"Threat Feed Match: This URL or its domain is listed by {provider_str}. "
+            "Treat it as harmful. Do not visit this destination."
         )
         suspicious_reasons.insert(0, f"Confirmed threat listed in {provider_str}.")
         precautions = [
             "DO NOT click this link, navigate to this destination, or download any files.",
             "DO NOT submit usernames, passwords, credit card numbers, or personal data.",
-            "If received via email, SMS, or chat, report the message as a confirmed threat to your security team."
+            "If received via email, SMS, or chat, report the message to your security team."
         ]
     else:
-        # Threat feeds returned No Match, Not Configured, or Unavailable.
-        # CRITICAL: Never label a URL safe just because it is absent from threat databases.
-        # Final risk assessment is governed by the offline ML structural prediction & verified domain authority.
+        # Missing from a threat feed is not proof that a URL is safe.
         predicted_class = ml_result["predicted_class"]
         risk_level = ml_result["risk_level"]
-        final_model_score = float(ml_result["model_score"])
 
-        # Construct clear provider status notes
-        provider_states = []
-        for name, res in [("Google Safe Browsing", gsb_res), ("URLhaus", urlhaus_res)]:
-            if res.status == "No Match Reported":
-                provider_states.append(f"{name}: No match listed")
-            elif res.status == "Not Configured":
-                provider_states.append(f"{name}: Not configured")
-            elif res.status == "Unavailable":
-                provider_states.append(f"{name}: Service unavailable")
-            else:
-                provider_states.append(f"{name}: {res.status}")
+        provider_states = [
+            f"{PROVIDER_LABELS[key]}: {result.status}"
+            for key, result in threat_results.items()
+        ]
         provider_notes = "; ".join(provider_states)
 
         if is_verified:
             combined_interpretation = (
-                f"Verified authentic infrastructure ({apex}). Structural metrics and apex authority confirm legitimate ownership. "
+                f"Verified infrastructure ({apex}). Structural metrics and domain authority indicate legitimate ownership. "
                 f"External threat status: {provider_notes}."
             )
         elif risk_level == "High Risk":
             combined_interpretation = (
                 f"High Risk (ML Phishing Probability: {raw_ml_prob*100:.1f}%). "
-                f"Although external threat databases reported no active listing ({provider_notes}), "
-                f"the machine learning engine detected multiple deceptive lexical anomalies. "
+                f"Threat feed status: {provider_notes}. The machine learning engine detected deceptive lexical anomalies. "
                 f"Threat databases are retrospective blocklists and often have zero visibility into newly registered or zero-day phishing links. "
                 f"Exercise extreme caution."
             )
@@ -132,9 +129,8 @@ async def scan_url(
             )
         else:
             combined_interpretation = (
-                f"Low Risk (ML Probability: {raw_ml_prob*100:.1f}%). "
-                f"Conforms to standard web address conventions. External threat status: {provider_notes}. "
-                f"Note: Absence from threat databases does not guarantee 100% safety; practice standard digital hygiene."
+                f"Low Risk (ML Probability: {ml_probability*100:.1f}%). "
+                f"External threat status: {provider_notes}. Absence from threat databases does not guarantee safety."
             )
 
     # 4. Create Unique Scan ID
@@ -148,7 +144,7 @@ async def scan_url(
         normalized_url=ml_result["normalized_url"],
         predicted_class=predicted_class,
         risk_level=risk_level,
-        model_score=final_model_score,
+        model_score=ml_probability,
         combined_interpretation=combined_interpretation,
         model_version=ml_result["model_version"]
     )
@@ -157,42 +153,31 @@ async def scan_url(
     db.add(scan_record)
 
     # 6. Persist Threat Logs tied to this scan
-    gsb_log = ThreatCheckLog(
-        scan_id=scan_id,
-        provider_name="Google Safe Browsing",
-        check_status=gsb_res.status,
-        threat_found=gsb_res.threat_found,
-        threat_category=gsb_res.category,
-        raw_response=gsb_res.raw_response,
-        error_message=gsb_res.error_message
-    )
-    urlhaus_log = ThreatCheckLog(
-        scan_id=scan_id,
-        provider_name="URLhaus",
-        check_status=urlhaus_res.status,
-        threat_found=urlhaus_res.threat_found,
-        threat_category=urlhaus_res.category,
-        raw_response=urlhaus_res.raw_response,
-        error_message=urlhaus_res.error_message
-    )
-    db.add(gsb_log)
-    db.add(urlhaus_log)
+    for key, result in threat_results.items():
+        db.add(
+            ThreatCheckLog(
+                scan_id=scan_id,
+                provider_name=PROVIDER_LABELS[key],
+                check_status=result.status,
+                threat_found=result.threat_found,
+                threat_category=result.category,
+                raw_response=result.raw_response,
+                error_message=result.error_message,
+            )
+        )
     db.commit()
     db.refresh(scan_record)
 
     threat_summary = ThreatIntelligenceSummary(
-        google_safe_browsing=ThreatProviderResult(
-            status=gsb_res.status,
-            threat_found=gsb_res.threat_found,
-            category=gsb_res.category,
-            details=gsb_res.details
-        ),
-        urlhaus=ThreatProviderResult(
-            status=urlhaus_res.status,
-            threat_found=urlhaus_res.threat_found,
-            category=urlhaus_res.category,
-            details=urlhaus_res.details
-        )
+        **{
+            key: ThreatProviderResult(
+                status=result.status,
+                threat_found=result.threat_found,
+                category=result.category,
+                details=result.details,
+            )
+            for key, result in threat_results.items()
+        }
     )
 
     return ScanResultResponse(
@@ -201,7 +186,7 @@ async def scan_url(
         normalized_url=scan_record.normalized_url,
         predicted_class=scan_record.predicted_class,
         risk_level=scan_record.risk_level,
-        ml_probability=final_model_score,  # final score after allowlist/threat-intel overrides
+        ml_probability=ml_probability,
         model_score=scan_record.model_score,
         raw_ml_score=raw_ml_prob,
         is_verified_domain=is_verified,
@@ -308,23 +293,18 @@ def get_scan_detail(
             detail="Scan record not found or access denied."
         )
 
-    gsb_log = next((t for t in record.threat_logs if t.provider_name == "Google Safe Browsing"), None)
-    urlhaus_log = next((t for t in record.threat_logs if t.provider_name == "URLhaus"), None)
-
-    threat_summary = ThreatIntelligenceSummary(
-        google_safe_browsing=ThreatProviderResult(
-            status=gsb_log.check_status if gsb_log else "Not Configured",
-            threat_found=gsb_log.threat_found if gsb_log else False,
-            category=gsb_log.threat_category if gsb_log else None,
-            details=(gsb_log.raw_response or gsb_log.error_message) if gsb_log else None
-        ),
-        urlhaus=ThreatProviderResult(
-            status=urlhaus_log.check_status if urlhaus_log else "No Match Reported",
-            threat_found=urlhaus_log.threat_found if urlhaus_log else False,
-            category=urlhaus_log.threat_category if urlhaus_log else None,
-            details=(urlhaus_log.raw_response or urlhaus_log.error_message) if urlhaus_log else None
-        )
-    )
+    logs_by_provider = {log.provider_name: log for log in record.threat_logs}
+    threat_summary_values = {}
+    for key, label in PROVIDER_LABELS.items():
+        log = logs_by_provider.get(label)
+        if log:
+            threat_summary_values[key] = ThreatProviderResult(
+                status=log.check_status,
+                threat_found=log.threat_found,
+                category=log.threat_category,
+                details=log.raw_response or log.error_message,
+            )
+    threat_summary = ThreatIntelligenceSummary(**threat_summary_values)
 
     precautions = []
     if record.risk_level == "High Risk":
@@ -346,8 +326,6 @@ def get_scan_detail(
     if raw_val is None:
         raw_val = record.model_score if record.model_score is not None else 0.0
     raw_score = float(raw_val)
-    # Preserve the calibrated score used by the final verdict when a saved
-    # report is reopened; the raw lexical score remains available separately.
     assessed_score = float(record.model_score) if record.model_score is not None else raw_score
     threat_found = any(t.threat_found for t in record.threat_logs)
 

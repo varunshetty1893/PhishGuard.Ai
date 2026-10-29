@@ -131,11 +131,29 @@ Most standard operations return JSON payloads conforming to strict Pydantic sche
       "category": null,
       "details": "API key not provided in environment"
     },
-    "urlhaus": {
+    "openphish": {
       "status": "No Match Reported",
       "threat_found": false,
       "category": null,
-      "details": "No active malware distribution record found in URLhaus"
+      "details": "No exact URL match found in the local feed"
+    },
+    "phishing_database": {
+      "status": "No Match Reported",
+      "threat_found": false,
+      "category": null,
+      "details": "No URL or domain match found in the local feeds"
+    },
+    "phish_destroy": {
+      "status": "No Match Reported",
+      "threat_found": false,
+      "category": null,
+      "details": "No threat reported"
+    },
+    "phishstats": {
+      "status": "No Match Reported",
+      "threat_found": false,
+      "category": null,
+      "details": "No exact full-URL match reported"
     }
   },
   "combined_interpretation": "High probability phishing attempt detected by Machine Learning model. Do not enter credentials or download files from this destination.",
@@ -217,8 +235,12 @@ Most standard operations return JSON payloads conforming to strict Pydantic sche
     "status": "Active"
   },
   "threat_provider_status": {
-    "google_safe_browsing": "Not Configured",
-    "urlhaus": "Active"
+    "openphish": "Ready",
+    "phishing_database_urls": "Ready",
+    "phishing_database_domains": "Ready",
+    "phish_destroy": "Active",
+    "phishstats": "Active",
+    "google_safe_browsing": "Not Configured"
   }
 }
 ```

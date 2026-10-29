@@ -79,4 +79,4 @@ The feature vector consists of 16 carefully engineered structural, lexical, and 
 ## 6. Model Limitations & Adversarial Defenses
 1. **Zero-Day Obfuscation:** A novel phishing URL with zero heuristic flags on a clean brand-new domain may evade pure lexical analysis.
 2. **Shortener Masking:** URL shorteners hide true destinations; PhishGuard AI flags shorteners as a distinct suspicious feature.
-3. **Defense-in-Depth:** Combining the trained ML model with multi-source external threat-intelligence (Google Safe Browsing and URLhaus) yields layered coverage without single-point failure.
+3. **Defense-in-Depth:** Combining the trained ML model with OpenPhish and Phishing.Database feeds, PhishDestroy and PhishStats, and optional Google Safe Browsing yields layered coverage without a single-provider dependency.

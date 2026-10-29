@@ -49,16 +49,13 @@ class Settings:
         )
 
         # ── Threat Intelligence API Keys ─────────────────────────────────────
-        # Variable names must exactly match the .env keys:
-        #   GOOGLE_SAFE_BROWSING_API_KEY
-        #   URLHAUS_AUTH_KEY
         self.GOOGLE_SAFE_BROWSING_API_KEY: str = os.getenv(
             "GOOGLE_SAFE_BROWSING_API_KEY", ""
         ).strip()
-        self.URLHAUS_AUTH_KEY: str = os.getenv(
-            "URLHAUS_AUTH_KEY", ""
+        self.PHISHSTATS_API_KEY: str = os.getenv(
+            "PHISHSTATS_API_KEY", ""
         ).strip()
-        self.THREAT_INTEL_TIMEOUT_SECONDS: float = 4.0
+        self.THREAT_INTEL_TIMEOUT_SECONDS: float = 8.0
 
         # CORS
         raw_origins = os.getenv("ALLOWED_ORIGINS", "")
@@ -91,9 +88,9 @@ class Settings:
         """True only when a non-empty GSB key is configured."""
         return bool(self.GOOGLE_SAFE_BROWSING_API_KEY)
 
-    def has_urlhaus(self) -> bool:
-        """True only when a non-empty URLhaus key is configured."""
-        return bool(self.URLHAUS_AUTH_KEY)
+    def has_phishstats(self) -> bool:
+        """True only when an optional PhishStats API key is configured."""
+        return bool(self.PHISHSTATS_API_KEY)
 
 
 settings = Settings()

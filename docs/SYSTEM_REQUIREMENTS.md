@@ -1,7 +1,7 @@
 # PhishGuard AI — System Requirements Specification
 
 ## 1. Introduction
-**PhishGuard AI** is a production-grade academic cybersecurity web application engineered to detect phishing URLs using a genuinely trained machine learning classifier coupled with optional external threat-intelligence lookups (Google Safe Browsing v4 and abuse.ch URLhaus).
+**PhishGuard AI** is an academic cybersecurity web application that detects phishing URLs using a trained machine-learning classifier and multiple threat-intelligence sources: cached OpenPhish and Phishing.Database feeds, PhishDestroy and PhishStats lookups, and optional Google Safe Browsing.
 
 Designed as an MCA individual capstone project, the system provides transparent, explainable URL risk assessments without crawling, executing, or navigating to untrusted external URLs.
 
@@ -31,8 +31,8 @@ Designed as an MCA individual capstone project, the system provides transparent,
 - **FR-2.5:** Return structured, human-readable explanations of extracted suspicious characteristics (e.g., presence of IP address, excessive subdomains, suspicious keywords, @ symbol).
 
 ### FR-3: Multi-Source Threat Intelligence
-- **FR-3.1:** Query Google Safe Browsing API v4 if `GOOGLE_SAFE_BROWSING_API_KEY` is present in the environment.
-- **FR-3.2:** Query abuse.ch URLhaus API if `URLHAUS_AUTH_KEY` (or open lookup) is configured.
+- **FR-3.1:** Check local OpenPhish and Phishing.Database feeds and query PhishDestroy and PhishStats.
+- **FR-3.2:** Query Google Safe Browsing API v4 when `GOOGLE_SAFE_BROWSING_API_KEY` is present in the environment.
 - **FR-3.3:** Maintain independent fallback states:
   - `Not Configured`: API credentials missing.
   - `No Match Reported`: Service queried successfully; no malicious threat record reported.
@@ -74,7 +74,7 @@ Designed as an MCA individual capstone project, the system provides transparent,
 
 ### NFR-2: Security & Privacy
 - **Untrusted Input Guarantee:** The backend treats all input as untrusted strings.
-- **SSRF Protection:** No HTTP/HTTPS connections are made to the target URL itself. Outbound calls are strictly directed to verified provider endpoints (`safebrowsing.googleapis.com`, `urlhaus-api.abuse.ch`).
+- **SSRF Protection:** No HTTP/HTTPS connections are made to the target URL itself. Outbound calls are restricted to the configured threat-feed and provider endpoints.
 - **Secret Protection:** API keys and environment variables are strictly encapsulated in the backend environment. No keys are exposed in client bundles or public API responses.
 - **XSS & Injection Prevention:** User inputs and URL text are safely sanitized and escaped in React DOM rendering.
 

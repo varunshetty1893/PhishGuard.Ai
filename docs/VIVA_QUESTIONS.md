@@ -85,9 +85,10 @@ We apply strict isolation:
 ### Q9: How does PhishGuard AI integrate with external Threat Intelligence feeds?
 **Answer:**
 PhishGuard AI implements an asynchronous Adapter Pattern supporting:
-- **Google Safe Browsing API v4:** Authoritative Google threat database.
-- **abuse.ch URLhaus API:** Global malware and botnet payload repository.
-The integrations are completely decoupled and server-side. Each provider returns a standardized state: `Not Configured`, `No Match Reported`, `Threat Reported`, `Unavailable`, or `Inconclusive`.
+- **OpenPhish and Phishing.Database:** Public feeds cached locally for URL/domain lookups.
+- **PhishDestroy and PhishStats:** Server-side reputation lookups.
+- **Google Safe Browsing API v4:** Optional Google threat database lookup.
+The integrations are independent. Each check reports its own state, and a provider failure does not turn a URL into a clean result.
 
 ---
 
@@ -101,7 +102,7 @@ Combining ML output probabilities and external threat-intel responses into a sin
 **Answer:**
 1. The backend application strictly forbids making HTTP/HTTPS connections to the user-submitted URL.
 2. Input URLs are passed exclusively to the in-memory lexical parser and regex feature extractor.
-3. External network requests are restricted to hardcoded, verified third-party API endpoints (`safebrowsing.googleapis.com` and `urlhaus-api.abuse.ch`).
+3. External network requests are restricted to configured feed sources and hardcoded threat-provider endpoints; no request is made to the submitted URL itself.
 4. Schemes such as `file://`, `gopher://`, `dict://`, and internal private IP requests (`localhost`, `127.0.0.1`, `169.254.169.254`) are safely parsed as strings or rejected without network resolution.
 
 ---

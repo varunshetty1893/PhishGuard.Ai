@@ -20,7 +20,7 @@
 | **Phase 2** | Public Dataset Verification & Feature Extraction Engine | **COMPLETED** | 16-feature deterministic lexical extractor. Zero network sockets opened. Tested on sample URLs. |
 | **Phase 3** | Genuine ML Model Training, Evaluation & Benchmarking | **COMPLETED** | 5,000 URLs benchmark dataset. Random Forest vs Logistic Regression. Serialized `phishguard_rf_model.joblib` and `model_metadata.json`. |
 | **Phase 4** | FastAPI Backend & SQLite Database Layer | **COMPLETED** | SQLAlchemy models, Pydantic schemas, versioned REST endpoints (`/api/v1/health`, `/scan`, `/scans`, `/analytics`, `/scans/export`). |
-| **Phase 5** | Optional Threat-Intelligence Adapters (Safe Browsing & URLhaus) | **COMPLETED** | Server-side adapters with 4.0s timeouts and graceful `Not Configured` / `Unavailable` fallbacks. |
+| **Phase 5** | Multi-Source Threat Intelligence | **COMPLETED** | Cached OpenPhish and Phishing.Database feeds, PhishDestroy and PhishStats lookups, and optional Google Safe Browsing. |
 | **Phase 6** | Black-Themed Frontend Implementation (Strict Palette) | **COMPLETED** | Pure black foundation (#050505), neon green (#39FF88), yellow (#FFD54A), and red (#FF525C). Zero blue or purple anywhere. |
 | **Phase 7** | Frontend-Backend API Integration | **COMPLETED** | React Router SPA with real-time scanning, probability meters, and live model transparency. |
 | **Phase 8** | Scan History, Analytics, and CSV Export | **COMPLETED** | Dynamic SQLite aggregation, paginated audit table, search, filters, and RFC 4180 streaming CSV export. |

@@ -195,7 +195,7 @@ export const DashboardPage: React.FC = () => {
           <div className="text-2xl font-bold font-mono text-[#FFD54A]">
             {analytics.threat_intel_matches.toLocaleString()}
           </div>
-          <div className="text-[10px] text-[#A3A3A3]">Safe Browsing / URLhaus</div>
+          <div className="text-[10px] text-[#A3A3A3]">Local feeds and reputation services</div>
         </div>
 
         {/* Provider Failures */}
@@ -406,18 +406,16 @@ export const DashboardPage: React.FC = () => {
             Known-Threat Check Services
           </span>
           <div className="text-xs text-[#F5F5F5] space-y-1">
-            <div className="flex justify-between">
-              <span className="text-[#A3A3A3]">Google Safe Browsing:</span>
-              <span className={analytics.threat_provider_status.google_safe_browsing === 'Active' ? 'text-[#39FF88]' : 'text-[#FFD54A]'}>
-                {analytics.threat_provider_status.google_safe_browsing}
-              </span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-[#A3A3A3]">abuse.ch URLhaus:</span>
-              <span className={analytics.threat_provider_status.urlhaus.includes('Active') ? 'text-[#39FF88]' : 'text-[#FFD54A]'}>
-                {analytics.threat_provider_status.urlhaus}
-              </span>
-            </div>
+            {Object.entries(analytics.threat_provider_status).map(([provider, providerStatus]) => (
+              <div className="flex justify-between gap-3" key={provider}>
+                <span className="text-[#A3A3A3]">
+                  {provider.replaceAll('_', ' ').replace(/\b\w/g, (letter) => letter.toUpperCase())}:
+                </span>
+                <span className={providerStatus === 'Active' || providerStatus === 'Ready' ? 'text-[#39FF88]' : 'text-[#FFD54A]'}>
+                  {providerStatus}
+                </span>
+              </div>
+            ))}
           </div>
         </div>
       </div>

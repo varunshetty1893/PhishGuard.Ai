@@ -43,18 +43,18 @@ PhishGuard AI enforces a strict architectural boundary between:
 
 ---
 
-### 2.2 abuse.ch URLhaus API
-- **Official Documentation:** [abuse.ch URLhaus API](https://urlhaus.abuse.ch/api/)
-- **Primary Focus:** Sites actively distributing malware, botnet C2s, and malicious payloads.
-- **Protocol:** Server-side HTTPS POST to `https://urlhaus-api.abuse.ch/v1/url/`.
-- **Environment Variable:** `URLHAUS_AUTH_KEY` (optional; URLhaus permits public lookups with rate limits).
-- **Request Parameters:**
-  - Form data: `url={encoded_target_url}`.
-- **Response Parsing:**
-  - `query_status == "ok"`: Return `Threat Reported` with `url_status` and threat tags.
-  - `query_status == "no_results"`: Return `No Match Reported`.
-  - Network timeout / error: Return `Unavailable`.
-  - If unset and network blocked: Return `Not Configured`.
+### 2.2 Local phishing feeds
+- **OpenPhish:** Exact URL matches against a periodically refreshed local public feed.
+- **Phishing.Database:** URL and domain/subdomain matches against periodically refreshed local public lists.
+- Feed refresh and cache state are reported separately; unavailable or empty data is not treated as a clean match.
+
+### 2.3 PhishDestroy API
+- Public domain and URL reputation lookups are performed server-side without an API key.
+
+### 2.4 PhishStats API
+- Exact URL verification supports anonymous access with a daily quota.
+- **Environment Variable:** `PHISHSTATS_API_KEY` (optional; used for the higher quota).
+- Quota errors and provider failures are reported as `Unavailable`, not as clean lookups.
 
 ---
 

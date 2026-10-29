@@ -58,7 +58,7 @@ export const ScannerPage: React.FC = () => {
     { title: 'Safe Ingestion & Normalization', desc: 'Validating scheme and sanitizing control characters' },
     { title: 'Checking the Address', desc: 'Looking for common warning signs in the web address' },
     { title: 'Checking for Phishing Patterns', desc: 'Comparing the address with patterns the system was trained to spot' },
-    { title: 'Checking Known Threats', desc: 'Checking Google Safe Browsing and URLhaus for reported threats' },
+    { title: 'Checking Known Threats', desc: 'Checking local phishing feeds and configured reputation services' },
   ];
 
   // Auto-fill from query parameter if present

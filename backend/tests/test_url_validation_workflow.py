@@ -86,7 +86,10 @@ def run_tests():
     print(f"        Class: {legit_data['predicted_class']} | Risk: {legit_data['risk_level']}")
     print(f"        ML Probability: {legit_data['ml_probability'] * 100:.2f}% | Apex: {legit_data['apex_domain']}")
     print(f"        Google Safe Browsing: {legit_data['threat_intelligence']['google_safe_browsing']['status']}")
-    print(f"        URLhaus: {legit_data['threat_intelligence']['urlhaus']['status']}")
+    print(f"        OpenPhish: {legit_data['threat_intelligence']['openphish']['status']}")
+    print(f"        Phishing.Database: {legit_data['threat_intelligence']['phishing_database']['status']}")
+    print(f"        PhishDestroy: {legit_data['threat_intelligence']['phish_destroy']['status']}")
+    print(f"        PhishStats: {legit_data['threat_intelligence']['phishstats']['status']}")
 
     # 5. Test Phishing External URL
     print("\n--- Testing Phishing External URL Scanning ---")
@@ -106,7 +109,7 @@ def run_tests():
     print(f"        Detected Anomalies: {phish_data['suspicious_reasons']}")
 
     # 6. Verify Critical Rule: Never label a URL safe just because it is absent from threat databases
-    # When URLhaus and GSB return No Match or Not Configured, phish_url MUST STILL be High Risk!
+    # No-match or unavailable threat feeds must not downgrade a high-risk ML result.
     assert phish_data["risk_level"] == "High Risk", "CRITICAL FAILURE: Phishing URL was downgraded despite high ML score!"
     print("\n [PASS] Verified: URL is NOT labeled safe when absent/unmatched in threat databases.")
 
@@ -126,7 +129,5 @@ def run_tests():
 
 if __name__ == "__main__":
     run_tests()
-
-
 
 

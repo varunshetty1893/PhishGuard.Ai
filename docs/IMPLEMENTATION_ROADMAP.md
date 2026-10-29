@@ -17,7 +17,7 @@ gantt
     FastAPI & SQLite Schema         :         p4, after p3b, 1d
     REST Endpoints & Validation     :         p4b, after p4, 1d
     section Phase 5: Threat Intel
-    Safe Browsing & URLhaus Adapters:         p5, after p4b, 1d
+    Local Feeds & Threat Provider Adapters:   p5, after p4b, 1d
     section Phase 6: Frontend
     Vite + React Setup              :         p6, after p5, 1d
     Black Theme & Cyber SaaS Design :         p6b, after p6, 1d
@@ -57,9 +57,10 @@ gantt
 - Versioned endpoints `/api/v1/health`, `/api/v1/scan`, `/api/v1/scans`, `/api/v1/scans/{scan_id}`, `/api/v1/analytics`, `/api/v1/scans/export`, `/api/v1/model/info`.
 
 ### Phase 5: Optional Threat-Intelligence Adapters
-- Google Safe Browsing REST v4 adapter.
-- abuse.ch URLhaus REST adapter.
-- Asynchronous querying with 4.0s timeout and graceful degradation.
+- Cached OpenPhish and Phishing.Database local feeds.
+- PhishDestroy and PhishStats server-side API adapters.
+- Optional Google Safe Browsing REST v4 adapter.
+- Provider status reporting and graceful degradation.
 
 ### Phase 6: Pure Black SaaS Frontend (React + Vite + TypeScript)
 - Strict palette implementation:

@@ -32,7 +32,7 @@ erDiagram
     THREAT_CHECK_LOGS {
         int id PK
         string scan_id FK "References scan_history.scan_id"
-        string provider_name "'Google Safe Browsing' | 'URLhaus'"
+        string provider_name "OpenPhish | Phishing.Database | PhishDestroy | PhishStats | Google Safe Browsing"
         string check_status "'Not Configured' | 'No Match' | 'Threat Found' | 'Unavailable' | 'Inconclusive'"
         boolean threat_found "True if confirmed malicious"
         string threat_category "e.g. MALWARE, SOCIAL_ENGINEERING"
@@ -87,7 +87,7 @@ Stores the individual results of each external threat-intelligence provider quer
 |---|---|---|---|
 | `id` | Integer | Primary Key, Autoincrement | Record ID |
 | `scan_id` | String(36) | Not Null, Index, FK -> `scan_history.scan_id` | Scan relation |
-| `provider_name` | String(50) | Not Null | `Google Safe Browsing` or `URLhaus` |
+| `provider_name` | String(50) | Not Null | Threat-intelligence provider name |
 | `check_status` | String(30) | Not Null | `Not Configured`, `No Match Reported`, `Threat Reported`, `Unavailable`, `Inconclusive` |
 | `threat_found` | Boolean | Not Null, Default False | Boolean threat detection flag |
 | `threat_category` | String(100) | Nullable | Category reported by provider |

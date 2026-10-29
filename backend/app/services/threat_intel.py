@@ -1,38 +1,19 @@
+import asyncio
 import time
 import httpx
 import logging
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, Tuple
+from urllib.parse import urlsplit
+
 from app.core.config import settings
+from app.services.local_threat_feeds import (
+    check_openphish,
+    check_phishing_database,
+    get_feed_status,
+)
+from app.services.threat_types import ThreatProviderResult
 
 logger = logging.getLogger("phishguard.threat_intel")
-
-
-class ThreatProviderResult:
-    """Standardized representation of external threat feed response."""
-    def __init__(
-        self,
-        status: str,  # 'Threat Reported', 'No Match Reported', 'Not Configured', 'Unavailable', 'Inconclusive'
-        threat_found: bool = False,
-        category: Optional[str] = None,
-        details: Optional[str] = None,
-        raw_response: Optional[str] = None,
-        error_message: Optional[str] = None
-    ):
-        self.status = status
-        self.threat_found = threat_found
-        self.category = category
-        self.details = details
-        self.raw_response = raw_response
-        self.error_message = error_message
-
-    def to_dict(self) -> Dict[str, Any]:
-        return {
-            "status": self.status,
-            "threat_found": self.threat_found,
-            "category": self.category,
-            "details": self.details
-        }
-
 
 class GoogleSafeBrowsingAdapter:
     """Adapter for Google Safe Browsing Lookup API v4."""
@@ -150,127 +131,160 @@ class GoogleSafeBrowsingAdapter:
             return "Unavailable"
 
 
-class URLhausAdapter:
-    """Adapter for abuse.ch URLhaus API."""
-    NAME = "URLhaus"
-    ENDPOINT = "https://urlhaus-api.abuse.ch/v1/url/"
+class PhishDestroyAdapter:
+    """Adapter for PhishDestroy's public domain and URL reputation API."""
+    ENDPOINT = "https://api.destroy.tools/v1/check"
 
     @classmethod
     async def check_url(cls, url: str) -> ThreatProviderResult:
-        auth_key = settings.URLHAUS_AUTH_KEY.strip()
-        if not auth_key:
-            return ThreatProviderResult(
-                status="Not Configured",
-                threat_found=False,
-                details="Auth-Key not provided in environment configuration."
-            )
-
-        headers = {"Auth-Key": auth_key}
-
         try:
             async with httpx.AsyncClient(timeout=settings.THREAT_INTEL_TIMEOUT_SECONDS) as client:
-                resp = await client.post(cls.ENDPOINT, data={"url": url}, headers=headers)
-                if resp.status_code == 200:
-                    data = resp.json()
-                    query_status = data.get("query_status")
-                    if query_status == "ok":
-                        url_status = data.get("url_status", "active")
-                        threat = data.get("threat", "malware_download")
-                        tags = data.get("tags") or []
-                        tag_str = f" (tags: {', '.join(tags)})" if tags else ""
-                        return ThreatProviderResult(
-                            status="Threat Reported",
-                            threat_found=True,
-                            category=threat.upper(),
-                            details=f"Malicious payload recorded on URLhaus ({url_status}){tag_str}.",
-                            raw_response=str(data)
-                        )
-                    elif query_status == "no_results":
-                        return ThreatProviderResult(
-                            status="No Match Reported",
-                            threat_found=False,
-                            details="No malware or payload distribution record found in URLhaus.",
-                            raw_response=str(data)
-                        )
-                    else:
-                        return ThreatProviderResult(
-                            status="Inconclusive",
-                            threat_found=False,
-                            details=f"URLhaus reported status: {query_status}",
-                            raw_response=str(data)
-                        )
-                elif resp.status_code == 403:
-                    try:
-                        err_data = resp.json()
-                        if err_data.get("query_status") == "unknown_auth_key":
-                            return ThreatProviderResult(
-                                status="Unavailable",
-                                threat_found=False,
-                                details="Invalid URLhaus Auth-Key: abuse.ch returned 'unknown_auth_key'. Verify your Auth-Key at https://urlhaus.abuse.ch/api/.",
-                                error_message="HTTP 403: unknown_auth_key"
-                            )
-                    except Exception:
-                        pass
-                    return ThreatProviderResult(
-                        status="Unavailable",
-                        threat_found=False,
-                        details="Access forbidden by URLhaus (HTTP 403). Check your Auth-Key credentials.",
-                        error_message="HTTP 403"
-                    )
-                else:
-                    return ThreatProviderResult(
-                        status="Unavailable",
-                        threat_found=False,
-                        details=f"URLhaus endpoint responded with HTTP {resp.status_code}.",
-                        error_message=f"HTTP {resp.status_code}"
-                    )
-        except httpx.TimeoutException:
-            logger.warning("URLhaus request timed out.")
+                response = await client.get(cls.ENDPOINT, params={"domain": url})
+            if response.status_code == 200:
+                data = response.json()
+                threat_found = data.get("threat") is True
+                return ThreatProviderResult(
+                    status="Threat Reported" if threat_found else "No Match Reported",
+                    threat_found=threat_found,
+                    category="PHISHING_OR_SCAM" if threat_found else None,
+                    details=data.get("message") or (
+                        "PhishDestroy reports a threat for this domain."
+                        if threat_found
+                        else "PhishDestroy reports no threat for this domain."
+                    ),
+                    raw_response=str(data),
+                )
             return ThreatProviderResult(
                 status="Unavailable",
-                threat_found=False,
-                details="Request timed out after 4 seconds.",
-                error_message="TimeoutException"
+                details=f"PhishDestroy responded with HTTP {response.status_code}.",
+                error_message=f"HTTP {response.status_code}",
             )
-        except Exception as e:
-            logger.error(f"URLhaus lookup error: {e}")
+        except httpx.TimeoutException:
+            logger.warning("PhishDestroy request timed out.")
             return ThreatProviderResult(
                 status="Unavailable",
-                threat_found=False,
-                details="External threat lookup unavailable.",
-                error_message=str(e)
+                details="PhishDestroy lookup timed out.",
+                error_message="TimeoutException",
+            )
+        except Exception as error:
+            logger.error("PhishDestroy lookup error: %s", error)
+            return ThreatProviderResult(
+                status="Unavailable",
+                details="PhishDestroy lookup is unavailable.",
+                error_message=str(error),
             )
 
     @classmethod
     def probe_sync(cls) -> str:
-        """Verifies Auth-Key validity with a synchronous test query."""
-        auth_key = settings.URLHAUS_AUTH_KEY.strip()
-        if not auth_key:
-            return "Not Configured"
-
         try:
-            with httpx.Client(timeout=4.0) as client:
-                r = client.post(cls.ENDPOINT, data={"url": "https://google.com"}, headers={"Auth-Key": auth_key})
-                if r.status_code == 200:
-                    data = r.json()
-                    if data.get("query_status") in ("ok", "no_results"):
-                        return "Active"
-                    return f"Inconclusive ({data.get('query_status')})"
-                elif r.status_code == 403:
-                    try:
-                        err_data = r.json()
-                        if err_data.get("query_status") == "unknown_auth_key":
-                            return "Invalid Auth Key"
-                    except Exception:
-                        pass
-                    return "Forbidden (403)"
-                return f"Unavailable (HTTP {r.status_code})"
-        except Exception:
+            response = httpx.get(
+                cls.ENDPOINT, params={"domain": "example.com"}, timeout=4.0
+            )
+            return "Active" if response.status_code == 200 else f"Unavailable (HTTP {response.status_code})"
+        except httpx.HTTPError:
+            return "Unavailable"
+
+
+class PhishStatsAdapter:
+    """Adapter for PhishStats' anonymous-capable phishing lookup API."""
+    ENDPOINT = "https://api.phishstats.info/api/phishing"
+    CACHE_TTL_SECONDS = 90 * 60
+    _cache: Dict[str, Tuple[float, ThreatProviderResult]] = {}
+
+    @classmethod
+    async def check_url(cls, url: str) -> ThreatProviderResult:
+        cached = cls._cache.get(url)
+        if cached and time.time() - cached[0] < cls.CACHE_TTL_SECONDS:
+            return cached[1]
+
+        headers = {}
+        api_key = settings.PHISHSTATS_API_KEY.strip()
+        if api_key:
+            headers["X-API-Key"] = api_key
+        try:
+            async with httpx.AsyncClient(timeout=settings.THREAT_INTEL_TIMEOUT_SECONDS) as client:
+                response = await client.get(
+                    cls.ENDPOINT,
+                    params={"_where": f"(url,eq,{url})", "_size": 20},
+                    headers=headers,
+                )
+            if response.status_code == 200:
+                data = response.json()
+                records = data if isinstance(data, list) else data.get("data", [])
+                matches = [
+                    record for record in records
+                    if isinstance(record, dict)
+                    and isinstance(record.get("url"), str)
+                    and record["url"].rstrip("/").casefold() == url.rstrip("/").casefold()
+                ]
+                if matches:
+                    first_match = matches[0]
+                    result = ThreatProviderResult(
+                        status="Threat Reported",
+                        threat_found=True,
+                        category="PHISHING",
+                        details=(
+                            "PhishStats lists this exact URL as a phishing record."
+                            + (f" Reported score: {first_match['score']}." if first_match.get("score") is not None else "")
+                        ),
+                        raw_response=str(first_match),
+                    )
+                else:
+                    result = ThreatProviderResult(
+                        status="No Match Reported",
+                        details="PhishStats returned no exact full-URL match.",
+                        raw_response=str(data),
+                    )
+                if len(cls._cache) >= 5000:
+                    cls._cache.clear()
+                cls._cache[url] = (time.time(), result)
+                return result
+            details = (
+                "PhishStats daily or burst quota was reached; configure PHISHSTATS_API_KEY "
+                "or wait for the quota to reset."
+                if response.status_code == 429
+                else f"PhishStats responded with HTTP {response.status_code}."
+            )
+            return ThreatProviderResult(
+                status="Unavailable",
+                details=details,
+                error_message=f"HTTP {response.status_code}",
+            )
+        except httpx.TimeoutException:
+            logger.warning("PhishStats request timed out.")
+            return ThreatProviderResult(
+                status="Unavailable",
+                details="PhishStats lookup timed out.",
+                error_message="TimeoutException",
+            )
+        except Exception as error:
+            logger.error("PhishStats lookup error: %s", error)
+            return ThreatProviderResult(
+                status="Unavailable",
+                details="PhishStats lookup is unavailable.",
+                error_message=str(error),
+            )
+
+    @classmethod
+    def probe_sync(cls) -> str:
+        headers = {}
+        api_key = settings.PHISHSTATS_API_KEY.strip()
+        if api_key:
+            headers["X-API-Key"] = api_key
+        try:
+            response = httpx.get(
+                cls.ENDPOINT,
+                params={"_size": 1, "_p": 1},
+                headers=headers,
+                timeout=4.0,
+            )
+            return "Active" if response.status_code == 200 else f"Unavailable (HTTP {response.status_code})"
+        except httpx.HTTPError:
             return "Unavailable"
 
 
 class ThreatIntelAggregator:
-    """Dispatches independent lookups across all configured threat providers."""
+    """Dispatches checks in priority order and returns every provider result."""
 
     _cached_status: Optional[Dict[str, str]] = None
     _last_probe_time: float = 0.0
@@ -278,32 +292,15 @@ class ThreatIntelAggregator:
 
     @classmethod
     async def evaluate_url(cls, url: str) -> Dict[str, ThreatProviderResult]:
-        # Execute lookups concurrently/safely
-        gsb_result = await GoogleSafeBrowsingAdapter.check_url(url)
-        urlhaus_result = await URLhausAdapter.check_url(url)
-
-        # Dynamically refresh cached status based on live lookups
-        if cls._cached_status is None:
-            cls._cached_status = {}
-
-        if gsb_result.status == "Not Configured":
-            cls._cached_status["google_safe_browsing"] = "Not Configured"
-        elif gsb_result.status in ("Threat Reported", "No Match Reported"):
-            cls._cached_status["google_safe_browsing"] = "Active"
-        elif "Invalid" in (gsb_result.details or ""):
-            cls._cached_status["google_safe_browsing"] = "Invalid API Key"
-
-        if urlhaus_result.status == "Not Configured":
-            cls._cached_status["urlhaus"] = "Not Configured"
-        elif urlhaus_result.status in ("Threat Reported", "No Match Reported"):
-            cls._cached_status["urlhaus"] = "Active"
-        elif "unknown_auth_key" in (urlhaus_result.error_message or ""):
-            cls._cached_status["urlhaus"] = "Invalid Auth Key"
-
-        return {
-            "google_safe_browsing": gsb_result,
-            "urlhaus": urlhaus_result
-        }
+        providers = (
+            ("openphish", check_openphish),
+            ("phishing_database", check_phishing_database),
+            ("phish_destroy", PhishDestroyAdapter.check_url),
+            ("phishstats", PhishStatsAdapter.check_url),
+            ("google_safe_browsing", GoogleSafeBrowsingAdapter.check_url),
+        )
+        results = await asyncio.gather(*(check(url) for _, check in providers))
+        return {key: result for (key, _), result in zip(providers, results)}
 
     @classmethod
     def get_provider_status(cls, force_probe: bool = False) -> Dict[str, str]:
@@ -320,10 +317,14 @@ class ThreatIntelAggregator:
         ):
             return dict(cls._cached_status)
 
-        # Run live synchronous probe
+        feed_status = get_feed_status()
         status_map = {
+            "openphish": feed_status["openphish_urls"],
+            "phishing_database_urls": feed_status["phishing_database_urls"],
+            "phishing_database_domains": feed_status["phishing_database_domains"],
+            "phish_destroy": PhishDestroyAdapter.probe_sync(),
+            "phishstats": PhishStatsAdapter.probe_sync(),
             "google_safe_browsing": GoogleSafeBrowsingAdapter.probe_sync(),
-            "urlhaus": URLhausAdapter.probe_sync()
         }
         cls._cached_status = status_map
         cls._last_probe_time = now
