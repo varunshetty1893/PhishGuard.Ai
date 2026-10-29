@@ -8,6 +8,7 @@ from app.core.config import settings
 from app.db.session import engine, Base, SessionLocal, init_db
 from app.api.api import api_router
 from app.services.ml_inference import MLInferenceService
+from app.services.local_threat_feeds import start_feed_refresh
 from app.models.scan import ModelMetadata
 
 logging.basicConfig(level=logging.INFO)
@@ -22,6 +23,9 @@ async def lifespan(app: FastAPI):
     # Startup sequence
     logger.info("Initializing PhishGuard AI database tables...")
     init_db()
+
+    logger.info("Starting background refresh of local phishing feeds...")
+    start_feed_refresh()
 
     logger.info("Pre-loading machine learning model artifact...")
     try:

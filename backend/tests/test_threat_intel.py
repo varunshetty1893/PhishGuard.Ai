@@ -218,3 +218,33 @@ def test_provider_status_reporting():
     assert status["phish_destroy"] == "Active"
     assert status["phishstats"] == "Active"
     assert status["google_safe_browsing"] == "Not Configured"
+
+
+def test_provider_status_refreshes_feed_status_without_waiting_for_probe_cache(monkeypatch):
+    monkeypatch.setattr(
+        ThreatIntelAggregator,
+        "_cached_status",
+        {
+            "openphish": "Not Loaded",
+            "phishing_database_urls": "Not Loaded",
+            "phishing_database_domains": "Not Loaded",
+            "phish_destroy": "Active",
+            "phishstats": "Active",
+            "google_safe_browsing": "Not Configured",
+        },
+    )
+    monkeypatch.setattr(ThreatIntelAggregator, "_last_probe_time", time.time())
+    monkeypatch.setattr(
+        "app.services.threat_intel.get_feed_status",
+        lambda: {
+            "openphish_urls": "Ready (299 entries)",
+            "phishing_database_urls": "Ready (788,969 entries)",
+            "phishing_database_domains": "Ready (392,083 entries)",
+        },
+    )
+
+    status = ThreatIntelAggregator.get_provider_status()
+
+    assert status["openphish"] == "Ready (299 entries)"
+    assert status["phishing_database_urls"] == "Ready (788,969 entries)"
+    assert status["phishing_database_domains"] == "Ready (392,083 entries)"

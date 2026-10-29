@@ -168,6 +168,11 @@ def _schedule_refresh() -> None:
     _refresh_task = asyncio.create_task(asyncio.to_thread(_refresh_feeds))
 
 
+def start_feed_refresh() -> None:
+    """Begin refreshing public feeds during application startup."""
+    _schedule_refresh()
+
+
 def _lookup(feed_keys: Tuple[str, ...], url: str, host: str) -> Tuple[bool, bool, str]:
     try:
         metadata = _cached_feed_metadata()
@@ -252,8 +257,8 @@ def get_feed_status() -> Dict[str, str]:
         metadata = {}
     result = {}
     for key in _FEEDS:
-        if key in _refresh_status:
-            result[key] = _refresh_status[key]
+        if _refresh_status.get(key) == "Refreshing":
+            result[key] = "Refreshing"
         elif key in metadata:
             age = time.time() - metadata[key][1]
             result[key] = (
@@ -262,5 +267,5 @@ def get_feed_status() -> Dict[str, str]:
                 else "Stale (refresh pending)"
             )
         else:
-            result[key] = "Not Loaded"
+            result[key] = _refresh_status.get(key, "Not Loaded")
     return result

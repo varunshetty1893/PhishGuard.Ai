@@ -310,14 +310,20 @@ class ThreatIntelAggregator:
         Runs live validation probes with TTL caching.
         """
         now = time.time()
+        feed_status = get_feed_status()
         if (
             not force_probe
             and cls._cached_status is not None
             and (now - cls._last_probe_time) < cls.PROBE_TTL_SECONDS
         ):
-            return dict(cls._cached_status)
+            status_map = dict(cls._cached_status)
+            status_map.update({
+                "openphish": feed_status["openphish_urls"],
+                "phishing_database_urls": feed_status["phishing_database_urls"],
+                "phishing_database_domains": feed_status["phishing_database_domains"],
+            })
+            return status_map
 
-        feed_status = get_feed_status()
         status_map = {
             "openphish": feed_status["openphish_urls"],
             "phishing_database_urls": feed_status["phishing_database_urls"],
