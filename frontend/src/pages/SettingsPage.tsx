@@ -112,16 +112,13 @@ export const SettingsPage: React.FC = () => {
             </p>
           </div>
 
-          {/* Public feeds and anonymous-capable API sources */}
+          {/* Public phishing feeds */}
           <div className="p-4 rounded bg-[#0A0A0A] border border-[#181818] space-y-2">
             <div className="flex items-center justify-between">
-              <span className="font-semibold text-[#F5F5F5]">Public Phishing Feeds &amp; APIs</span>
-              <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-[#181818] text-[#FFD54A] border border-[#292929]">
-                Optional key: PHISHSTATS_API_KEY
-              </span>
+              <span className="font-semibold text-[#F5F5F5]">Public Phishing Feeds</span>
             </div>
             <p className="text-xs text-[#A3A3A3] leading-relaxed">
-              OpenPhish and Phishing.Database are checked from local feed caches. PhishDestroy and PhishStats provide additional lookups; PhishStats works anonymously with a daily limit. Add an optional quota key in <code className="text-[#39FF88]">backend/.env</code>.
+              OpenPhish, Phishing.Database, and the CERT-PL Warning List are cached locally. CERT-PL focuses on dangerous sites targeting Polish users. PhishDestroy provides an additional domain-reputation check.
             </p>
           </div>
 

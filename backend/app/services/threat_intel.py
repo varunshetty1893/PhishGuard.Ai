@@ -2,13 +2,14 @@ import asyncio
 import time
 import httpx
 import logging
-from typing import Dict, Any, Optional, Tuple
+from typing import Dict, Optional
 from urllib.parse import urlsplit
 
 from app.core.config import settings
 from app.services.local_threat_feeds import (
     check_openphish,
     check_phishing_database,
+    check_cert_pl,
     get_feed_status,
 )
 from app.services.threat_types import ThreatProviderResult
@@ -185,104 +186,6 @@ class PhishDestroyAdapter:
             return "Unavailable"
 
 
-class PhishStatsAdapter:
-    """Adapter for PhishStats' anonymous-capable phishing lookup API."""
-    ENDPOINT = "https://api.phishstats.info/api/phishing"
-    CACHE_TTL_SECONDS = 90 * 60
-    _cache: Dict[str, Tuple[float, ThreatProviderResult]] = {}
-
-    @classmethod
-    async def check_url(cls, url: str) -> ThreatProviderResult:
-        cached = cls._cache.get(url)
-        if cached and time.time() - cached[0] < cls.CACHE_TTL_SECONDS:
-            return cached[1]
-
-        headers = {}
-        api_key = settings.PHISHSTATS_API_KEY.strip()
-        if api_key:
-            headers["X-API-Key"] = api_key
-        try:
-            async with httpx.AsyncClient(timeout=settings.THREAT_INTEL_TIMEOUT_SECONDS) as client:
-                response = await client.get(
-                    cls.ENDPOINT,
-                    params={"_where": f"(url,eq,{url})", "_size": 20},
-                    headers=headers,
-                )
-            if response.status_code == 200:
-                data = response.json()
-                records = data if isinstance(data, list) else data.get("data", [])
-                matches = [
-                    record for record in records
-                    if isinstance(record, dict)
-                    and isinstance(record.get("url"), str)
-                    and record["url"].rstrip("/").casefold() == url.rstrip("/").casefold()
-                ]
-                if matches:
-                    first_match = matches[0]
-                    result = ThreatProviderResult(
-                        status="Threat Reported",
-                        threat_found=True,
-                        category="PHISHING",
-                        details=(
-                            "PhishStats lists this exact URL as a phishing record."
-                            + (f" Reported score: {first_match['score']}." if first_match.get("score") is not None else "")
-                        ),
-                        raw_response=str(first_match),
-                    )
-                else:
-                    result = ThreatProviderResult(
-                        status="No Match Reported",
-                        details="PhishStats returned no exact full-URL match.",
-                        raw_response=str(data),
-                    )
-                if len(cls._cache) >= 5000:
-                    cls._cache.clear()
-                cls._cache[url] = (time.time(), result)
-                return result
-            details = (
-                "PhishStats daily or burst quota was reached; configure PHISHSTATS_API_KEY "
-                "or wait for the quota to reset."
-                if response.status_code == 429
-                else f"PhishStats responded with HTTP {response.status_code}."
-            )
-            return ThreatProviderResult(
-                status="Unavailable",
-                details=details,
-                error_message=f"HTTP {response.status_code}",
-            )
-        except httpx.TimeoutException:
-            logger.warning("PhishStats request timed out.")
-            return ThreatProviderResult(
-                status="Unavailable",
-                details="PhishStats lookup timed out.",
-                error_message="TimeoutException",
-            )
-        except Exception as error:
-            logger.error("PhishStats lookup error: %s", error)
-            return ThreatProviderResult(
-                status="Unavailable",
-                details="PhishStats lookup is unavailable.",
-                error_message=str(error),
-            )
-
-    @classmethod
-    def probe_sync(cls) -> str:
-        headers = {}
-        api_key = settings.PHISHSTATS_API_KEY.strip()
-        if api_key:
-            headers["X-API-Key"] = api_key
-        try:
-            response = httpx.get(
-                cls.ENDPOINT,
-                params={"_size": 1, "_p": 1},
-                headers=headers,
-                timeout=4.0,
-            )
-            return "Active" if response.status_code == 200 else f"Unavailable (HTTP {response.status_code})"
-        except httpx.HTTPError:
-            return "Unavailable"
-
-
 class ThreatIntelAggregator:
     """Dispatches checks in priority order and returns every provider result."""
 
@@ -296,7 +199,7 @@ class ThreatIntelAggregator:
             ("openphish", check_openphish),
             ("phishing_database", check_phishing_database),
             ("phish_destroy", PhishDestroyAdapter.check_url),
-            ("phishstats", PhishStatsAdapter.check_url),
+            ("cert_pl", check_cert_pl),
             ("google_safe_browsing", GoogleSafeBrowsingAdapter.check_url),
         )
         results = await asyncio.gather(*(check(url) for _, check in providers))
@@ -321,6 +224,7 @@ class ThreatIntelAggregator:
                 "openphish": feed_status["openphish_urls"],
                 "phishing_database_urls": feed_status["phishing_database_urls"],
                 "phishing_database_domains": feed_status["phishing_database_domains"],
+                "cert_pl_domains": feed_status["cert_pl_domains"],
             })
             return status_map
 
@@ -328,8 +232,8 @@ class ThreatIntelAggregator:
             "openphish": feed_status["openphish_urls"],
             "phishing_database_urls": feed_status["phishing_database_urls"],
             "phishing_database_domains": feed_status["phishing_database_domains"],
+            "cert_pl_domains": feed_status["cert_pl_domains"],
             "phish_destroy": PhishDestroyAdapter.probe_sync(),
-            "phishstats": PhishStatsAdapter.probe_sync(),
             "google_safe_browsing": GoogleSafeBrowsingAdapter.probe_sync(),
         }
         cls._cached_status = status_map

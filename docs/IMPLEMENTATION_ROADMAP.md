@@ -58,7 +58,7 @@ gantt
 
 ### Phase 5: Optional Threat-Intelligence Adapters
 - Cached OpenPhish and Phishing.Database local feeds.
-- PhishDestroy and PhishStats server-side API adapters.
+- PhishDestroy server-side API adapter and cached CERT-PL Warning List.
 - Optional Google Safe Browsing REST v4 adapter.
 - Provider status reporting and graceful degradation.
 

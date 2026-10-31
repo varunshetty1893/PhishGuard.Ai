@@ -52,9 +52,6 @@ class Settings:
         self.GOOGLE_SAFE_BROWSING_API_KEY: str = os.getenv(
             "GOOGLE_SAFE_BROWSING_API_KEY", ""
         ).strip()
-        self.PHISHSTATS_API_KEY: str = os.getenv(
-            "PHISHSTATS_API_KEY", ""
-        ).strip()
         self.THREAT_INTEL_TIMEOUT_SECONDS: float = 8.0
 
         # CORS
@@ -87,10 +84,5 @@ class Settings:
     def has_gsb(self) -> bool:
         """True only when a non-empty GSB key is configured."""
         return bool(self.GOOGLE_SAFE_BROWSING_API_KEY)
-
-    def has_phishstats(self) -> bool:
-        """True only when an optional PhishStats API key is configured."""
-        return bool(self.PHISHSTATS_API_KEY)
-
 
 settings = Settings()

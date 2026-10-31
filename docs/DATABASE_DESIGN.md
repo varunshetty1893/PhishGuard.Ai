@@ -32,7 +32,7 @@ erDiagram
     THREAT_CHECK_LOGS {
         int id PK
         string scan_id FK "References scan_history.scan_id"
-        string provider_name "OpenPhish | Phishing.Database | PhishDestroy | PhishStats | Google Safe Browsing"
+        string provider_name "OpenPhish | Phishing.Database | PhishDestroy | CERT-PL Warning List | Google Safe Browsing"
         string check_status "'Not Configured' | 'No Match' | 'Threat Found' | 'Unavailable' | 'Inconclusive'"
         boolean threat_found "True if confirmed malicious"
         string threat_category "e.g. MALWARE, SOCIAL_ENGINEERING"

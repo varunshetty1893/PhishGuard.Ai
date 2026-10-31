@@ -165,7 +165,7 @@ class ThreatIntelligenceSummary(BaseModel):
     openphish: Optional[ThreatProviderResult] = None
     phishing_database: Optional[ThreatProviderResult] = None
     phish_destroy: Optional[ThreatProviderResult] = None
-    phishstats: Optional[ThreatProviderResult] = None
+    cert_pl: Optional[ThreatProviderResult] = None
     google_safe_browsing: Optional[ThreatProviderResult] = None
 
 

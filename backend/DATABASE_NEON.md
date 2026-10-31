@@ -37,15 +37,12 @@ SECRET_KEY=generate_a_long_random_64_character_hex_secret
 
 # Optional Threat Intelligence API Keys
 GOOGLE_SAFE_BROWSING_API_KEY=
-PHISHSTATS_API_KEY=
 ```
 
-PhishGuard's OpenPhish and Phishing.Database feeds and PhishDestroy checks do not
-require API keys. PhishStats supports anonymous read-only access (50 requests per
-day per IP). To raise its quota, create a free key at
-[PhishStats API keys](https://phishstats.info/settings/api-keys) and set
-`PHISHSTATS_API_KEY` in `backend/.env`. A provider error or quota response is
-reported as unavailable, never as a clean lookup.
+PhishGuard's OpenPhish, Phishing.Database, and CERT-PL Warning List feeds and
+PhishDestroy checks do not require API keys. CERT-PL focuses on dangerous sites
+targeting Polish users. A feed/provider error is reported as unavailable, never
+as a clean lookup.
 
 > **Note**: PhishGuard AI automatically parses both `postgres://` and `postgresql://` formats, enables `pool_pre_ping=True` to eliminate stale connections, and enforces `sslmode=require`.
 

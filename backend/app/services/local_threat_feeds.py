@@ -26,10 +26,15 @@ _FEEDS = {
         "https://raw.githubusercontent.com/Phishing-Database/Phishing.Database/master/phishing-domains-ACTIVE.txt",
         "domain",
     ),
+    "cert_pl_domains": (
+        "https://hole.cert.pl/domains/v2/domains.txt",
+        "domain",
+    ),
 }
 _REFRESH_INTERVAL_SECONDS = 6 * 60 * 60
-_REFRESH_RETRY_SECONDS = 15 * 60
+_REFRESH_RETRY_SECONDS = 5 * 60
 _MAX_FEED_AGE_SECONDS = 24 * 60 * 60
+_FEED_REFRESH_INTERVALS = {"cert_pl_domains": 5 * 60}
 _DB_PATH = Path(__file__).resolve().parents[2] / "threat-feeds.sqlite3"
 _refresh_task: Optional[asyncio.Task] = None
 _last_refresh_attempt = 0.0
@@ -138,10 +143,19 @@ def _refresh_one(client: httpx.Client, feed_key: str, url: str, kind: str) -> No
         _refresh_status[feed_key] = f"Ready ({actual_count:,} entries)"
 
 
-def _refresh_feeds() -> None:
+def _refresh_feeds(feed_keys: Optional[Tuple[str, ...]] = None) -> None:
     timeout = httpx.Timeout(connect=10, read=90, write=10, pool=10)
+    metadata = _cached_feed_metadata()
+    now = time.time()
+    due_feeds = feed_keys or tuple(
+        key
+        for key in _FEEDS
+        if key not in metadata
+        or now - metadata[key][1] >= _FEED_REFRESH_INTERVALS.get(key, _REFRESH_INTERVAL_SECONDS)
+    )
     with httpx.Client(timeout=timeout, follow_redirects=True) as client:
-        for feed_key, (url, kind) in _FEEDS.items():
+        for feed_key in due_feeds:
+            url, kind = _FEEDS[feed_key]
             try:
                 _refresh_one(client, feed_key, url, kind)
             except Exception as error:
@@ -157,15 +171,18 @@ def _schedule_refresh() -> None:
     if now - _last_refresh_attempt < _REFRESH_RETRY_SECONDS:
         return
     metadata = _cached_feed_metadata()
-    if metadata and all(
-        key in metadata and now - metadata[key][1] < _REFRESH_INTERVAL_SECONDS
+    due_feeds = tuple(
+        key
         for key in _FEEDS
-    ):
+        if key not in metadata
+        or now - metadata[key][1] >= _FEED_REFRESH_INTERVALS.get(key, _REFRESH_INTERVAL_SECONDS)
+    )
+    if not due_feeds:
         return
     _last_refresh_attempt = now
-    for key in _FEEDS:
+    for key in due_feeds:
         _refresh_status[key] = "Refreshing"
-    _refresh_task = asyncio.create_task(asyncio.to_thread(_refresh_feeds))
+    _refresh_task = asyncio.create_task(asyncio.to_thread(_refresh_feeds, due_feeds))
 
 
 def start_feed_refresh() -> None:
@@ -247,6 +264,29 @@ async def check_phishing_database(url: str) -> ThreatProviderResult:
         threat_found=match,
         category="PHISHING" if match else None,
         details=details,
+    )
+
+
+async def check_cert_pl(url: str) -> ThreatProviderResult:
+    _schedule_refresh()
+    normalized_url = _url_key(url)
+    if not normalized_url:
+        return ThreatProviderResult("Inconclusive", details="URL could not be normalized for feed lookup.")
+    parts = urlsplit(normalized_url)
+    match, available, details = await asyncio.to_thread(
+        _lookup, ("cert_pl_domains",), normalized_url, parts.hostname or ""
+    )
+    return ThreatProviderResult(
+        status="Threat Reported" if match else "No Match Reported" if available else "Unavailable",
+        threat_found=match,
+        category="PHISHING" if match else None,
+        details=(
+            f"CERT-PL Warning List match: {details}"
+            if match
+            else f"{details} CERT-PL focuses on dangerous sites targeting Polish users."
+            if available
+            else details
+        ),
     )
 
 

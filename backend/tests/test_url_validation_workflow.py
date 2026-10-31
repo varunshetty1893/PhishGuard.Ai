@@ -89,7 +89,7 @@ def run_tests():
     print(f"        OpenPhish: {legit_data['threat_intelligence']['openphish']['status']}")
     print(f"        Phishing.Database: {legit_data['threat_intelligence']['phishing_database']['status']}")
     print(f"        PhishDestroy: {legit_data['threat_intelligence']['phish_destroy']['status']}")
-    print(f"        PhishStats: {legit_data['threat_intelligence']['phishstats']['status']}")
+    print(f"        CERT-PL: {legit_data['threat_intelligence']['cert_pl']['status']}")
 
     # 5. Test Phishing External URL
     print("\n--- Testing Phishing External URL Scanning ---")
@@ -129,5 +129,4 @@ def run_tests():
 
 if __name__ == "__main__":
     run_tests()
-
 

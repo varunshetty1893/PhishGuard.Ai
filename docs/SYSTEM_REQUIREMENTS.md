@@ -1,7 +1,7 @@
 # PhishGuard AI — System Requirements Specification
 
 ## 1. Introduction
-**PhishGuard AI** is an academic cybersecurity web application that detects phishing URLs using a trained machine-learning classifier and multiple threat-intelligence sources: cached OpenPhish and Phishing.Database feeds, PhishDestroy and PhishStats lookups, and optional Google Safe Browsing.
+**PhishGuard AI** is an academic cybersecurity web application that detects phishing URLs using a trained machine-learning classifier and multiple threat-intelligence sources: cached OpenPhish, Phishing.Database, and CERT-PL Warning List feeds, PhishDestroy lookups, and optional Google Safe Browsing.
 
 Designed as an MCA individual capstone project, the system provides transparent, explainable URL risk assessments without crawling, executing, or navigating to untrusted external URLs.
 
@@ -31,7 +31,7 @@ Designed as an MCA individual capstone project, the system provides transparent,
 - **FR-2.5:** Return structured, human-readable explanations of extracted suspicious characteristics (e.g., presence of IP address, excessive subdomains, suspicious keywords, @ symbol).
 
 ### FR-3: Multi-Source Threat Intelligence
-- **FR-3.1:** Check local OpenPhish and Phishing.Database feeds and query PhishDestroy and PhishStats.
+- **FR-3.1:** Check local OpenPhish, Phishing.Database, and CERT-PL feeds and query PhishDestroy.
 - **FR-3.2:** Query Google Safe Browsing API v4 when `GOOGLE_SAFE_BROWSING_API_KEY` is present in the environment.
 - **FR-3.3:** Maintain independent fallback states:
   - `Not Configured`: API credentials missing.

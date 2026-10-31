@@ -119,7 +119,7 @@ export const LandingPage: React.FC = () => {
               { num: '01', title: 'Safe Ingestion', desc: 'URL is sanitized and validated in-memory. No browser rendering or network connection to the target.' },
               { num: '02', title: 'Look for Warning Signs', desc: 'We check the address for signs such as unusual dots, hyphens, subdomains, number-based addresses, shorteners, and sign-in words.' },
               { num: '03', title: 'Compare Phishing Patterns', desc: 'Our detection system compares these signs with examples of phishing and safe links.' },
-              { num: '04', title: 'Check Known Threats', desc: 'We check local OpenPhish and Phishing.Database feeds, PhishDestroy and PhishStats, and Google Safe Browsing when configured.' },
+              { num: '04', title: 'Check Known Threats', desc: 'We check local OpenPhish, Phishing.Database, and CERT-PL feeds, PhishDestroy, and Google Safe Browsing when configured.' },
             ].map((item) => (
               <div key={item.num} className="p-5 rounded bg-[#111111] border border-[#292929] relative space-y-3">
                 <div className="w-8 h-8 rounded bg-[#181818] border border-[#39FF88]/40 flex items-center justify-center text-[#39FF88] font-bold text-xs">

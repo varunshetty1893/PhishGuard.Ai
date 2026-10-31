@@ -49,15 +49,15 @@ graph TD
     subgraph Threat_Intelligence["Threat Intelligence Sources"]
         OpenPhish["OpenPhish local feed"]
         PhishingDatabase["Phishing.Database local feeds"]
+        CERTPL["CERT-PL Warning List feed"]
         PhishDestroy["PhishDestroy API"]
-        PhishStats["PhishStats API"]
         GSB["Google Safe Browsing v4 API"]
     end
     
     ThreatIntelService --> OpenPhish
     ThreatIntelService --> PhishingDatabase
+    ThreatIntelService --> CERTPL
     ThreatIntelService -.->|Server-to-Server| PhishDestroy
-    ThreatIntelService -.->|Server-to-Server| PhishStats
     ThreatIntelService -.->|Optional Server-to-Server| GSB
 ```
 
@@ -112,10 +112,6 @@ classDiagram
     class PhishDestroyAdapter {
         +check_url(url: str) ThreatCheckResult
     }
-    class PhishStatsAdapter {
-        -api_key: Optional[str]
-        +check_url(url: str) ThreatCheckResult
-    }
     class ThreatIntelAggregator {
         -providers: List[ThreatProvider]
         +execute_checks(url: str) Dict
@@ -123,7 +119,6 @@ classDiagram
     ThreatProvider <|-- GoogleSafeBrowsingAdapter
     ThreatProvider <|-- LocalThreatFeeds
     ThreatProvider <|-- PhishDestroyAdapter
-    ThreatProvider <|-- PhishStatsAdapter
     ThreatIntelAggregator o-- ThreatProvider
 ```
 

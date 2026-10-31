@@ -24,7 +24,7 @@ def mock_threat_intel(**overrides):
         "openphish": "app.services.threat_intel.check_openphish",
         "phishing_database": "app.services.threat_intel.check_phishing_database",
         "phish_destroy": "app.services.threat_intel.PhishDestroyAdapter.check_url",
-        "phishstats": "app.services.threat_intel.PhishStatsAdapter.check_url",
+        "cert_pl": "app.services.threat_intel.check_cert_pl",
         "google_safe_browsing": "app.services.threat_intel.GoogleSafeBrowsingAdapter.check_url",
     }
     with ExitStack() as stack:

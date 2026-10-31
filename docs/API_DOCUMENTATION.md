@@ -149,11 +149,11 @@ Most standard operations return JSON payloads conforming to strict Pydantic sche
       "category": null,
       "details": "No threat reported"
     },
-    "phishstats": {
+    "cert_pl": {
       "status": "No Match Reported",
       "threat_found": false,
       "category": null,
-      "details": "No exact full-URL match reported"
+      "details": "No domain match in CERT-PL Warning List. Its coverage focuses on dangerous sites targeting Polish users."
     }
   },
   "combined_interpretation": "High probability phishing attempt detected by Machine Learning model. Do not enter credentials or download files from this destination.",
@@ -238,8 +238,8 @@ Most standard operations return JSON payloads conforming to strict Pydantic sche
     "openphish": "Ready",
     "phishing_database_urls": "Ready",
     "phishing_database_domains": "Ready",
+    "cert_pl_domains": "Ready",
     "phish_destroy": "Active",
-    "phishstats": "Active",
     "google_safe_browsing": "Not Configured"
   }
 }

@@ -388,7 +388,7 @@ export const ResultsPage: React.FC = () => {
               ['openphish', 'OpenPhish'],
               ['phishing_database', 'Phishing.Database'],
               ['phish_destroy', 'PhishDestroy'],
-              ['phishstats', 'PhishStats'],
+              ['cert_pl', 'CERT-PL Warning List (Poland-focused)'],
               ['google_safe_browsing', 'Google Safe Browsing v4'],
             ] as const).map(([key, label]) => {
               const provider = result.threat_intelligence[key];

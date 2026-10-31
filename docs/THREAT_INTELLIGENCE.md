@@ -46,15 +46,11 @@ PhishGuard AI enforces a strict architectural boundary between:
 ### 2.2 Local phishing feeds
 - **OpenPhish:** Exact URL matches against a periodically refreshed local public feed.
 - **Phishing.Database:** URL and domain/subdomain matches against periodically refreshed local public lists.
+- **CERT-PL Warning List:** Domain matches against the public Warning List maintained by CERT Polska. It focuses on dangerous sites targeting Polish users and should not be interpreted as global coverage. It is refreshed every five minutes.
 - Feed refresh and cache state are reported separately; unavailable or empty data is not treated as a clean match.
 
 ### 2.3 PhishDestroy API
 - Public domain and URL reputation lookups are performed server-side without an API key.
-
-### 2.4 PhishStats API
-- Exact URL verification supports anonymous access with a daily quota.
-- **Environment Variable:** `PHISHSTATS_API_KEY` (optional; used for the higher quota).
-- Quota errors and provider failures are reported as `Unavailable`, not as clean lookups.
 
 ---
 

@@ -25,7 +25,7 @@ PROVIDER_LABELS = {
     "openphish": "OpenPhish",
     "phishing_database": "Phishing.Database",
     "phish_destroy": "PhishDestroy",
-    "phishstats": "PhishStats",
+    "cert_pl": "CERT-PL Warning List",
     "google_safe_browsing": "Google Safe Browsing",
 }
 

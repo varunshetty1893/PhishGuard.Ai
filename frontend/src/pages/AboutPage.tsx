@@ -5,7 +5,7 @@ import { AlertTriangle, ArrowRight, CheckCircle2, Database, EyeOff, Info, Search
 const steps = [
   ['1', 'Paste the link', 'Enter a full website address. The page at that address is not loaded in your browser.', Search],
   ['2', 'Check the address', 'We look for warning signs, such as a look-alike name, an unusual address, or sign-in words used in a suspicious way.', AlertTriangle],
-  ['3', 'Check known threats', 'The address is checked against local OpenPhish and Phishing.Database feeds, PhishDestroy and PhishStats, and Google Safe Browsing when configured.', Database],
+  ['3', 'Check known threats', 'The address is checked against local OpenPhish, Phishing.Database, and CERT-PL feeds, PhishDestroy, and Google Safe Browsing when configured.', Database],
   ['4', 'Show a result', 'You see the risk score, a plain-language verdict, warning signs, and suggested next steps.', CheckCircle2],
 ] as const;
 

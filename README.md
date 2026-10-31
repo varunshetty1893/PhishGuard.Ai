@@ -25,7 +25,7 @@
 Unlike conventional tools that rely solely on static blacklist lookups or uncalibrated heuristic scores, PhishGuard AI deploys a **hybrid multi-layer defense**:
 1. **Deterministic Lexical Feature Extraction**: Computes 16 mathematical, structural, and character-entropy metrics directly from URL strings in memory without executing remote code.
 2. **150-Tree Random Forest Ensemble**: Evaluated on an **independent, domain-separated benchmark** with zero domain leakage between training and testing splits.
-3. **Multi-Source Threat Intelligence**: Checks cached OpenPhish and Phishing.Database feeds, PhishDestroy and PhishStats APIs, and Google Safe Browsing when configured, with explicit provider status handling.
+3. **Multi-Source Threat Intelligence**: Checks cached OpenPhish, Phishing.Database, and CERT-PL Warning List feeds, the PhishDestroy API, and Google Safe Browsing when configured, with explicit provider status handling.
 4. **Verified Domain Authority Protection**: Calibrates false positives caused by complex legitimate cloud APIs (e.g., Google Cloud, AWS, Microsoft Azure, PayPal) that feature multi-nested parameters or subpaths.
 5. **Zero-Crawl Anti-SSRF Architecture**: Untrusted URLs are parsed strictly in memory and are **never visited, downloaded, or crawled**, protecting the host network against Server-Side Request Forgery (SSRF) and malicious payloads.
 
@@ -49,7 +49,7 @@ Unlike conventional tools that rely solely on static blacklist lookups or uncali
            ▼                            ▼                            ▼
  [ Pydantic Validator ]       [ Auth & Session Guard ]    [ Threat Aggregator ]
    - Anti-SSRF Parser           - Argon2id Password Hash     - Google Safe Browsing
-   - Rejects Private IPs        - HttpOnly Sessions             - OpenPhish, Phishing.Database, PhishDestroy, and PhishStats
+   - Rejects Private IPs        - HttpOnly Sessions             - OpenPhish, Phishing.Database, CERT-PL, and PhishDestroy
    - Rejects Localhost          - Anti-IDOR Enforcement      - 4 Distinct States
            │                            │                            │
            ▼                            ▼                            │
@@ -142,7 +142,7 @@ PhishGuard AI always runs its local ML model and independently checks the follow
 1. **OpenPhish public feed**: Exact full-URL matches against a periodically refreshed local feed.
 2. **Phishing.Database**: Exact URL and domain/subdomain matches against periodically refreshed local lists.
 3. **PhishDestroy API**: Public no-key phishing and scam domain-reputation check.
-4. **PhishStats API**: Exact full-URL verification. Anonymous lookups are limited to 50 requests per day per IP; an optional free API key raises the quota.
+4. **CERT-PL Warning List**: Cached domain matches from the Polish national cybersecurity team's public phishing and dangerous-site list; its coverage focuses on sites targeting Polish users.
 5. **Google Safe Browsing Lookup v4**: Checks global malware and social-engineering lists when configured.
 
 Feed misses do not override the ML result. A positive feed match raises the verdict to **High Risk**, while the reported probability remains the ML model's probability. Provider errors, stale local data, and rate limits are reported as **Unavailable**, never as a clean result. The local feed cache is stored in an ignored SQLite database and refreshed in the background.
@@ -202,9 +202,8 @@ ALLOWED_ORIGINS=http://localhost:5173,http://localhost:3000
 # Database (Neon Cloud PostgreSQL with automatic SQLite fallback)
 DATABASE_URL=postgresql://user:password@ep-sample-pooler.us-east-2.aws.neon.tech/neondb?sslmode=require
 
-# Optional API keys; public feeds and PhishDestroy work without keys.
+# Optional API key; public feeds and PhishDestroy work without a key.
 GOOGLE_SAFE_BROWSING_API_KEY=
-PHISHSTATS_API_KEY=
 ```
 
 ### 4. Start the Backend Server

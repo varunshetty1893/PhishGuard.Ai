@@ -31,7 +31,7 @@ export interface ThreatIntelligenceSummary {
   openphish?: ThreatProviderResult | null;
   phishing_database?: ThreatProviderResult | null;
   phish_destroy?: ThreatProviderResult | null;
-  phishstats?: ThreatProviderResult | null;
+  cert_pl?: ThreatProviderResult | null;
   google_safe_browsing?: ThreatProviderResult | null;
 }
 

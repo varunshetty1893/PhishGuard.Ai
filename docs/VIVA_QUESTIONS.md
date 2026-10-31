@@ -85,8 +85,8 @@ We apply strict isolation:
 ### Q9: How does PhishGuard AI integrate with external Threat Intelligence feeds?
 **Answer:**
 PhishGuard AI implements an asynchronous Adapter Pattern supporting:
-- **OpenPhish and Phishing.Database:** Public feeds cached locally for URL/domain lookups.
-- **PhishDestroy and PhishStats:** Server-side reputation lookups.
+- **OpenPhish, Phishing.Database, and CERT-PL Warning List:** Public feeds cached locally for URL/domain lookups. CERT-PL focuses on threats targeting Polish users.
+- **PhishDestroy:** Server-side reputation lookup.
 - **Google Safe Browsing API v4:** Optional Google threat database lookup.
 The integrations are independent. Each check reports its own state, and a provider failure does not turn a URL into a clean result.
 
