@@ -225,7 +225,26 @@ class MLInferenceService:
             threshold = float(cls.get_metadata().get("optimal_threshold", 0.64))
             n_signals = len(suspicious_reasons)
 
-            if raw_phish_prob >= threshold:
+            only_unencrypted_http = (
+                len(suspicious_reasons) == 1 and
+                "unencrypted" in suspicious_reasons[0].lower() and
+                not features.get("has_suspicious_keywords") and
+                not features.get("has_ip")
+            )
+            if only_unencrypted_http and raw_phish_prob >= threshold:
+                predicted_class = "Legitimate"
+                risk_level      = "Suspicious"
+                final_model_score = 0.35
+                interpretation = (
+                    "The website uses an unencrypted HTTP connection. While structural patterns and domain name "
+                    "are clean with no brand deception or phishing signatures detected, avoid entering passwords "
+                    "or payment information over unencrypted connections."
+                )
+                precautions = [
+                    "Website uses unencrypted HTTP. Do NOT submit sensitive credentials or payment data.",
+                    "Verify the domain directly if prompted for any personal or account details.",
+                ]
+            elif raw_phish_prob >= threshold:
                 predicted_class = "Phishing"
                 risk_level      = "High Risk" if raw_phish_prob >= 0.75 else "Suspicious"
                 interpretation = (

@@ -121,10 +121,10 @@ export function validateScanUrl(rawInput: string): ValidationResult {
     }
   }
 
-  // Prefix http:// for URL parsing if missing
+  // Prefix https:// for modern web standards if scheme is omitted
   let testUrl = trimmed;
   if (!/^[a-zA-Z][a-zA-Z0-9+.-]*:\/\//.test(testUrl)) {
-    testUrl = 'http://' + testUrl;
+    testUrl = 'https://' + testUrl;
   }
 
   let parsed: URL;
@@ -223,5 +223,5 @@ export function validateScanUrl(rawInput: string): ValidationResult {
     }
   }
 
-  return { isValid: true, sanitizedUrl: trimmed };
+  return { isValid: true, sanitizedUrl: testUrl };
 }

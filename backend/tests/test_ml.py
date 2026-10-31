@@ -6,15 +6,23 @@ from app.ml.feature_extraction import (
     normalize_url,
     FEATURE_NAMES,
     is_valid_ip,
-    count_subdomains
+    count_subdomains,
+    is_hsts_enforced_domain
 )
 from app.services.ml_inference import MLInferenceService
 
 
 def test_normalize_url():
-    assert normalize_url("google.com") == "http://google.com"
+    assert normalize_url("google.com") == "https://google.com"
     assert normalize_url("https://secure.bank.com/login") == "https://secure.bank.com/login"
     assert normalize_url("   http://test.com\r\n  ") == "http://test.com"
+
+
+def test_is_hsts_enforced_domain():
+    assert is_hsts_enforced_domain("softshowcase.vercel.app") is True
+    assert is_hsts_enforced_domain("myproject.github.io") is True
+    assert is_hsts_enforced_domain("portfolio.netlify.app") is True
+    assert is_hsts_enforced_domain("example.com") is False
 
 
 def test_is_valid_ip():
@@ -70,3 +78,9 @@ def test_ml_model_prediction():
     assert legit_res["predicted_class"] == "Legitimate"
     assert legit_res["risk_level"] == "Low Risk"
     assert legit_res["model_score"] < 0.40
+
+    # Test legitimate developer platform subdomain
+    dev_res = MLInferenceService.predict("softshowcase.vercel.app")
+    assert dev_res["predicted_class"] == "Legitimate"
+    assert dev_res["risk_level"] == "Low Risk"
+    assert dev_res["model_score"] < 0.20

@@ -18,6 +18,7 @@ from app.ml.feature_extraction_v2 import (  # noqa: F401
     count_subdomains,
     extract_apex_domain,
     is_high_reputation_domain,
+    is_hsts_enforced_domain,
     get_tld_risk_score,
     check_brand_lookalike,
     check_brand_in_subdomain,

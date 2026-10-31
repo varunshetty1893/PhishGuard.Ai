@@ -107,7 +107,7 @@ def normalize_url(raw_url: str) -> str:
     url = raw_url.strip()
     url = re.sub(r'[\r\n\t]', '', url)
     if not re.match(r'^[a-zA-Z][a-zA-Z0-9+.-]*://', url):
-        url = "http://" + url
+        url = "https://" + url
     return url
 
 
@@ -157,6 +157,33 @@ DISALLOWED_SHARED_PLATFORMS: set = {
     "azurewebsites.net", "digitalocean.com", "pages.dev", "vercel.app",
     "netlify.app", "glitch.me", "herokuapp.com", "square.site"
 }
+
+HSTS_PRELOADED_TLDS: set = {
+    "app", "dev", "page", "bank", "insurance", "new", "how", "soy", "foo", "zip", "mov"
+}
+
+HTTPS_MANDATORY_PLATFORMS: set = {
+    "vercel.app", "netlify.app", "pages.dev", "github.io", "web.app",
+    "firebaseapp.com", "railway.app", "onrender.com", "render.com", "fly.dev"
+}
+
+
+def is_hsts_enforced_domain(hostname: str) -> bool:
+    """
+    Checks if a domain is under mandatory HTTPS/HSTS transport.
+    Includes HSTS-preloaded TLDs (.app, .dev, etc.) and managed developer platforms (Vercel, Netlify, etc.)
+    where unencrypted HTTP cannot be served and browsers automatically enforce TLS.
+    """
+    if not hostname:
+        return False
+    clean = hostname.split(':')[0].strip('[]').lower().rstrip('.')
+    parts = clean.split('.')
+    if parts and parts[-1] in HSTS_PRELOADED_TLDS:
+        return True
+    apex = extract_apex_domain(clean)
+    if apex in HTTPS_MANDATORY_PLATFORMS:
+        return True
+    return False
 
 
 def is_high_reputation_domain(hostname: str) -> Tuple[bool, str]:
@@ -347,7 +374,8 @@ def extract_url_features(raw_url: str) -> Tuple[Dict[str, Any], List[str]]:
     specials = sum(not c.isalnum() and c not in "/;:." for c in normalized)
     subdomains = count_subdomains(hostname)
     ip_flag = is_valid_ip(hostname)
-    https_flag = 1 if scheme == "https" else 0
+    hsts_enforced = is_hsts_enforced_domain(hostname)
+    https_flag = 1 if (scheme == "https" or hsts_enforced) else 0
     url_lower = normalized.lower()
     found_keywords = [kw for kw in SUSPICIOUS_KEYWORDS if kw in url_lower]
     keyword_flag = 1 if found_keywords else 0
