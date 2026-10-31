@@ -412,7 +412,8 @@ def extract_url_features(raw_url: str) -> Tuple[Dict[str, Any], List[str]]:
         suspicious_reasons.append("Uses unencrypted HTTP protocol instead of HTTPS.")
     if found_keywords:
         suspicious_reasons.append(f"Contains sensitive keywords: {', '.join(found_keywords[:3])}.")
-    if any(shortener in hostname.lower() for shortener in KNOWN_SHORTENERS):
+    clean_h = hostname.lower().strip(".")
+    if clean_h in KNOWN_SHORTENERS or any(clean_h.endswith("." + s) for s in KNOWN_SHORTENERS):
         suspicious_reasons.append("Uses a known URL shortening service concealing the destination.")
     if special_char_ratio > 0.08:
         suspicious_reasons.append("Elevated proportion of non-alphanumeric special characters.")
