@@ -28,28 +28,31 @@ import {
   Line,
   CartesianGrid
 } from 'recharts';
-import { api } from '../services/api';
+import { api, getCachedAnalytics } from '../services/api';
 import type { AnalyticsData, ScanListItem } from '../types';
 import { StatusBadge } from '../components/StatusBadge';
 
 export const DashboardPage: React.FC = () => {
-  const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);
+  const cached = getCachedAnalytics();
+  const [analytics, setAnalytics] = useState<AnalyticsData | null>(cached);
   const [recentScans, setRecentScans] = useState<ScanListItem[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!cached);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState('');
 
-  const fetchData = async () => {
+  const fetchData = async (force: boolean = false) => {
     try {
       setError('');
       const [analyticsData, scanListData] = await Promise.all([
-        api.getAnalytics(),
+        api.getAnalytics(force),
         api.getScans({ page: 1, page_size: 5 })
       ]);
       setAnalytics(analyticsData);
       setRecentScans(scanListData.items);
     } catch (err: any) {
-      setError(err.message || 'Could not load your scan summary.');
+      if (!analytics && !cached) {
+        setError(err.message || 'Could not load your scan summary.');
+      }
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -62,7 +65,7 @@ export const DashboardPage: React.FC = () => {
 
   const handleRefresh = () => {
     setRefreshing(true);
-    fetchData();
+    fetchData(true);
   };
 
   if (loading) {
@@ -83,7 +86,7 @@ export const DashboardPage: React.FC = () => {
         <h2 className="text-xl font-bold text-[#F5F5F5]">Scan Summary Unavailable</h2>
         <p className="text-xs text-[#A3A3A3]">{error || 'Could not query backend database.'}</p>
         <button
-          onClick={fetchData}
+          onClick={() => fetchData(true)}
           className="px-4 py-2 rounded bg-[#39FF88] text-[#050505] font-semibold text-xs uppercase"
         >
           Retry Connection

@@ -60,46 +60,63 @@ class MLInferenceService:
         return cls._model is not None
 
     @classmethod
-    def get_metadata(cls) -> Dict[str, Any]:
-        cls.load()
+    def load_metadata(cls) -> Dict[str, Any]:
+        """Loads lightweight metadata JSON without triggering heavy 45MB model unpickling."""
+        if cls._metadata is None:
+            if os.path.exists(METADATA_PATH):
+                try:
+                    with open(METADATA_PATH, "r", encoding="utf-8") as f:
+                        cls._metadata = json.load(f)
+                except Exception:
+                    cls._metadata = {"model_version": "4.1.0", "algorithm": "Random Forest"}
+            else:
+                cls._metadata = {"model_version": "4.1.0", "algorithm": "Random Forest"}
         return cls._metadata or {}
+
+    @classmethod
+    def get_metadata(cls) -> Dict[str, Any]:
+        return cls.load_metadata()
 
     @classmethod
     def _enrich_reasons_with_v2(cls, suspicious_reasons: List[str],
                                   hostname: str, raw_phish_prob: float) -> List[str]:
         """
         Appends P3 enhanced signal explanations to the suspicious_reasons list.
-        These run at inference time and do NOT affect the model score
-        (which uses the 16-feature v1 schema), but improve UI explanations.
+        These run at inference time and improve UI explanations without duplicate topics.
         """
         enriched = list(suspicious_reasons)  # copy
         tld_risk = get_tld_risk_score(hostname)
         if tld_risk >= 0.8:
-            enriched.append(
-                f"High-risk TLD detected (score {tld_risk:.1f}/1.0). "
-                "Registries like .xyz, .top, .tk, .ml and .ga are disproportionately abused for phishing campaigns."
-            )
+            if not any("high-risk tld" in r.lower() for r in enriched):
+                enriched.append(
+                    f"High-risk TLD detected (score {tld_risk:.1f}/1.0). "
+                    "Registries like .xyz, .top, .tk, .ml and .ga are disproportionately abused for phishing campaigns."
+                )
         if check_brand_lookalike(hostname):
-            enriched.append(
-                "Hostname closely resembles a well-known brand name with slight spelling variation "
-                "(e.g. 'paypa1' or 'micorosoft'). Classic typosquatting technique."
-            )
+            if not any("brand" in r.lower() and ("resemble" in r.lower() or "typosquat" in r.lower()) for r in enriched):
+                enriched.append(
+                    "Hostname closely resembles a well-known brand name with slight spelling variation "
+                    "(e.g. 'paypa1' or 'micorosoft'). Classic typosquatting technique."
+                )
         if check_brand_in_subdomain(hostname):
-            enriched.append(
-                "A trusted brand name appears in the subdomain of an unrelated apex domain. "
-                "Attackers use this to make URLs appear legitimate at a glance (e.g. paypal.evil.xyz)."
-            )
+            if not any("subdomain" in r.lower() and "brand" in r.lower() for r in enriched):
+                enriched.append(
+                    "A trusted brand name appears in the subdomain of an unrelated apex domain. "
+                    "Attackers use this to make URLs appear legitimate at a glance (e.g. paypal.evil.xyz)."
+                )
         if has_punycode(hostname):
-            enriched.append(
-                "Hostname contains Punycode (xn--) encoding, indicating a possible IDN homograph attack "
-                "where visually similar Unicode characters substitute ASCII letters."
-            )
+            if not any("punycode" in r.lower() for r in enriched):
+                enriched.append(
+                    "Hostname contains Punycode (xn--) encoding, indicating a possible IDN homograph attack "
+                    "where visually similar Unicode characters substitute ASCII letters."
+                )
         ent = hostname_entropy(hostname)
         if ent > 3.8:
-            enriched.append(
-                f"High hostname entropy ({ent:.2f} bits) suggests an algorithmically generated or "
-                "randomised domain name — a common signature of phishing kit infrastructure and DGA domains."
-            )
+            if not any("entropy" in r.lower() for r in enriched):
+                enriched.append(
+                    f"High hostname entropy ({ent:.2f} bits) suggests an algorithmically generated or "
+                    "randomised domain name — a common signature of phishing kit infrastructure and DGA domains."
+                )
         return enriched
 
     @classmethod
@@ -152,6 +169,8 @@ class MLInferenceService:
         features["apex_domain"]        = apex
         features["is_verified_domain"] = 1 if is_trusted else 0
 
+        has_typosquat = (not is_trusted) and bool(check_brand_lookalike(hostname) or check_brand_in_subdomain(hostname))
+
         if is_trusted:
             is_verified_domain = True
             predicted_class    = "Legitimate"
@@ -180,6 +199,24 @@ class MLInferenceService:
             precautions = [
                 f"Standard precautions apply. Destination is hosted on verified {apex} infrastructure.",
                 "Ensure you sign in through official portals before submitting credentials."
+            ]
+            final_model_score = calibrated_score
+
+        elif has_typosquat:
+            is_verified_domain = False
+            predicted_class = "Phishing"
+            risk_level      = "High Risk"
+            calibrated_score = round(max(raw_phish_prob, 0.78), 4)
+            interpretation = (
+                f"Suspicious Brand Impersonation / Typosquatting: Hostname '{hostname}' closely mimics a recognized brand "
+                f"with subtle character manipulation or deceptive naming, but is not an authorized official domain. "
+                f"Typosquatting is a high-risk indicator commonly used in phishing and credential harvesting attacks."
+            )
+            precautions = [
+                "Do NOT enter credentials, passwords, or payment details on this destination.",
+                "Verify the organization's authentic domain directly via official bookmarks or a trusted search engine.",
+                "Inspect the hostname carefully for digit substitutions (e.g. 1/l, 0/o) or character swaps.",
+                "If received via an unsolicited message, treat it as a potential phishing attempt."
             ]
             final_model_score = calibrated_score
 

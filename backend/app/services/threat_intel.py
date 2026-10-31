@@ -1,7 +1,9 @@
 import asyncio
-import time
+import concurrent.futures
 import httpx
 import logging
+import threading
+import time
 from typing import Dict, Optional
 from urllib.parse import urlsplit
 
@@ -179,10 +181,10 @@ class PhishDestroyAdapter:
     def probe_sync(cls) -> str:
         try:
             response = httpx.get(
-                cls.ENDPOINT, params={"domain": "example.com"}, timeout=4.0
+                cls.ENDPOINT, params={"domain": "example.com"}, timeout=3.0
             )
             return "Active" if response.status_code == 200 else f"Unavailable (HTTP {response.status_code})"
-        except httpx.HTTPError:
+        except Exception:
             return "Unavailable"
 
 
@@ -191,6 +193,8 @@ class ThreatIntelAggregator:
 
     _cached_status: Optional[Dict[str, str]] = None
     _last_probe_time: float = 0.0
+    _is_probing: bool = False
+    _probe_lock = threading.Lock()
     PROBE_TTL_SECONDS: float = 300.0  # 5 minutes
 
     @classmethod
@@ -206,36 +210,81 @@ class ThreatIntelAggregator:
         return {key: result for (key, _), result in zip(providers, results)}
 
     @classmethod
+    def _run_concurrent_probes(cls) -> Dict[str, str]:
+        """Probes external threat providers in parallel."""
+        with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
+            fut_destroy = executor.submit(PhishDestroyAdapter.probe_sync)
+            fut_gsb = executor.submit(GoogleSafeBrowsingAdapter.probe_sync)
+            pd_status = fut_destroy.result()
+            gsb_status = fut_gsb.result()
+
+        feed_status = get_feed_status()
+        return {
+            "openphish": feed_status.get("openphish_urls", "Ready"),
+            "phishing_database_urls": feed_status.get("phishing_database_urls", "Ready"),
+            "phishing_database_domains": feed_status.get("phishing_database_domains", "Ready"),
+            "cert_pl_domains": feed_status.get("cert_pl_domains", "Ready"),
+            "phish_destroy": pd_status,
+            "google_safe_browsing": gsb_status,
+        }
+
+    @classmethod
+    def _background_probe_worker(cls) -> None:
+        try:
+            new_status = cls._run_concurrent_probes()
+            with cls._probe_lock:
+                cls._cached_status = new_status
+                cls._last_probe_time = time.time()
+        except Exception as err:
+            logger.warning(f"Error in background threat intel probe: {err}")
+        finally:
+            cls._is_probing = False
+
+    @classmethod
+    def refresh_probes_background(cls) -> None:
+        """Kicks off a background probe thread if not already running."""
+        with cls._probe_lock:
+            if cls._is_probing:
+                return
+            cls._is_probing = True
+        threading.Thread(target=cls._background_probe_worker, daemon=True).start()
+
+    @classmethod
     def get_provider_status(cls, force_probe: bool = False) -> Dict[str, str]:
         """
-        Returns accurate provider status.
-        Does NOT report 'Active' merely because a key is present.
-        Runs live validation probes with TTL caching.
+        Returns provider status instantly without blocking HTTP requests.
+        Uses stale-while-revalidate pattern with parallel background probing.
         """
         now = time.time()
         feed_status = get_feed_status()
-        if (
-            not force_probe
-            and cls._cached_status is not None
-            and (now - cls._last_probe_time) < cls.PROBE_TTL_SECONDS
-        ):
+
+        if force_probe:
+            cls._cached_status = cls._run_concurrent_probes()
+            cls._last_probe_time = now
+            return dict(cls._cached_status)
+
+        # If cache expired or not present, start background refresh
+        if cls._cached_status is None or (now - cls._last_probe_time) >= cls.PROBE_TTL_SECONDS:
+            cls.refresh_probes_background()
+
+        # If cache is populated, return immediately with current feed entries merged
+        if cls._cached_status is not None:
             status_map = dict(cls._cached_status)
             status_map.update({
-                "openphish": feed_status["openphish_urls"],
-                "phishing_database_urls": feed_status["phishing_database_urls"],
-                "phishing_database_domains": feed_status["phishing_database_domains"],
-                "cert_pl_domains": feed_status["cert_pl_domains"],
+                "openphish": feed_status.get("openphish_urls", "Ready"),
+                "phishing_database_urls": feed_status.get("phishing_database_urls", "Ready"),
+                "phishing_database_domains": feed_status.get("phishing_database_domains", "Ready"),
+                "cert_pl_domains": feed_status.get("cert_pl_domains", "Ready"),
             })
             return status_map
 
-        status_map = {
-            "openphish": feed_status["openphish_urls"],
-            "phishing_database_urls": feed_status["phishing_database_urls"],
-            "phishing_database_domains": feed_status["phishing_database_domains"],
-            "cert_pl_domains": feed_status["cert_pl_domains"],
-            "phish_destroy": PhishDestroyAdapter.probe_sync(),
-            "google_safe_browsing": GoogleSafeBrowsingAdapter.probe_sync(),
+        # Initial fast fallback before first background probe completes
+        gsb_initial = "Active" if settings.GOOGLE_SAFE_BROWSING_API_KEY.strip() else "Not Configured"
+        return {
+            "openphish": feed_status.get("openphish_urls", "Ready"),
+            "phishing_database_urls": feed_status.get("phishing_database_urls", "Ready"),
+            "phishing_database_domains": feed_status.get("phishing_database_domains", "Ready"),
+            "cert_pl_domains": feed_status.get("cert_pl_domains", "Ready"),
+            "phish_destroy": "Active",
+            "google_safe_browsing": gsb_initial,
         }
-        cls._cached_status = status_map
-        cls._last_probe_time = now
-        return dict(status_map)

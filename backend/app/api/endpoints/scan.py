@@ -1,7 +1,11 @@
+import asyncio
+import re
+import socket
 import uuid
-from typing import Optional
+from typing import Optional, Tuple
+from urllib.parse import urlparse
 from fastapi import APIRouter, Depends, HTTPException, Query, status
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, selectinload
 from sqlalchemy import desc
 
 from app.db.session import get_db
@@ -28,6 +32,30 @@ PROVIDER_LABELS = {
     "cert_pl": "CERT-PL Warning List",
     "google_safe_browsing": "Google Safe Browsing",
 }
+
+
+async def check_domain_dns(hostname: str) -> Tuple[Optional[bool], Optional[str]]:
+    """
+    Asynchronously checks whether domain resolves via DNS.
+    Returns (exists, detail).
+    True = resolved, False = NXDOMAIN / host not found, None = timeout / inconclusive.
+    """
+    if not hostname:
+        return True, "No hostname"
+    clean = hostname.split(":")[0].strip().rstrip(".")
+    # If IPv4 address or localhost, DNS resolution is not applicable
+    if re.match(r"^\d{1,3}(\.\d{1,3}){3}$", clean) or clean in ("localhost", "127.0.0.1"):
+        return True, "IP address destination"
+    try:
+        await asyncio.wait_for(
+            asyncio.to_thread(socket.gethostbyname, clean),
+            timeout=1.5
+        )
+        return True, "Domain resolves in public DNS."
+    except socket.gaierror as e:
+        return False, f"Domain does not resolve in public DNS (NXDOMAIN): {e}"
+    except Exception:
+        return None, "DNS verification timed out or was inconclusive."
 
 
 @router.post(
@@ -59,11 +87,17 @@ async def scan_url(
             detail=f"Machine learning inference failed: {str(e)}"
         )
 
-    # 2. Run External Threat Intelligence (Independent & Optional)
+    # 2. Run External Threat Intelligence & DNS Domain Check in Parallel
     normalized_url = ml_result["normalized_url"]
-    threat_results = await ThreatIntelAggregator.evaluate_url(normalized_url)
+    parsed_host = urlparse(normalized_url).hostname or ""
 
-    # 3. Combine Threat Intel and ML Results
+    threat_results, dns_check = await asyncio.gather(
+        ThreatIntelAggregator.evaluate_url(normalized_url),
+        check_domain_dns(parsed_host)
+    )
+    dns_resolves, dns_detail = dns_check
+
+    # 3. Combine Threat Intel, DNS and ML Results
     raw_ml_prob = float(ml_result.get("raw_ml_score", ml_result.get("model_score", 0.0)))
     ml_probability = float(ml_result.get("model_score", raw_ml_prob))
     is_verified = bool(ml_result.get("is_verified_domain", False))
@@ -102,36 +136,60 @@ async def scan_url(
         predicted_class = ml_result["predicted_class"]
         risk_level = ml_result["risk_level"]
 
-        provider_states = [
-            f"{PROVIDER_LABELS[key]}: {result.status}"
-            for key, result in threat_results.items()
-        ]
-        provider_notes = "; ".join(provider_states)
+        # Check domain existence via DNS
+        if dns_resolves is False and not is_verified:
+            dns_reason = "Domain does not exist or has no active DNS records (NXDOMAIN). The destination cannot be reached."
+            if not any("NXDOMAIN" in r or "does not exist" in r for r in suspicious_reasons):
+                suspicious_reasons.insert(0, dns_reason)
 
-        if is_verified:
-            combined_interpretation = (
-                f"Verified infrastructure ({apex}). Structural metrics and domain authority indicate legitimate ownership. "
-                f"External threat status: {provider_notes}."
-            )
-        elif risk_level == "High Risk":
-            combined_interpretation = (
-                f"High Risk (ML Phishing Probability: {raw_ml_prob*100:.1f}%). "
-                f"Threat feed status: {provider_notes}. The machine learning engine detected deceptive lexical anomalies. "
-                f"Threat databases are retrospective blocklists and often have zero visibility into newly registered or zero-day phishing links. "
-                f"Exercise extreme caution."
-            )
-        elif risk_level == "Suspicious":
-            combined_interpretation = (
-                f"Suspicious URL (ML Probability: {raw_ml_prob*100:.1f}%). "
-                f"External threat status: {provider_notes}. "
-                f"The URL exhibits structural variations that deviate from typical legitimate websites. "
-                f"Exercise caution and verify the source directly."
-            )
+            if predicted_class == "Phishing" or risk_level == "High Risk":
+                predicted_class = "Phishing"
+                risk_level = "High Risk"
+                ml_probability = max(ml_probability, 0.85)
+                combined_interpretation = (
+                    f"Non-Existent Typosquat Domain: Hostname '{parsed_host}' mimics a recognized brand but does not exist in public DNS (NXDOMAIN). "
+                    f"Unregistered lookalike addresses are classic phishing indicators. Do not interact with this destination."
+                )
+            else:
+                predicted_class = "Legitimate"
+                risk_level = "Suspicious"
+                ml_probability = max(ml_probability, 0.50)
+                combined_interpretation = (
+                    f"Inactive / Non-Existent Domain: The domain '{parsed_host}' does not resolve in public DNS (NXDOMAIN). "
+                    f"The website cannot be reached and cannot be confirmed safe."
+                )
+            if "This website address does not exist or has no active DNS records. Do not rely on it." not in precautions:
+                precautions.insert(0, "This website address does not exist or has no active DNS records. Do not rely on it.")
         else:
-            combined_interpretation = (
-                f"Low Risk (ML Probability: {ml_probability*100:.1f}%). "
-                f"External threat status: {provider_notes}. Absence from threat databases does not guarantee safety."
-            )
+            provider_states = [
+                f"{PROVIDER_LABELS[key]}: {result.status}"
+                for key, result in threat_results.items()
+            ]
+            provider_notes = "; ".join(provider_states)
+
+            if is_verified:
+                combined_interpretation = (
+                    f"Verified infrastructure ({apex}). Structural metrics and domain authority indicate legitimate ownership. "
+                    f"External threat status: {provider_notes}."
+                )
+            elif risk_level == "High Risk":
+                combined_interpretation = (
+                    f"High Risk (ML Phishing Probability: {ml_probability*100:.1f}%). "
+                    f"Threat feed status: {provider_notes}. The machine learning engine detected deceptive lexical anomalies or brand lookalikes. "
+                    f"Exercise extreme caution."
+                )
+            elif risk_level == "Suspicious":
+                combined_interpretation = (
+                    f"Suspicious URL (ML Probability: {ml_probability*100:.1f}%). "
+                    f"External threat status: {provider_notes}. "
+                    f"The URL exhibits structural variations that deviate from typical legitimate websites. "
+                    f"Exercise caution and verify the source directly."
+                )
+            else:
+                combined_interpretation = (
+                    f"Low Risk (ML Probability: {ml_probability*100:.1f}%). "
+                    f"External threat status: {provider_notes}. Absence from threat databases does not guarantee safety."
+                )
 
     # 4. Create Unique Scan ID
     scan_id = str(uuid.uuid4())
@@ -148,7 +206,10 @@ async def scan_url(
         combined_interpretation=combined_interpretation,
         model_version=ml_result["model_version"]
     )
-    scan_record.extracted_features = ml_result["extracted_features"]
+    feat = dict(ml_result["extracted_features"])
+    feat["dns_resolved"] = 1 if dns_resolves is True else (0 if dns_resolves is False else -1)
+    feat["dns_status"] = dns_detail or "Unknown"
+    scan_record.extracted_features = feat
     scan_record.suspicious_reasons = suspicious_reasons
     db.add(scan_record)
 
@@ -233,7 +294,8 @@ def list_scans(
     total_pages = (total_records + page_size - 1) // page_size if total_records > 0 else 1
 
     records = (
-        query.order_by(desc(ScanHistory.created_at))
+        query.options(selectinload(ScanHistory.threat_logs))
+        .order_by(desc(ScanHistory.created_at))
         .offset((page - 1) * page_size)
         .limit(page_size)
         .all()

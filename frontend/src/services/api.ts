@@ -1,4 +1,4 @@
-﻿import type {
+import type {
   ScanResult,
   ScanListResponse,
   AnalyticsData,
@@ -16,9 +16,22 @@ function getCsrfTokenFromCookie(): string | null {
 }
 
 let cachedCsrfToken: string | null = null;
+let cachedAnalytics: { data: AnalyticsData; timestamp: number } | null = null;
+const ANALYTICS_CACHE_TTL_MS = 20000; // 20 seconds cache for instant dashboard transitions
 
 export function setCachedCsrfToken(token: string) {
   cachedCsrfToken = token;
+}
+
+export function clearAnalyticsCache() {
+  cachedAnalytics = null;
+}
+
+export function getCachedAnalytics(): AnalyticsData | null {
+  if (cachedAnalytics && Date.now() - cachedAnalytics.timestamp < ANALYTICS_CACHE_TTL_MS) {
+    return cachedAnalytics.data;
+  }
+  return null;
 }
 
 function getActiveCsrfToken(): string | null {
@@ -95,6 +108,7 @@ export const api = {
   },
 
   async logout(): Promise<{ message: string }> {
+    clearAnalyticsCache();
     const res = await fetch(`${API_BASE}/auth/logout`, {
       method: 'POST',
       headers: getFetchHeaders(true, true),
@@ -118,6 +132,7 @@ export const api = {
 
   // Scanner & History
   async scanUrl(url: string): Promise<ScanResult> {
+    clearAnalyticsCache();
     const res = await fetch(`${API_BASE}/scan`, {
       method: 'POST',
       headers: getFetchHeaders(true, true),
@@ -163,6 +178,7 @@ export const api = {
   },
 
   async deleteScan(scanId: string): Promise<{ message: string; scan_id: string }> {
+    clearAnalyticsCache();
     const res = await fetch(`${API_BASE}/scans/${scanId}`, {
       method: 'DELETE',
       headers: getFetchHeaders(false, true),
@@ -172,6 +188,7 @@ export const api = {
   },
 
   async clearAllScans(): Promise<{ message: string; deleted_count: number }> {
+    clearAnalyticsCache();
     const res = await fetch(`${API_BASE}/scans`, {
       method: 'DELETE',
       headers: getFetchHeaders(false, true),
@@ -181,11 +198,17 @@ export const api = {
   },
 
   // Analytics & Model
-  async getAnalytics(): Promise<AnalyticsData> {
+  async getAnalytics(forceRefresh: boolean = false): Promise<AnalyticsData> {
+    const now = Date.now();
+    if (!forceRefresh && cachedAnalytics && now - cachedAnalytics.timestamp < ANALYTICS_CACHE_TTL_MS) {
+      return cachedAnalytics.data;
+    }
     const res = await fetch(`${API_BASE}/analytics`, {
       credentials: 'include'
     });
-    return handleResponse<AnalyticsData>(res);
+    const data = await handleResponse<AnalyticsData>(res);
+    cachedAnalytics = { data, timestamp: Date.now() };
+    return data;
   },
 
   async getModelInfo(): Promise<ModelMetadata> {
