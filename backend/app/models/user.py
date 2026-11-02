@@ -48,7 +48,7 @@ class UserSession(Base):
     csrf_token = Column(String(64), nullable=False)
     user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), index=True, nullable=False)
     ip_address = Column(String(45), nullable=True)
-    user_agent = Column(String(255), nullable=True)
+    user_agent = Column(String(500), nullable=True)
     created_at = Column(DateTime, default=utc_now, nullable=False)
     expires_at = Column(DateTime, index=True, nullable=False)
     last_active_at = Column(DateTime, default=utc_now, nullable=False)

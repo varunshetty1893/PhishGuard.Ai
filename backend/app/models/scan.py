@@ -30,7 +30,7 @@ class ScanHistory(Base):
 
     submitted_url = Column(Text, nullable=False)
     normalized_url = Column(Text, nullable=False)
-    predicted_class = Column(String(60), nullable=False)  # Legitimate / Confirmed Phishing (known blocklist) / Suspicious (unverified, ML only)
+    predicted_class = Column(String(100), nullable=False)  # Legitimate / Confirmed Phishing (known blocklist) / Suspicious (unverified, ML only)
     risk_level = Column(String(20), nullable=False)       # Low Risk / Suspicious / High Risk
     model_score = Column(Float, nullable=True)            # 0.0 - 1.0 probability
 
@@ -103,7 +103,7 @@ class ModelMetadata(Base):
 
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     model_version = Column(String(20), unique=True, nullable=False)
-    algorithm = Column(String(100), nullable=False)
+    algorithm = Column(String(255), nullable=False)
     dataset_name = Column(String(150), nullable=False)
     training_date = Column(DateTime, default=utc_now, nullable=False)
     total_samples = Column(Integer, nullable=False)

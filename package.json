@@ -1,0 +1,12 @@
+{
+  "name": "phishguard-ai",
+  "version": "5.0.0",
+  "private": true,
+  "description": "PhishGuard AI — Advanced Phishing URL Detection SaaS Platform",
+  "scripts": {
+    "dev": "npm --prefix frontend run dev",
+    "build": "npm --prefix frontend run build",
+    "test": "npm --prefix frontend run test:run",
+    "lint": "npm --prefix frontend run lint"
+  }
+}
