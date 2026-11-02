@@ -4,7 +4,7 @@ import httpx
 import logging
 import threading
 import time
-from typing import Dict, Optional
+from typing import Dict, Optional, Any
 from urllib.parse import urlsplit
 
 from app.core.config import settings
@@ -17,10 +17,76 @@ from app.services.local_threat_feeds import (
 from app.services.threat_types import ThreatProviderResult
 
 logger = logging.getLogger("phishguard.threat_intel")
+# Suppress noisy HTTP request INFO logging from httpx in background workers
+logging.getLogger("httpx").setLevel(logging.WARNING)
+
+
+class CircuitBreaker:
+    """
+    In-memory Circuit Breaker with 3 states: CLOSED, OPEN, HALF_OPEN.
+    Protects latency and system stability when external threat providers degrade or fail.
+    """
+    def __init__(self, name: str, failure_threshold: int = 3, recovery_timeout: float = 60.0):
+        self.name = name
+        self.failure_threshold = failure_threshold
+        self.recovery_timeout = recovery_timeout
+        self.state = "CLOSED"  # CLOSED, OPEN, HALF_OPEN
+        self.failure_count = 0
+        self.last_failure_time = 0.0
+        self.last_state_change = time.time()
+        self._lock = threading.Lock()
+
+    def can_execute(self) -> bool:
+        with self._lock:
+            now = time.time()
+            if self.state == "CLOSED":
+                return True
+            if self.state == "OPEN":
+                if now - self.last_state_change >= self.recovery_timeout:
+                    self.state = "HALF_OPEN"
+                    self.last_state_change = now
+                    logger.info(f"CircuitBreaker [{self.name}] entered HALF_OPEN state (probing test request)")
+                    return True
+                return False
+            if self.state == "HALF_OPEN":
+                return True
+            return True
+
+    def record_success(self):
+        with self._lock:
+            if self.state in ("HALF_OPEN", "OPEN"):
+                logger.info(f"CircuitBreaker [{self.name}] recovered to CLOSED state")
+            self.state = "CLOSED"
+            self.failure_count = 0
+
+    def record_failure(self):
+        with self._lock:
+            self.failure_count += 1
+            self.last_failure_time = time.time()
+            if self.state == "HALF_OPEN" or self.failure_count >= self.failure_threshold:
+                if self.state != "OPEN":
+                    logger.warning(
+                        f"CircuitBreaker [{self.name}] TRIPPED to OPEN state "
+                        f"(failures: {self.failure_count}/{self.failure_threshold}, cooldown: {self.recovery_timeout}s)"
+                    )
+                self.state = "OPEN"
+                self.last_state_change = time.time()
+
+    def get_status(self) -> Dict[str, Any]:
+        with self._lock:
+            now = time.time()
+            remaining = max(0.0, self.recovery_timeout - (now - self.last_state_change)) if self.state == "OPEN" else 0.0
+            return {
+                "state": self.state,
+                "failure_count": self.failure_count,
+                "remaining_cooldown_seconds": round(remaining, 1)
+            }
+
 
 class GoogleSafeBrowsingAdapter:
-    """Adapter for Google Safe Browsing Lookup API v4."""
+    """Adapter for Google Safe Browsing Lookup API v4 with Circuit Breaker."""
     NAME = "Google Safe Browsing"
+    _breaker = CircuitBreaker("google_safe_browsing", failure_threshold=3, recovery_timeout=60.0)
 
     @classmethod
     async def check_url(cls, url: str) -> ThreatProviderResult:
@@ -37,6 +103,16 @@ class GoogleSafeBrowsingAdapter:
                 status="Not Configured",
                 threat_found=False,
                 details="API key not provided in environment configuration."
+            )
+
+        # Circuit breaker check: bypass upstream if repeatedly failing
+        if not cls._breaker.can_execute():
+            remaining = cls._breaker.get_status()["remaining_cooldown_seconds"]
+            return ThreatProviderResult(
+                status="Unavailable",
+                threat_found=False,
+                details=f"Provider temporarily bypassed (Circuit Breaker OPEN, {remaining}s cooldown).",
+                error_message="CircuitBreakerOpen"
             )
 
         # URL minimization: strip sensitive query strings and fragments to protect privacy
@@ -67,6 +143,7 @@ class GoogleSafeBrowsingAdapter:
             async with httpx.AsyncClient(timeout=settings.THREAT_INTEL_TIMEOUT_SECONDS) as client:
                 resp = await client.post(endpoint, json=payload)
                 if resp.status_code == 200:
+                    cls._breaker.record_success()
                     data = resp.json()
                     matches = data.get("matches", [])
                     if matches:
@@ -87,6 +164,7 @@ class GoogleSafeBrowsingAdapter:
                             raw_response=str(data)
                         )
                 elif resp.status_code in (400, 403):
+                    # Configuration or credential error
                     return ThreatProviderResult(
                         status="Unavailable",
                         threat_found=False,
@@ -94,6 +172,7 @@ class GoogleSafeBrowsingAdapter:
                         error_message=f"HTTP {resp.status_code}"
                     )
                 else:
+                    cls._breaker.record_failure()
                     return ThreatProviderResult(
                         status="Unavailable",
                         threat_found=False,
@@ -101,14 +180,16 @@ class GoogleSafeBrowsingAdapter:
                         error_message=f"HTTP {resp.status_code}"
                     )
         except httpx.TimeoutException:
+            cls._breaker.record_failure()
             logger.warning("Google Safe Browsing request timed out.")
             return ThreatProviderResult(
                 status="Unavailable",
                 threat_found=False,
-                details="Request timed out after 4 seconds.",
+                details=f"Request timed out after {settings.THREAT_INTEL_TIMEOUT_SECONDS} seconds.",
                 error_message="TimeoutException"
             )
         except Exception as e:
+            cls._breaker.record_failure()
             logger.error(f"Google Safe Browsing lookup error: {e}")
             return ThreatProviderResult(
                 status="Unavailable",
@@ -135,20 +216,24 @@ class GoogleSafeBrowsingAdapter:
             }
         }
         try:
-            with httpx.Client(timeout=4.0) as client:
+            with httpx.Client(timeout=3.0) as client:
                 r = client.post(endpoint, json=payload)
                 if r.status_code == 200:
+                    cls._breaker.record_success()
                     return "Active"
                 elif r.status_code in (400, 403):
                     return "Invalid API Key"
+                cls._breaker.record_failure()
                 return f"Unavailable (HTTP {r.status_code})"
         except Exception:
+            cls._breaker.record_failure()
             return "Unavailable"
 
 
 class PhishDestroyAdapter:
-    """Adapter for PhishDestroy's public domain and URL reputation API."""
+    """Adapter for PhishDestroy's public domain and URL reputation API with Circuit Breaker."""
     ENDPOINT = "https://api.destroy.tools/v1/check"
+    _breaker = CircuitBreaker("phish_destroy", failure_threshold=3, recovery_timeout=60.0)
 
     @classmethod
     async def check_url(cls, url: str) -> ThreatProviderResult:
@@ -158,13 +243,23 @@ class PhishDestroyAdapter:
                 threat_found=False,
                 details="Third-party external threat intelligence lookups disabled by configuration."
             )
+
+        if not cls._breaker.can_execute():
+            remaining = cls._breaker.get_status()["remaining_cooldown_seconds"]
+            return ThreatProviderResult(
+                status="Unavailable",
+                threat_found=False,
+                details=f"PhishDestroy temporarily bypassed (Circuit Breaker OPEN, {remaining}s cooldown).",
+                error_message="CircuitBreakerOpen"
+            )
+
         try:
-            # Privacy protection: PhishDestroy only requires the hostname/domain, never the path or query tokens
             parsed = urlsplit(url)
             host_only = (parsed.hostname or url).lower().strip(".")
             async with httpx.AsyncClient(timeout=settings.THREAT_INTEL_TIMEOUT_SECONDS) as client:
                 response = await client.get(cls.ENDPOINT, params={"domain": host_only})
             if response.status_code == 200:
+                cls._breaker.record_success()
                 data = response.json()
                 threat_found = data.get("threat") is True
                 return ThreatProviderResult(
@@ -178,12 +273,14 @@ class PhishDestroyAdapter:
                     ),
                     raw_response=str(data),
                 )
+            cls._breaker.record_failure()
             return ThreatProviderResult(
                 status="Unavailable",
                 details=f"PhishDestroy responded with HTTP {response.status_code}.",
                 error_message=f"HTTP {response.status_code}",
             )
         except httpx.TimeoutException:
+            cls._breaker.record_failure()
             logger.warning("PhishDestroy request timed out.")
             return ThreatProviderResult(
                 status="Unavailable",
@@ -191,6 +288,7 @@ class PhishDestroyAdapter:
                 error_message="TimeoutException",
             )
         except Exception as error:
+            cls._breaker.record_failure()
             logger.error("PhishDestroy lookup error: %s", error)
             return ThreatProviderResult(
                 status="Unavailable",
@@ -201,11 +299,17 @@ class PhishDestroyAdapter:
     @classmethod
     def probe_sync(cls) -> str:
         try:
-            response = httpx.get(
-                cls.ENDPOINT, params={"domain": "example.com"}, timeout=3.0
-            )
-            return "Active" if response.status_code == 200 else f"Unavailable (HTTP {response.status_code})"
+            with httpx.Client(timeout=3.0) as client:
+                response = client.get(
+                    cls.ENDPOINT, params={"domain": "example.com"}
+                )
+            if response.status_code == 200:
+                cls._breaker.record_success()
+                return "Active"
+            cls._breaker.record_failure()
+            return f"Unavailable (HTTP {response.status_code})"
         except Exception:
+            cls._breaker.record_failure()
             return "Unavailable"
 
 
@@ -216,6 +320,7 @@ class ThreatIntelAggregator:
     _last_probe_time: float = 0.0
     _is_probing: bool = False
     _probe_lock = threading.Lock()
+    _probe_thread: Optional[threading.Thread] = None
     PROBE_TTL_SECONDS: float = 300.0  # 5 minutes
 
     @classmethod
@@ -229,6 +334,14 @@ class ThreatIntelAggregator:
         )
         results = await asyncio.gather(*(check(url) for _, check in providers))
         return {key: result for (key, _), result in zip(providers, results)}
+
+    @classmethod
+    def get_circuit_status(cls) -> Dict[str, Any]:
+        """Returns live circuit breaker diagnostics for health and monitoring."""
+        return {
+            "google_safe_browsing": GoogleSafeBrowsingAdapter._breaker.get_status(),
+            "phish_destroy": PhishDestroyAdapter._breaker.get_status(),
+        }
 
     @classmethod
     def _run_concurrent_probes(cls) -> Dict[str, str]:
@@ -259,7 +372,8 @@ class ThreatIntelAggregator:
         except Exception as err:
             logger.warning(f"Error in background threat intel probe: {err}")
         finally:
-            cls._is_probing = False
+            with cls._probe_lock:
+                cls._is_probing = False
 
     @classmethod
     def refresh_probes_background(cls) -> None:
@@ -268,7 +382,17 @@ class ThreatIntelAggregator:
             if cls._is_probing:
                 return
             cls._is_probing = True
-        threading.Thread(target=cls._background_probe_worker, daemon=True).start()
+            t = threading.Thread(target=cls._background_probe_worker, daemon=True)
+            cls._probe_thread = t
+            t.start()
+
+    @classmethod
+    def shutdown(cls, timeout: float = 1.0) -> None:
+        """Gracefully waits for active background probe threads before termination."""
+        with cls._probe_lock:
+            t = cls._probe_thread
+        if t and t.is_alive():
+            t.join(timeout=timeout)
 
     @classmethod
     def get_provider_status(cls, force_probe: bool = False) -> Dict[str, str]:

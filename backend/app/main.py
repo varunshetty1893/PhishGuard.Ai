@@ -76,6 +76,7 @@ async def lifespan(app: FastAPI):
 
     # Shutdown sequence
     logger.info("PhishGuard AI application shutting down.")
+    ThreatIntelAggregator.shutdown(timeout=1.0)
 
 
 is_production = settings.ENVIRONMENT.lower() == "production"

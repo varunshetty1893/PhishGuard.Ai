@@ -70,7 +70,9 @@ class Settings:
         self.GOOGLE_SAFE_BROWSING_API_KEY: str = os.getenv(
             "GOOGLE_SAFE_BROWSING_API_KEY", ""
         ).strip()
-        self.THREAT_INTEL_TIMEOUT_SECONDS: float = 8.0
+        self.THREAT_INTEL_TIMEOUT_SECONDS: float = float(
+            os.getenv("THREAT_INTEL_TIMEOUT_SECONDS", "3.0")
+        )
 
         # CORS
         raw_origins = os.getenv("ALLOWED_ORIGINS", "")
