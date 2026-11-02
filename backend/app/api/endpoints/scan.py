@@ -22,6 +22,7 @@ from app.schemas.scan import (
 )
 from app.services.ml_inference import MLInferenceService
 from app.services.threat_intel import ThreatIntelAggregator
+from app.services.domain_age import DomainAgeService
 from app.api.deps import get_current_user, verify_csrf
 
 logger = logging.getLogger("phishguard.scan")
@@ -95,11 +96,13 @@ async def scan_url(
     normalized_url = ml_result["normalized_url"]
     parsed_host = urlparse(normalized_url).hostname or ""
 
-    threat_results, dns_check = await asyncio.gather(
+    threat_results, dns_check, (domain_age_days, domain_age_status) = await asyncio.gather(
         ThreatIntelAggregator.evaluate_url(normalized_url),
-        check_domain_dns(parsed_host)
+        check_domain_dns(parsed_host),
+        DomainAgeService.get_domain_age(parsed_host, db=db)
     )
     dns_resolves, dns_detail = dns_check
+    age_eval = DomainAgeService.evaluate_age(domain_age_days)
 
     # 3. Combine Threat Intel, DNS and ML Results
     raw_ml_prob = float(ml_result.get("raw_ml_score", ml_result.get("model_score", 0.0)))
@@ -130,6 +133,8 @@ async def scan_url(
             "Treat it as harmful. Do not visit this destination."
         )
         suspicious_reasons.insert(0, f"Confirmed threat listed in {provider_str}.")
+        if age_eval["is_new"]:
+            suspicious_reasons.append(age_eval["reason"])
         precautions = [
             "DO NOT click this link, navigate to this destination, or download any files.",
             "DO NOT submit usernames, passwords, credit card numbers, or personal data.",
@@ -165,6 +170,26 @@ async def scan_url(
             if "This website address does not exist or has no active DNS records. Do not rely on it." not in precautions:
                 precautions.insert(0, "This website address does not exist or has no active DNS records. Do not rely on it.")
         else:
+            # Evaluate Domain Age Impact
+            if age_eval["is_new"]:
+                # Under 30 days old: strong suspicious signal (+0.25 modifier)
+                if age_eval["reason"] not in suspicious_reasons:
+                    suspicious_reasons.insert(0, age_eval["reason"])
+                ml_probability = min(0.95, ml_probability + age_eval["score_modifier"])
+                if ml_probability >= 0.65:
+                    predicted_class = "Phishing"
+                    risk_level = "High Risk"
+                elif ml_probability >= 0.40:
+                    if risk_level == "Low Risk":
+                        risk_level = "Suspicious"
+            elif age_eval["is_established"] and not is_verified:
+                # Over 2 years old: reduce suspicion (-0.10 modifier)
+                has_lookalike = any("lookalike" in r.lower() or "typo" in r.lower() for r in suspicious_reasons)
+                if not has_lookalike:
+                    ml_probability = max(0.01, ml_probability + age_eval["score_modifier"])
+                    if ml_probability < 0.40 and risk_level == "Suspicious" and len(suspicious_reasons) <= 1:
+                        risk_level = "Low Risk"
+
             provider_states = [
                 f"{PROVIDER_LABELS[key]}: {result.status}"
                 for key, result in threat_results.items()
@@ -213,6 +238,7 @@ async def scan_url(
     feat = dict(ml_result["extracted_features"])
     feat["dns_resolved"] = 1 if dns_resolves is True else (0 if dns_resolves is False else -1)
     feat["dns_status"] = dns_detail or "Unknown"
+    feat["domain_age_days"] = domain_age_days if domain_age_days is not None else -1
     scan_record.extracted_features = feat
     scan_record.suspicious_reasons = suspicious_reasons
     db.add(scan_record)
@@ -256,6 +282,7 @@ async def scan_url(
         raw_ml_score=raw_ml_prob,
         is_verified_domain=is_verified,
         apex_domain=apex,
+        domain_age_days=domain_age_days,
         threat_intel_match=threat_intel_match,
         extracted_features=scan_record.extracted_features,
         suspicious_reasons=scan_record.suspicious_reasons,

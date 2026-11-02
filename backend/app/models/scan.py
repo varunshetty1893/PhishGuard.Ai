@@ -1,4 +1,4 @@
-﻿import json
+import json
 from datetime import datetime, timezone
 from sqlalchemy import (
     Column,
@@ -84,6 +84,17 @@ class ThreatCheckLog(Base):
     checked_at = Column(DateTime, default=utc_now, nullable=False)
 
     scan = relationship("ScanHistory", back_populates="threat_logs")
+
+
+class DomainAgeCache(Base):
+    """Caches RDAP domain registration age lookups for up to 7 days."""
+    __tablename__ = "domain_age_cache"
+
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    domain = Column(String(255), unique=True, index=True, nullable=False)
+    age_days = Column(Integer, nullable=True)
+    registration_date = Column(DateTime, nullable=True)
+    checked_at = Column(DateTime, default=utc_now, nullable=False)
 
 
 class ModelMetadata(Base):

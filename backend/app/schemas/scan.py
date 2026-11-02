@@ -180,6 +180,7 @@ class ScanResultResponse(BaseModel):
     raw_ml_score: Optional[float] = None
     is_verified_domain: bool = False
     apex_domain: Optional[str] = None
+    domain_age_days: Optional[int] = None
     threat_intel_match: bool = False
     extracted_features: Dict[str, Any]
     suspicious_reasons: List[str]
