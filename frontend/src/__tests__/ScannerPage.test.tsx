@@ -122,7 +122,7 @@ describe('ScannerPage', () => {
     });
   });
 
-  it('pre-fills the input from the ?url= query parameter', () => {
+  it('pre-fills the input from the ?url= query parameter', async () => {
     (api.scanUrl as ReturnType<typeof vi.fn>).mockResolvedValue({
       scan_id: 'test-uuid-prefill',
       risk_score: 5,
@@ -141,5 +141,9 @@ describe('ScannerPage', () => {
 
     const input = screen.getByRole('textbox') as HTMLInputElement;
     expect(input.value).toBe('https://prefill.example.com');
+
+    await waitFor(() => {
+      expect(api.scanUrl).toHaveBeenCalledWith('https://prefill.example.com');
+    });
   });
 });

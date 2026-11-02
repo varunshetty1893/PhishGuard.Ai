@@ -150,13 +150,13 @@ export const ResultsPage: React.FC = () => {
   const mlScoreColor = (hasThreatMatch || isHighRisk)
     ? 'text-[#FF525C]'
     : isSuspicious
-    ? 'text-[#FF8C42]'
+    ? 'text-[#FFD54A]'
     : 'text-[#39FF88]';
 
   const mlGaugeColor = (hasThreatMatch || isHighRisk)
     ? 'bg-gradient-to-r from-[#FF525C] to-[#FF1A2E]'
     : isSuspicious
-    ? 'bg-gradient-to-r from-[#FF8C42] to-[#FFD54A]'
+    ? 'bg-gradient-to-r from-[#FFD54A] to-[#E6B800]'
     : 'bg-gradient-to-r from-[#39FF88] to-[#00E676]';
 
   // Translate warning signs accurately to plain, friendly English
