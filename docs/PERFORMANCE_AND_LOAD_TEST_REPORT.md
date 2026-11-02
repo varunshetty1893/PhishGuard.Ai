@@ -70,3 +70,4 @@ FastAPI/Uvicorn is typically deployed behind multiple Gunicorn workers (`--worke
 ### Future ML Improvement
 
 Replacing Random Forest with `sklearn.ensemble.HistGradientBoostingClassifier` would release the GIL during predict, enabling genuine thread-level parallelism. This is tracked as a future ML improvement alongside the v6 recall-gate issue.
+

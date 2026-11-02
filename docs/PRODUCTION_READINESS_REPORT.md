@@ -176,3 +176,4 @@ d3394a3 fix(ci): fix GitHub Actions CI, upgrade action runtimes, LFS guard
 ## Recommendation
 
 **The codebase is production-ready at 8.2/10.** The primary remaining gap is ML recall at higher precision thresholds (ML-01). The recommended next step is the `HistGradientBoostingClassifier` experiment described in `docs/ML_IMPROVEMENT_REPORT.md` — it may resolve both the recall-gate failure and the GIL-concurrency bottleneck simultaneously.
+

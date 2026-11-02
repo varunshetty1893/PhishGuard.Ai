@@ -1,8 +1,9 @@
+from typing import Any, Dict
 from sqlalchemy import create_engine, text, inspect
 from sqlalchemy.orm import declarative_base, sessionmaker
 from app.core.config import settings
 
-engine_kwargs = {}
+engine_kwargs: Dict[str, Any] = {}
 
 if settings.IS_POSTGRES:
     # Neon Serverless PostgreSQL optimizations

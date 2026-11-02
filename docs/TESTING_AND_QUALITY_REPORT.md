@@ -127,3 +127,4 @@ Full suite on Windows dev machine (Python 3.12, PostgreSQL DATABASE_URL):
 ```
 
 The 3,215 warnings are all `DeprecationWarning` from `joblib` (NumPy 2.5 shape assignment) in the model-loading tests — they are noise from a third-party library and do not indicate any project code issue.
+

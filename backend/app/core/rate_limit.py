@@ -1,6 +1,6 @@
 import threading
 import time
-from typing import Dict, List
+from typing import Dict, List, Optional
 from fastapi import HTTPException, status
 
 
@@ -34,7 +34,7 @@ class AuthRateLimiter:
         cutoff = now - window
         return [ts for ts in timestamps if ts > cutoff]
 
-    def check_login_rate_limit(self, ip: str, email: str, current_time: float = None) -> None:
+    def check_login_rate_limit(self, ip: str, email: str, current_time: Optional[float] = None) -> None:
         """
         Validates whether either IP or email has reached failure limits.
         Raises HTTP 429 with Retry-After header if throttled.
@@ -79,7 +79,7 @@ class AuthRateLimiter:
                     headers={"Retry-After": str(retry_after)}
                 )
 
-    def record_login_failure(self, ip: str, email: str, current_time: float = None) -> None:
+    def record_login_failure(self, ip: str, email: str, current_time: Optional[float] = None) -> None:
         """Records a failed authentication attempt against both IP and email buckets."""
         now = current_time if current_time is not None else time.time()
         ip_clean = (ip or "unknown").strip().lower()
@@ -111,7 +111,7 @@ class AuthRateLimiter:
             self._ip_login_failures.pop(ip_clean, None)
             self._email_login_failures.pop(email_clean, None)
 
-    def check_register_rate_limit(self, ip: str, current_time: float = None) -> None:
+    def check_register_rate_limit(self, ip: str, current_time: Optional[float] = None) -> None:
         """Throttles account registration attempts per client IP."""
         now = current_time if current_time is not None else time.time()
         ip_clean = (ip or "unknown").strip().lower()
@@ -133,7 +133,7 @@ class AuthRateLimiter:
                     headers={"Retry-After": str(retry_after)}
                 )
 
-    def record_register_attempt(self, ip: str, current_time: float = None) -> None:
+    def record_register_attempt(self, ip: str, current_time: Optional[float] = None) -> None:
         """Records an account registration attempt."""
         now = current_time if current_time is not None else time.time()
         ip_clean = (ip or "unknown").strip().lower()
@@ -174,7 +174,7 @@ class ScanRateLimiter:
         cutoff = now - self.window_seconds
         return [ts for ts in timestamps if ts > cutoff]
 
-    def check_scan_rate_limit(self, key: str, current_time: float = None) -> None:
+    def check_scan_rate_limit(self, key: str, current_time: Optional[float] = None) -> None:
         now = current_time if current_time is not None else time.time()
         clean_key = (key or "unknown").strip().lower()
 
