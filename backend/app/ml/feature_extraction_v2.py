@@ -127,9 +127,15 @@ def is_valid_ip(hostname: str) -> int:
 def count_subdomains(hostname: str) -> int:
     if not hostname:
         return 0
-    clean_host = hostname.split(':')[0]
-    if is_valid_ip(clean_host) or clean_host.lower() == "localhost":
+    clean_host = hostname.split(':')[0].strip('[]').lower().rstrip('.')
+    if is_valid_ip(clean_host) or clean_host == "localhost":
         return 0
+    apex = extract_apex_domain(clean_host)
+    if not apex or clean_host == apex:
+        return 0
+    if clean_host.endswith("." + apex):
+        sub = clean_host[:-len("." + apex)]
+        return len([p for p in sub.split(".") if p])
     parts = [x for x in clean_host.split('.') if x]
     return max(0, len(parts) - 2)
 
@@ -450,10 +456,9 @@ def extract_url_features(raw_url: str) -> Tuple[Dict[str, Any], List[str]]:
             or ip_flag
             or has_punycode(hostname)
             or any(plat in hostname for plat in DISALLOWED_SHARED_PLATFORMS)
-            or hostname_entropy(hostname) >= 3.6
+            or hostname_entropy(hostname) >= 4.0
             or scheme == "http"
-            or hostname.count("-") >= 2
-            or hostname.count(".") >= 3
+            or subdomains >= 2
         )
         keyword_flag = 1 if has_risk_context else 0
     digit_ratio = round(digits / max(url_length, 1), 6)
