@@ -1,16 +1,23 @@
-# Pyrefly configuration for PhishGuard AI
-# Tells Pyrefly which Python interpreter and source roots to use so
-# that "from backend.app.ml..." imports resolve without errors.
+# Pyrefly Configuration for PhishGuard AI
 
-[python]
-# Use the Python 3.12 venv where all project dependencies are installed
-# rather than the system Python 3.14 which has no project packages.
-# Adjust path if your venv is elsewhere.
-python_interpreter = "C:/Users/shett/AppData/Local/Programs/Python/Python312/python.exe"
+# Point Pyrefly to the Python 3.12 environment where dependencies (FastAPI, Scikit-learn, etc.) are installed
+python-interpreter-path = "C:/Users/shett/AppData/Local/Programs/Python/Python312/python.exe"
+python-interpreter = "C:/Users/shett/AppData/Local/Programs/Python/Python312/python.exe"
+python-version = "3.12"
+python-platform = "win32"
 
-[project]
-# Add the repo root so both "backend.*" and "ml.*" namespaces resolve.
-source_paths = [
-    ".",
+# Search paths for first-party imports so both `app.*` and `backend.*` resolve
+search-path = [
     "backend",
+    "."
+]
+
+# Site-packages directories for third-party modules (fastapi, pydantic, sqlalchemy, sklearn, joblib, etc.)
+site-packages-path = [
+    "C:/Users/shett/AppData/Local/Programs/Python/Python312/Lib/site-packages",
+    "C:/Users/shett/AppData/Roaming/Python/Python312/site-packages"
+]
+site-package-path = [
+    "C:/Users/shett/AppData/Local/Programs/Python/Python312/Lib/site-packages",
+    "C:/Users/shett/AppData/Roaming/Python/Python312/site-packages"
 ]
