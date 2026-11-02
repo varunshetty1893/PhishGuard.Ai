@@ -24,6 +24,13 @@ class GoogleSafeBrowsingAdapter:
 
     @classmethod
     async def check_url(cls, url: str) -> ThreatProviderResult:
+        if not settings.ENABLE_THIRD_PARTY_LOOKUPS:
+            return ThreatProviderResult(
+                status="Disabled by Policy",
+                threat_found=False,
+                details="Third-party external threat intelligence lookups disabled by configuration."
+            )
+
         api_key = settings.GOOGLE_SAFE_BROWSING_API_KEY.strip()
         if not api_key:
             return ThreatProviderResult(
@@ -31,6 +38,11 @@ class GoogleSafeBrowsingAdapter:
                 threat_found=False,
                 details="API key not provided in environment configuration."
             )
+
+        # URL minimization: strip sensitive query strings and fragments to protect privacy
+        parsed = urlsplit(url)
+        clean_path = parsed.path if parsed.path else "/"
+        minimized_url = f"{parsed.scheme or 'https'}://{parsed.netloc}{clean_path}"
 
         endpoint = f"https://safebrowsing.googleapis.com/v4/threatMatches:find?key={api_key}"
         payload = {
@@ -47,7 +59,7 @@ class GoogleSafeBrowsingAdapter:
                 ],
                 "platformTypes": ["ANY_PLATFORM"],
                 "threatEntryTypes": ["URL"],
-                "threatEntries": [{"url": url}]
+                "threatEntries": [{"url": minimized_url}]
             }
         }
 
@@ -140,9 +152,18 @@ class PhishDestroyAdapter:
 
     @classmethod
     async def check_url(cls, url: str) -> ThreatProviderResult:
+        if not settings.ENABLE_THIRD_PARTY_LOOKUPS:
+            return ThreatProviderResult(
+                status="Disabled by Policy",
+                threat_found=False,
+                details="Third-party external threat intelligence lookups disabled by configuration."
+            )
         try:
+            # Privacy protection: PhishDestroy only requires the hostname/domain, never the path or query tokens
+            parsed = urlsplit(url)
+            host_only = (parsed.hostname or url).lower().strip(".")
             async with httpx.AsyncClient(timeout=settings.THREAT_INTEL_TIMEOUT_SECONDS) as client:
-                response = await client.get(cls.ENDPOINT, params={"domain": url})
+                response = await client.get(cls.ENDPOINT, params={"domain": host_only})
             if response.status_code == 200:
                 data = response.json()
                 threat_found = data.get("threat") is True

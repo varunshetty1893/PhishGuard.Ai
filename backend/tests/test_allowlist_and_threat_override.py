@@ -1,4 +1,4 @@
-﻿"""
+"""
 Unit tests verifying Prompt 7:
 1. Exact brand domains are allowed, while shared hosting / platform domains are strictly blocked.
 2. Any threat-intelligence match ALWAYS overrides the allowlist & ML verdict.
@@ -140,3 +140,34 @@ def test_openphish_match_is_treated_as_harmful(client):
     assert data["model_score"] == data["ml_probability"]
     assert data["threat_intelligence"]["openphish"]["threat_found"] is True
     assert "OpenPhish" in data["combined_interpretation"]
+
+
+def test_user_content_hosts_and_repos_not_verified():
+    """
+    User-content hosts (Google Forms, Google Sites, Google Drive, user GitHub repos)
+    must NOT receive verified allowlist status, while authentic core portals (accounts.google.com,
+    www.paypal.com, and github.com root) MUST remain verified.
+    """
+    unverified_urls = [
+        "https://docs.google.com/forms/d/e/1FAIpQLSc_phish/viewform",
+        "https://sites.google.com/view/fake-login-update",
+        "https://drive.google.com/file/d/1A2B3C_malware/view",
+        "https://forms.google.com/d/e/12345/viewform",
+        "https://forms.gle/xyzPhish",
+        "https://github.com/phish-actor/credential-harvester",
+        "https://github.com/someuser/repo/archive/main.zip",
+    ]
+    for url in unverified_urls:
+        result = MLInferenceService.predict(url)
+        assert result["is_verified_domain"] is False, f"Expected {url} to NOT be verified!"
+
+    verified_urls = [
+        "https://accounts.google.com/signin/v2/identifier",
+        "https://www.paypal.com/signin",
+        "https://github.com",
+        "https://github.com/",
+        "https://whitehouse.gov",
+    ]
+    for url in verified_urls:
+        result = MLInferenceService.predict(url)
+        assert result["is_verified_domain"] is True, f"Expected {url} to be verified!"

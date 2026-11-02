@@ -32,23 +32,42 @@ class Settings:
 
     def __init__(self):
         # All os.getenv() calls happen HERE, after load_dotenv() above has run.
-        self.ENVIRONMENT: str = os.getenv("ENVIRONMENT", "development")
+        self.ENVIRONMENT: str = os.getenv("ENVIRONMENT", "development").lower()
 
         # Database
         self._RAW_DB_URL: str = os.getenv("DATABASE_URL", "sqlite:///./phishguard.db")
 
-        # Security
-        self.SECRET_KEY: str            = os.getenv("SECRET_KEY", secrets.token_hex(32))
+        # Security & SECRET_KEY hardening
+        secret_env = os.getenv("SECRET_KEY", "").strip()
+        if self.ENVIRONMENT == "production":
+            if not secret_env:
+                raise RuntimeError(
+                    "FATAL: SECRET_KEY environment variable is mandatory when ENVIRONMENT=production."
+                )
+            self.SECRET_KEY: str = secret_env
+            # Default COOKIE_SECURE to True in production unless explicitly overridden
+            cookie_sec_env = os.getenv("COOKIE_SECURE")
+            self.COOKIE_SECURE: bool = (
+                cookie_sec_env.lower() == "true" if cookie_sec_env is not None else True
+            )
+        else:
+            self.SECRET_KEY: str = (
+                secret_env if secret_env else "phishguard-dev-secret-key-32bytes-min"
+            )
+            self.COOKIE_SECURE: bool = os.getenv("COOKIE_SECURE", "false").lower() == "true"
+
         self.SESSION_COOKIE_NAME: str   = "phishguard_session"
         self.CSRF_COOKIE_NAME: str      = "phishguard_csrf"
         self.SESSION_MAX_AGE_SECONDS: int  = 86400        # 24 h
         self.REMEMBER_MAX_AGE_SECONDS: int = 86400 * 14   # 14 days
-        self.COOKIE_SECURE: bool        = os.getenv("COOKIE_SECURE", "false").lower() == "true"
         self.ACCESS_TOKEN_EXPIRE_MINUTES: int = int(
             os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "10080")
         )
 
-        # ── Threat Intelligence API Keys ─────────────────────────────────────
+        # ── Threat Intelligence & Privacy Controls ───────────────────────────
+        self.ENABLE_THIRD_PARTY_LOOKUPS: bool = (
+            os.getenv("ENABLE_THIRD_PARTY_LOOKUPS", "true").lower() == "true"
+        )
         self.GOOGLE_SAFE_BROWSING_API_KEY: str = os.getenv(
             "GOOGLE_SAFE_BROWSING_API_KEY", ""
         ).strip()
@@ -82,7 +101,8 @@ class Settings:
         return self.DATABASE_URL.startswith("postgresql")
 
     def has_gsb(self) -> bool:
-        """True only when a non-empty GSB key is configured."""
-        return bool(self.GOOGLE_SAFE_BROWSING_API_KEY)
+        """True only when a non-empty GSB key is configured and third-party lookups are enabled."""
+        return bool(self.GOOGLE_SAFE_BROWSING_API_KEY) and self.ENABLE_THIRD_PARTY_LOOKUPS
+
 
 settings = Settings()

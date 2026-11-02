@@ -115,15 +115,21 @@ def test_session_restoration_and_logout(client):
     })
 
     # Login
-    client.post("/api/v1/auth/login", json={"email": email, "password": pwd})
+    login_res = client.post("/api/v1/auth/login", json={"email": email, "password": pwd})
+    assert login_res.status_code == 200
+    csrf_token = login_res.json()["csrf_token"]
     
     # Restore session via /auth/me
     me_res = client.get("/api/v1/auth/me")
     assert me_res.status_code == 200
     assert me_res.json()["user"]["email"] == email
 
-    # Logout
-    logout_res = client.post("/api/v1/auth/logout")
+    # Logout without CSRF token must be rejected with 403 (Phase 1 CSRF hardening)
+    logout_no_csrf = client.post("/api/v1/auth/logout")
+    assert logout_no_csrf.status_code == 403
+
+    # Logout with CSRF token succeeds
+    logout_res = client.post("/api/v1/auth/logout", headers={"X-CSRF-Token": csrf_token})
     assert logout_res.status_code == 200
     assert "Successfully signed out" in logout_res.json()["message"]
 

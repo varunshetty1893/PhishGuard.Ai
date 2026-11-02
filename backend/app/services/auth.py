@@ -1,4 +1,4 @@
-﻿from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta, timezone
 from typing import Optional, Tuple
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
@@ -12,6 +12,7 @@ from app.core.security import (
     validate_email_format,
     validate_password_strength,
     generate_session_token,
+    hash_session_token,
     generate_csrf_token
 )
 from app.core.config import settings
@@ -94,7 +95,12 @@ class AuthService:
         remember_me: bool = False,
         ip_address: Optional[str] = None,
         user_agent: Optional[str] = None
-    ) -> UserSession:
+    ) -> Tuple[UserSession, str]:
+        """
+        Creates an authenticated user session.
+        Stores the HMAC-SHA256 hash of the session token in the database at rest,
+        and returns both the UserSession record and the plaintext token for cookie delivery.
+        """
         max_age = (
             settings.REMEMBER_MAX_AGE_SECONDS
             if remember_me
@@ -103,11 +109,12 @@ class AuthService:
         now = utc_now()
         expires_at = now + timedelta(seconds=max_age)
 
-        session_token = generate_session_token()
+        raw_session_token = generate_session_token()
+        hashed_session_token = hash_session_token(raw_session_token)
         csrf_token = generate_csrf_token()
 
         session_record = UserSession(
-            session_token=session_token,
+            session_token=hashed_session_token,
             csrf_token=csrf_token,
             user_id=user.id,
             ip_address=ip_address,
@@ -119,15 +126,19 @@ class AuthService:
         db.add(session_record)
         db.commit()
         db.refresh(session_record)
-        return session_record
+        return session_record, raw_session_token
 
     @staticmethod
     def validate_session(db: Session, session_token: str) -> Optional[Tuple[User, UserSession]]:
+        """
+        Validates an incoming session token by computing its hash and querying user_sessions.
+        """
         if not session_token:
             return None
 
+        hashed_token = hash_session_token(session_token)
         session_record = db.query(UserSession).filter(
-            UserSession.session_token == session_token
+            UserSession.session_token == hashed_token
         ).first()
 
         if not session_record:
@@ -157,10 +168,14 @@ class AuthService:
 
     @staticmethod
     def invalidate_session(db: Session, session_token: str):
+        """
+        Invalidates a session token by computing its hash and deleting the DB record.
+        """
         if not session_token:
             return
+        hashed_token = hash_session_token(session_token)
         session_record = db.query(UserSession).filter(
-            UserSession.session_token == session_token
+            UserSession.session_token == hashed_token
         ).first()
         if session_record:
             db.delete(session_record)

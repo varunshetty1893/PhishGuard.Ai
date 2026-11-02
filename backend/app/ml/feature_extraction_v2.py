@@ -186,17 +186,76 @@ def is_hsts_enforced_domain(hostname: str) -> bool:
     return False
 
 
-def is_high_reputation_domain(hostname: str) -> Tuple[bool, str]:
+DISALLOWED_USER_CONTENT_HOSTS: set = {
+    "sites.google.com",
+    "drive.google.com",
+    "forms.google.com",
+    "forms.gle",
+    "script.google.com",
+    "storage.googleapis.com",
+    "onedrive.live.com",
+}
+
+TRUSTED_EXACT_HOSTS: set = {
+    # Alphabet / Google authoritative portals
+    "google.com", "www.google.com", "accounts.google.com",
+    "mail.google.com", "myaccount.google.com", "support.google.com",
+    "policies.google.com", "google.co.in", "www.google.co.in",
+    "google.co.uk", "www.google.co.uk", "google.de", "google.fr", "google.ca",
+    # Microsoft / Azure
+    "microsoft.com", "www.microsoft.com", "login.microsoftonline.com",
+    "office.com", "www.office.com", "azure.com", "bing.com",
+    # Apple
+    "apple.com", "www.apple.com", "appleid.apple.com", "icloud.com",
+    # PayPal / Financial
+    "paypal.com", "www.paypal.com", "developer.paypal.com",
+    "stripe.com", "www.stripe.com", "visa.com", "mastercard.com",
+    # Infrastructure & Developer Tools
+    "wikipedia.org", "www.wikipedia.org", "cloudflare.com", "www.cloudflare.com",
+    "chatgpt.com", "openai.com", "docker.com", "gitlab.com", "npmjs.com", "pypi.org",
+    "mozilla.org", "stackoverflow.com"
+}
+
+
+def is_high_reputation_domain(hostname: str, path: str = "") -> Tuple[bool, str]:
+    """
+    Host-level allowlist evaluation for high-reputation domain protection.
+    Prevents false-positive blanket allowlisting of user-generated content hosts
+    (e.g., Google Forms, Google Sites, user GitHub repositories).
+    """
     apex = extract_apex_domain(hostname)
     if not apex:
         return False, ""
     clean_host = hostname.lower().strip(".")
+    clean_path = (path or "").strip()
+
+    # 1. Shared PaaS/hosting platforms are strictly disallowed
     if any(plat in clean_host for plat in DISALLOWED_SHARED_PLATFORMS):
         return False, apex
-    if apex in HIGH_REPUTATION_DOMAINS:
+
+    # 2. User-content hosts (Google Sites, Google Drive, Forms, etc.) are strictly NOT verified
+    if clean_host in DISALLOWED_USER_CONTENT_HOSTS:
+        return False, apex
+
+    # 3. Google Docs forms (docs.google.com/forms/...) are user-content forms often abused for phishing
+    if clean_host == "docs.google.com" and clean_path.startswith("/forms"):
+        return False, apex
+
+    # 4. GitHub: trust ONLY root landing page / static marketing ("/", ""), NOT user repositories (github.com/<user>/<repo>)
+    if clean_host in ("github.com", "www.github.com"):
+        norm_path = clean_path.rstrip("/")
+        if norm_path in ("", "/"):
+            return True, apex
+        return False, apex
+
+    # 5. Check host-level allowlist
+    if clean_host in TRUSTED_EXACT_HOSTS:
         return True, apex
-    if apex.endswith((".gov", ".gov.in", ".gov.uk", ".edu", ".edu.in", ".ac.uk", ".mil")):
+
+    # 6. Authoritative government and academic roots (.gov, .edu, .mil)
+    if clean_host.endswith((".gov", ".gov.in", ".gov.uk", ".edu", ".edu.in", ".ac.uk", ".mil")):
         return True, apex
+
     return False, apex
 
 # ──── NEW feature helpers ────────────────────────────────────────────────
@@ -393,7 +452,7 @@ def extract_url_features(raw_url: str) -> Tuple[Dict[str, Any], List[str]]:
         "digit_ratio": digit_ratio, "special_char_ratio": special_char_ratio,
         "apex_domain": extract_apex_domain(hostname),
         "raw_ml_score": None,
-        "is_verified_domain": is_high_reputation_domain(hostname)[0],
+        "is_verified_domain": is_high_reputation_domain(hostname, path)[0],
     }
 
     # Suspicious reasons (human-readable explanations)

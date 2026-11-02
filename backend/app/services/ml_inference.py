@@ -165,7 +165,7 @@ class MLInferenceService:
         suspicious_reasons = deduped2
 
         # High-reputation domain protection (false-positive mitigation)
-        is_trusted, apex = is_high_reputation_domain(hostname)
+        is_trusted, apex = is_high_reputation_domain(hostname, parsed.path)
         features["apex_domain"]        = apex
         features["is_verified_domain"] = 1 if is_trusted else 0
 

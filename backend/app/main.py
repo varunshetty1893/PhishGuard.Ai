@@ -1,6 +1,6 @@
 import logging
 from contextlib import asynccontextmanager
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
@@ -34,7 +34,7 @@ async def lifespan(app: FastAPI):
         meta = MLInferenceService.get_metadata()
         logger.info(f"ML Model loaded: {meta.get('algorithm', 'Random Forest')} (v{meta.get('model_version')})")
 
-        # Sync metadata into SQLite database if not present
+        # Sync metadata into database if not present
         db = SessionLocal()
         try:
             existing = db.query(ModelMetadata).filter(ModelMetadata.model_version == meta.get("model_version", "1.0.0")).first()
@@ -66,14 +66,34 @@ async def lifespan(app: FastAPI):
     logger.info("PhishGuard AI application shutting down.")
 
 
+is_production = settings.ENVIRONMENT.lower() == "production"
+
 app = FastAPI(
     title="PhishGuard AI API",
     description="Professional ML-Based Phishing URL Detection & Threat Intelligence Platform",
     version=settings.VERSION,
     lifespan=lifespan,
-    docs_url="/docs",
-    redoc_url="/redoc"
+    docs_url=None if is_production else "/docs",
+    redoc_url=None if is_production else "/redoc"
 )
+
+# ── Security Headers Middleware ──────────────────────────────────────────────
+@app.middleware("http")
+async def security_headers_middleware(request: Request, call_next):
+    response = await call_next(request)
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    response.headers["Content-Security-Policy"] = (
+        "default-src 'self'; "
+        "frame-ancestors 'none'; "
+        "object-src 'none'; "
+        "base-uri 'self';"
+    )
+    if settings.COOKIE_SECURE:
+        response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
+    return response
+
 
 # CORS Middleware configuration
 app.add_middleware(
@@ -94,6 +114,6 @@ def root_info():
         "name": settings.PROJECT_NAME,
         "version": settings.VERSION,
         "tagline": "Detect the Threat. Protect Your Digital World.",
-        "documentation": "/docs",
+        "documentation": None if is_production else "/docs",
         "api_v1": settings.API_V1_STR
     }

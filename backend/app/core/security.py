@@ -1,4 +1,6 @@
-﻿import re
+import hashlib
+import hmac
+import re
 import secrets
 from typing import Tuple
 from argon2 import PasswordHasher
@@ -77,6 +79,18 @@ def validate_password_strength(password: str) -> Tuple[bool, str]:
 def generate_session_token() -> str:
     """Generates a cryptographically secure 256-bit session token."""
     return secrets.token_hex(32)
+
+
+def hash_session_token(token: str) -> str:
+    """
+    Computes HMAC-SHA256 hash of a session token using the server's SECRET_KEY.
+    Ensures that session tokens at rest in the database are protected against database dump compromises.
+    """
+    if not token:
+        return ""
+    from app.core.config import settings
+    secret = settings.SECRET_KEY.encode("utf-8")
+    return hmac.new(secret, token.encode("utf-8"), hashlib.sha256).hexdigest()
 
 
 def generate_csrf_token() -> str:

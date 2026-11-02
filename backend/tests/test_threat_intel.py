@@ -95,7 +95,7 @@ async def test_phishdestroy_reports_domain_threat(monkeypatch):
 
         async def get(self, endpoint, **kwargs):
             assert endpoint == PhishDestroyAdapter.ENDPOINT
-            assert kwargs["params"] == {"domain": "https://reported.example/login"}
+            assert kwargs["params"] == {"domain": "reported.example"}
             return FakeResponse()
 
     monkeypatch.setattr(

@@ -1,4 +1,4 @@
-﻿FROM node:20-alpine AS build
+FROM node:20-alpine AS build
 
 WORKDIR /app
 
@@ -13,6 +13,13 @@ COPY --from=build /app/dist /usr/share/nginx/html
 COPY <<EOF /etc/nginx/conf.d/default.conf
 server {
     listen 80;
+
+    # Security headers
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header X-Frame-Options "DENY" always;
+    add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+    add_header Content-Security-Policy "default-src 'self'; frame-ancestors 'none'; object-src 'none'; base-uri 'self';" always;
+
     location / {
         root /usr/share/nginx/html;
         index index.html index.htm;

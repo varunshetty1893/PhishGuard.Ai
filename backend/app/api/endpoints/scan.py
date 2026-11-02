@@ -1,4 +1,5 @@
 import asyncio
+import logging
 import re
 import socket
 import uuid
@@ -23,6 +24,7 @@ from app.services.ml_inference import MLInferenceService
 from app.services.threat_intel import ThreatIntelAggregator
 from app.api.deps import get_current_user, verify_csrf
 
+logger = logging.getLogger("phishguard.scan")
 router = APIRouter()
 
 PROVIDER_LABELS = {
@@ -82,9 +84,11 @@ async def scan_url(
     try:
         ml_result = MLInferenceService.predict(raw_url)
     except Exception as e:
+        req_id = str(uuid.uuid4())[:8]
+        logger.error(f"[Req {req_id}] Machine learning inference failed on URL: {e}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Machine learning inference failed: {str(e)}"
+            detail=f"Machine learning inference encountered an error. (Request ID: {req_id})"
         )
 
     # 2. Run External Threat Intelligence & DNS Domain Check in Parallel
