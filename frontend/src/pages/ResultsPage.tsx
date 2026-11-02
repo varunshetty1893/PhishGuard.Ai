@@ -114,15 +114,15 @@ export const ResultsPage: React.FC = () => {
   let verdictSubtext = 'No major warning signs were found. Safety is not guaranteed.';
 
   if (hasThreatMatch) {
-    verdictHeadline = 'Confirmed Dangerous Link';
-    verdictSubtext = 'A known-threat service has flagged this address. Do not open it or enter information.';
+    verdictHeadline = 'Confirmed Phishing (known blocklist)';
+    verdictSubtext = 'A recognized security threat feed has blocklisted this URL. Treat it as harmful.';
   } else if (isHighRisk) {
     if (isNxDomain) {
-      verdictHeadline = 'Likely Phishing (Non-Existent Typosquat)';
-      verdictSubtext = `Mimics a known brand but does not resolve in public DNS (risk score: ${assessedMlPercent}/100).`;
+      verdictHeadline = 'Suspicious (unverified, ML only)';
+      verdictSubtext = `Mimics a known brand but does not resolve in public DNS (risk score: ${assessedMlPercent}/100). Not verified on any blocklist.`;
     } else {
-      verdictHeadline = 'Likely Phishing';
-      verdictSubtext = `Strong warning signs were found (risk score: ${assessedMlPercent}/100). Do not enter passwords or payment details.`;
+      verdictHeadline = 'Suspicious (unverified, ML only)';
+      verdictSubtext = `Statistical ML indicators flagged this URL (risk score: ${assessedMlPercent}/100), but it is not confirmed on any threat blocklist.`;
     }
   } else if (isNxDomain) {
     verdictHeadline = 'Inactive / Non-Existent Website';
@@ -131,8 +131,8 @@ export const ResultsPage: React.FC = () => {
     verdictHeadline = 'Website Identity Check Passed';
     verdictSubtext = `This address uses the verified ${apexDomain} domain. This alone does not guarantee safety.`;
   } else if (isSuspicious) {
-    verdictHeadline = 'Suspicious';
-    verdictSubtext = `Some warning signs were found (risk score: ${assessedMlPercent}/100). Verify the link before entering information.`;
+    verdictHeadline = 'Suspicious (unverified, ML only)';
+    verdictSubtext = `Minor warning signs were found (risk score: ${assessedMlPercent}/100). Not verified on any blocklist.`;
   }
 
   const bannerTheme = isHighRisk
@@ -388,7 +388,7 @@ export const ResultsPage: React.FC = () => {
                 Our Verdict
               </span>
               <span className="font-semibold text-xs text-[#F5F5F5]">
-                {isHighRisk ? 'Likely Phishing' : isSuspicious ? 'Suspicious' : 'Likely Safe'}
+                {hasThreatMatch ? 'Confirmed Phishing (known blocklist)' : (isHighRisk || isSuspicious) ? 'Suspicious (unverified, ML only)' : 'Likely Safe'}
               </span>
             </div>
             <div className="flex items-center gap-2 pt-0.5">

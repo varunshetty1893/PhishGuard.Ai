@@ -120,16 +120,15 @@ async def scan_url(
     threat_intel_match = bool(matched_providers)
 
     if threat_intel_match:
-        # A positive threat-feed result overrides the model's classification,
-        # while the displayed probability remains the model's own score.
-        predicted_class = "Phishing"
+        # A positive threat-feed result overrides the model's classification
+        predicted_class = "Confirmed Phishing (known blocklist)"
         risk_level = "High Risk"
         provider_str = ", ".join(
             f"{PROVIDER_LABELS[key]} ({result.category or 'Threat detected'})"
             for key, result in matched_providers
         )
         combined_interpretation = (
-            f"Threat Feed Match: This URL or its domain is listed by {provider_str}. "
+            f"Confirmed Phishing (known blocklist): This URL or its domain is listed by {provider_str}. "
             "Treat it as harmful. Do not visit this destination."
         )
         suspicious_reasons.insert(0, f"Confirmed threat listed in {provider_str}.")
@@ -141,9 +140,10 @@ async def scan_url(
             "If received via email, SMS, or chat, report the message to your security team."
         ]
     else:
-        # Missing from a threat feed is not proof that a URL is safe.
-        predicted_class = ml_result["predicted_class"]
+        # Missing from a threat feed: ML-only predictions must NEVER be labeled 'Phishing'
+        raw_pred_class = ml_result["predicted_class"]
         risk_level = ml_result["risk_level"]
+        predicted_class = "Suspicious (unverified, ML only)" if (raw_pred_class == "Phishing" or "Suspicious" in raw_pred_class) else "Legitimate"
 
         # Check domain existence via DNS
         if dns_resolves is False and not is_verified:
@@ -151,13 +151,13 @@ async def scan_url(
             if not any("NXDOMAIN" in r or "does not exist" in r for r in suspicious_reasons):
                 suspicious_reasons.insert(0, dns_reason)
 
-            if predicted_class == "Phishing" or risk_level == "High Risk":
-                predicted_class = "Phishing"
+            if raw_pred_class == "Phishing" or risk_level == "High Risk":
+                predicted_class = "Suspicious (unverified, ML only)"
                 risk_level = "High Risk"
                 ml_probability = max(ml_probability, 0.85)
                 combined_interpretation = (
-                    f"Non-Existent Typosquat Domain: Hostname '{parsed_host}' mimics a recognized brand but does not exist in public DNS (NXDOMAIN). "
-                    f"Unregistered lookalike addresses are classic phishing indicators. Do not interact with this destination."
+                    f"Suspicious (unverified, ML only): Hostname '{parsed_host}' mimics a recognized brand but does not exist in public DNS (NXDOMAIN). "
+                    f"Unregistered lookalike addresses are potential phishing indicators. Do not interact with this destination."
                 )
             else:
                 predicted_class = "Legitimate"
@@ -177,7 +177,7 @@ async def scan_url(
                     suspicious_reasons.insert(0, age_eval["reason"])
                 ml_probability = min(0.95, ml_probability + age_eval["score_modifier"])
                 if ml_probability >= 0.65:
-                    predicted_class = "Phishing"
+                    predicted_class = "Suspicious (unverified, ML only)"
                     risk_level = "High Risk"
                 elif ml_probability >= 0.40:
                     if risk_level == "Low Risk":
@@ -202,14 +202,16 @@ async def scan_url(
                     f"External threat status: {provider_notes}."
                 )
             elif risk_level == "High Risk":
+                predicted_class = "Suspicious (unverified, ML only)"
                 combined_interpretation = (
-                    f"High Risk (ML Phishing Probability: {ml_probability*100:.1f}%). "
-                    f"Threat feed status: {provider_notes}. The machine learning engine detected deceptive lexical anomalies or brand lookalikes. "
+                    f"Suspicious (unverified, ML only): ML Phishing Probability: {ml_probability*100:.1f}%. "
+                    f"Threat feed status: {provider_notes}. The machine learning engine detected statistical lexical anomalies, but no confirmed blocklist match was found. "
                     f"Exercise extreme caution."
                 )
             elif risk_level == "Suspicious":
+                predicted_class = "Suspicious (unverified, ML only)"
                 combined_interpretation = (
-                    f"Suspicious URL (ML Probability: {ml_probability*100:.1f}%). "
+                    f"Suspicious (unverified, ML only): ML Probability: {ml_probability*100:.1f}%. "
                     f"External threat status: {provider_notes}. "
                     f"The URL exhibits structural variations that deviate from typical legitimate websites. "
                     f"Exercise caution and verify the source directly."
@@ -317,7 +319,14 @@ def list_scans(
     if search:
         query = query.filter(ScanHistory.submitted_url.ilike(f"%{search.strip()}%"))
     if predicted_class:
-        query = query.filter(ScanHistory.predicted_class == predicted_class)
+        if predicted_class.lower() == "phishing":
+            query = query.filter(
+                (ScanHistory.predicted_class == "Confirmed Phishing (known blocklist)") |
+                (ScanHistory.predicted_class == "Suspicious (unverified, ML only)") |
+                (ScanHistory.predicted_class == "Phishing")
+            )
+        else:
+            query = query.filter(ScanHistory.predicted_class.ilike(f"%{predicted_class}%"))
     if risk_level:
         query = query.filter(ScanHistory.risk_level == risk_level)
 

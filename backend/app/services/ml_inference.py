@@ -212,13 +212,13 @@ class MLInferenceService:
 
         elif has_typosquat:
             is_verified_domain = False
-            predicted_class = "Phishing"
+            predicted_class = "Suspicious (unverified, ML only)"
             risk_level      = "High Risk"
             calibrated_score = round(max(raw_phish_prob, 0.78), 4)
             interpretation = (
-                f"Suspicious Brand Impersonation / Typosquatting: Hostname '{hostname}' closely mimics a recognized brand "
-                f"with subtle character manipulation or deceptive naming, but is not an authorized official domain. "
-                f"Typosquatting is a high-risk indicator commonly used in phishing and credential harvesting attacks."
+                f"Suspicious (unverified, ML only): Hostname '{hostname}' closely mimics a recognized brand "
+                f"with subtle character manipulation or deceptive naming (typosquatting/brand impersonation), "
+                f"but is not confirmed by a known blocklist. This is a high-risk ML-detected indicator."
             )
             precautions = [
                 "Do NOT enter credentials, passwords, or payment details on this destination.",
@@ -263,12 +263,12 @@ class MLInferenceService:
                     "Verify the domain directly if prompted for any personal or account details.",
                 ]
             elif raw_phish_prob >= threshold:
-                predicted_class = "Phishing"
+                predicted_class = "Suspicious (unverified, ML only)"
                 risk_level      = "High Risk" if raw_phish_prob >= 0.75 else "Suspicious"
                 interpretation = (
-                    f"The ML model assigned a phishing probability of {raw_phish_prob*100:.1f}% "
+                    f"Suspicious (unverified, ML only): The ML model assigned a phishing probability of {raw_phish_prob*100:.1f}% "
                     f"(optimal threshold: {threshold*100:.1f}%) based on {n_signals} structural indicators. "
-                    "URL patterns deviate from legitimate web address baselines."
+                    "This URL is unverified by known threat feeds; evaluate carefully before interacting."
                 )
                 precautions = [
                     "Do NOT submit credentials, passwords, or payment details on this destination.",

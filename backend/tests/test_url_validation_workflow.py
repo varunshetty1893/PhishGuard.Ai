@@ -97,7 +97,7 @@ def run_tests():
     res_phish = client.post("/api/v1/scan", json={"url": phish_url}, headers=headers)
     assert res_phish.status_code == 200, f"Phish scan failed: {res_phish.text}"
     phish_data = res_phish.json()
-    assert phish_data["predicted_class"] == "Phishing"
+    assert phish_data["predicted_class"] == "Suspicious (unverified, ML only)"
     assert phish_data["risk_level"] == "High Risk"
     assert phish_data["ml_probability"] >= 0.75
     assert len(phish_data["suspicious_reasons"]) > 0

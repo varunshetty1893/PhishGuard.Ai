@@ -34,7 +34,7 @@ def get_analytics(
     stats = (
         db.query(
             func.count(ScanHistory.id).label("total"),
-            func.count(case((ScanHistory.predicted_class == "Phishing", 1))).label("phishing"),
+            func.count(case((ScanHistory.predicted_class.in_(["Confirmed Phishing (known blocklist)", "Suspicious (unverified, ML only)", "Phishing"]), 1))).label("phishing"),
             func.count(case((ScanHistory.predicted_class == "Legitimate", 1))).label("legitimate"),
             func.count(case((ScanHistory.risk_level == "High Risk", 1))).label("high_risk"),
             func.count(case((ScanHistory.risk_level == "Suspicious", 1))).label("suspicious"),
@@ -76,7 +76,7 @@ def get_analytics(
             db.query(
                 func.date(ScanHistory.created_at).label("day"),
                 func.count(ScanHistory.id).label("total"),
-                func.count(case((ScanHistory.predicted_class == "Phishing", 1))).label("phishing"),
+                func.count(case((ScanHistory.predicted_class.in_(["Confirmed Phishing (known blocklist)", "Suspicious (unverified, ML only)", "Phishing"]), 1))).label("phishing"),
             )
             .filter(
                 ScanHistory.user_id == user_id,

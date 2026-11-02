@@ -39,7 +39,7 @@ export interface ScanResult {
   scan_id: string;
   submitted_url: string;
   normalized_url: string;
-  predicted_class: 'Legitimate' | 'Phishing';
+  predicted_class: 'Legitimate' | 'Confirmed Phishing (known blocklist)' | 'Suspicious (unverified, ML only)' | 'Phishing';
   risk_level: 'Low Risk' | 'Suspicious' | 'High Risk';
   ml_probability: number;
   model_score: number | null;
@@ -59,7 +59,7 @@ export interface ScanResult {
 export interface ScanListItem {
   scan_id: string;
   submitted_url: string;
-  predicted_class: 'Legitimate' | 'Phishing';
+  predicted_class: 'Legitimate' | 'Confirmed Phishing (known blocklist)' | 'Suspicious (unverified, ML only)' | 'Phishing';
   risk_level: 'Low Risk' | 'Suspicious' | 'High Risk';
   model_score: number | null;
   created_at: string;

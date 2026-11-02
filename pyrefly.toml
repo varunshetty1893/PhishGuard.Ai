@@ -1,0 +1,16 @@
+# Pyrefly configuration for PhishGuard AI
+# Tells Pyrefly which Python interpreter and source roots to use so
+# that "from backend.app.ml..." imports resolve without errors.
+
+[python]
+# Use the Python 3.12 venv where all project dependencies are installed
+# rather than the system Python 3.14 which has no project packages.
+# Adjust path if your venv is elsewhere.
+python_interpreter = "C:/Users/shett/AppData/Local/Programs/Python/Python312/python.exe"
+
+[project]
+# Add the repo root so both "backend.*" and "ml.*" namespaces resolve.
+source_paths = [
+    ".",
+    "backend",
+]

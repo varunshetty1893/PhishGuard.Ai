@@ -66,9 +66,9 @@ def test_ml_model_prediction():
     MLInferenceService.load()
     assert MLInferenceService.is_loaded() is True
     
-    # Test high-risk phishing URL
+    # Test high-risk phishing URL (ML-only must return Suspicious (unverified, ML only))
     phish_res = MLInferenceService.predict("http://login.paypal.com.account-verify.xyz/signin")
-    assert phish_res["predicted_class"] == "Phishing"
+    assert phish_res["predicted_class"] == "Suspicious (unverified, ML only)"
     assert phish_res["risk_level"] in ("High Risk", "Suspicious")
     assert phish_res["model_score"] is not None
     assert len(phish_res["suspicious_reasons"]) > 0

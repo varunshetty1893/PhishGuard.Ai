@@ -175,7 +175,8 @@ export const HistoryPage: React.FC = () => {
             >
               <option value="All">All Classes</option>
               <option value="Legitimate">Legitimate</option>
-              <option value="Phishing">Phishing</option>
+              <option value="Confirmed Phishing (known blocklist)">Confirmed Phishing (known blocklist)</option>
+              <option value="Suspicious (unverified, ML only)">Suspicious (unverified, ML only)</option>
             </select>
           </div>
 

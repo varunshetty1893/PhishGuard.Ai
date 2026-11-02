@@ -21,16 +21,37 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({ type, value, size = 'm
   // Neutral: #A3A3A3 / #292929
 
   if (type === 'class') {
-    const isPhish = value.toLowerCase() === 'phishing';
+    const isConfirmedPhish = value.toLowerCase().includes('confirmed') || value.toLowerCase().includes('blocklist');
+    const isMlSuspicious = value.toLowerCase().includes('unverified') || value.toLowerCase().includes('ml only') || value.toLowerCase() === 'suspicious';
+    const isLegacyPhish = value.toLowerCase() === 'phishing';
+
+    if (isConfirmedPhish || isLegacyPhish) {
+      return (
+        <span
+          className={`inline-flex items-center font-medium rounded border bg-[#181010] text-[#FF525C] border-[#FF525C]/40 ${sizeClasses}`}
+        >
+          <ShieldAlert className="w-3.5 h-3.5" />
+          <span>{isLegacyPhish ? 'Confirmed Phishing (known blocklist)' : value}</span>
+        </span>
+      );
+    }
+
+    if (isMlSuspicious) {
+      return (
+        <span
+          className={`inline-flex items-center font-medium rounded border bg-[#1A170A] text-[#FFD54A] border-[#FFD54A]/40 ${sizeClasses}`}
+        >
+          <AlertTriangle className="w-3.5 h-3.5" />
+          <span>{value}</span>
+        </span>
+      );
+    }
+
     return (
       <span
-        className={`inline-flex items-center font-medium rounded border ${sizeClasses} ${
-          isPhish
-            ? 'bg-[#181010] text-[#FF525C] border-[#FF525C]/40'
-            : 'bg-[#0E1A12] text-[#39FF88] border-[#39FF88]/40'
-        }`}
+        className={`inline-flex items-center font-medium rounded border bg-[#0E1A12] text-[#39FF88] border-[#39FF88]/40 ${sizeClasses}`}
       >
-        {isPhish ? <ShieldAlert className="w-3.5 h-3.5" /> : <ShieldCheck className="w-3.5 h-3.5" />}
+        <ShieldCheck className="w-3.5 h-3.5" />
         <span>{value}</span>
       </span>
     );

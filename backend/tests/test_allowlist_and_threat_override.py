@@ -111,11 +111,11 @@ def test_threat_intel_overrides_high_reputation_allowlist(client):
         )
         assert response.status_code == 200
         data = response.json()
-        assert data["predicted_class"] == "Phishing", "Threat intelligence hit failed to override allowlist!"
+        assert data["predicted_class"] == "Confirmed Phishing (known blocklist)", "Threat intelligence hit failed to override allowlist!"
         assert data["risk_level"] == "High Risk"
         assert data["threat_intel_match"] is True
         assert data["model_score"] == data["ml_probability"]
-        assert "Threat Feed Match" in data["combined_interpretation"]
+        assert "Confirmed Phishing (known blocklist)" in data["combined_interpretation"]
 
 
 def test_openphish_match_is_treated_as_harmful(client):
@@ -134,7 +134,7 @@ def test_openphish_match_is_treated_as_harmful(client):
 
     assert response.status_code == 200
     data = response.json()
-    assert data["predicted_class"] == "Phishing"
+    assert data["predicted_class"] == "Confirmed Phishing (known blocklist)"
     assert data["risk_level"] == "High Risk"
     assert data["threat_intel_match"] is True
     assert data["model_score"] == data["ml_probability"]

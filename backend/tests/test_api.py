@@ -1,4 +1,4 @@
-﻿import uuid
+import uuid
 import pytest
 from fastapi.testclient import TestClient
 from app.main import app
@@ -49,7 +49,7 @@ def test_scan_url_endpoint(client):
     assert res.status_code == 200
     data = res.json()
     assert "scan_id" in data
-    assert data["predicted_class"] == "Phishing"
+    assert data["predicted_class"] == "Suspicious (unverified, ML only)"
     assert data["risk_level"] in ("High Risk", "Suspicious")
     assert "threat_intelligence" in data
     assert "extracted_features" in data
@@ -78,7 +78,7 @@ def test_scan_list_and_filters(client):
     phish_filter = client.get("/api/v1/scans?predicted_class=Phishing")
     assert phish_filter.status_code == 200
     for item in phish_filter.json()["items"]:
-        assert item["predicted_class"] == "Phishing"
+        assert item["predicted_class"] in ("Suspicious (unverified, ML only)", "Confirmed Phishing (known blocklist)", "Phishing")
 
 
 def test_analytics_endpoint(client):
