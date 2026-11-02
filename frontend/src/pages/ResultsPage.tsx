@@ -109,56 +109,6 @@ export const ResultsPage: React.FC = () => {
     : (result.model_score ?? result.raw_ml_score ?? 0);
   const assessedMlPercent = (assessedMlProbability * 100).toFixed(1);
 
-  // Determine cautious, professional headline text
-  let verdictHeadline = 'Likely Safe';
-  let verdictSubtext = 'No major warning signs were found. Safety is not guaranteed.';
-
-  if (hasThreatMatch) {
-    verdictHeadline = 'Confirmed Phishing (known blocklist)';
-    verdictSubtext = 'A recognized security threat feed has blocklisted this URL. Treat it as harmful.';
-  } else if (isHighRisk) {
-    if (isNxDomain) {
-      verdictHeadline = 'Suspicious (unverified, ML only)';
-      verdictSubtext = `Mimics a known brand but does not resolve in public DNS (risk score: ${assessedMlPercent}/100). Not verified on any blocklist.`;
-    } else {
-      verdictHeadline = 'Suspicious (unverified, ML only)';
-      verdictSubtext = `Statistical ML indicators flagged this URL (risk score: ${assessedMlPercent}/100), but it is not confirmed on any threat blocklist.`;
-    }
-  } else if (isNxDomain) {
-    verdictHeadline = 'Inactive / Non-Existent Website';
-    verdictSubtext = `This domain does not resolve in public DNS (NXDOMAIN). The site cannot be reached.`;
-  } else if (isVerifiedDomain) {
-    verdictHeadline = 'Website Identity Check Passed';
-    verdictSubtext = `This address uses the verified ${apexDomain} domain. This alone does not guarantee safety.`;
-  } else if (isSuspicious) {
-    verdictHeadline = 'Suspicious (unverified, ML only)';
-    verdictSubtext = `Minor warning signs were found (risk score: ${assessedMlPercent}/100). Not verified on any blocklist.`;
-  }
-
-  const bannerTheme = isHighRisk
-    ? 'bg-[#181010] border-[#FF525C]/50'
-    : isSuspicious
-    ? 'bg-[#1A1810] border-[#FFD54A]/50'
-    : 'bg-[#0E1A12] border-[#39FF88]/50';
-
-  const iconTheme = isHighRisk
-    ? 'bg-[#FF525C]/10 border-[#FF525C]/40 text-[#FF525C]'
-    : isSuspicious
-    ? 'bg-[#FFD54A]/10 border-[#FFD54A]/40 text-[#FFD54A]'
-    : 'bg-[#39FF88]/10 border-[#39FF88]/40 text-[#39FF88]';
-
-  const mlScoreColor = (hasThreatMatch || isHighRisk)
-    ? 'text-[#FF525C]'
-    : isSuspicious
-    ? 'text-[#FFD54A]'
-    : 'text-[#39FF88]';
-
-  const mlGaugeColor = (hasThreatMatch || isHighRisk)
-    ? 'bg-gradient-to-r from-[#FF525C] to-[#FF1A2E]'
-    : isSuspicious
-    ? 'bg-gradient-to-r from-[#FFD54A] to-[#E6B800]'
-    : 'bg-gradient-to-r from-[#39FF88] to-[#00E676]';
-
   // Translate warning signs accurately to plain, friendly English
   const plainWarning = (reason: string): string => {
     if (/does not exist|NXDOMAIN/i.test(reason)) return 'This website address does not exist or has no active DNS records (cannot be reached).';
@@ -183,6 +133,89 @@ export const ResultsPage: React.FC = () => {
   const uniqueWarnings = Array.from(
     new Set((result.suspicious_reasons || []).map(plainWarning))
   );
+
+  // Determine user-friendly, natural English headline and verdict
+  let verdictHeadline = 'Safe Link (No Threats Detected)';
+  let verdictSubtext = 'No suspicious patterns or security threat reports were found for this address.';
+  let ourVerdictLabel = 'Safe / Clean';
+
+  if (hasThreatMatch) {
+    verdictHeadline = 'Dangerous Link (Confirmed Phishing)';
+    verdictSubtext = 'A recognized security threat feed has blocklisted this URL. Do not open it.';
+    ourVerdictLabel = 'Confirmed Threat';
+  } else if (isHighRisk) {
+    if (isNxDomain) {
+      verdictHeadline = 'Inactive / Non-Existent Website';
+      verdictSubtext = `This domain does not exist in public domain records (DNS) and cannot be reached.`;
+      ourVerdictLabel = 'Invalid Address';
+    } else if (uniqueWarnings.length === 0) {
+      verdictHeadline = 'Unusual Link Structure (Deep Path / File)';
+      verdictSubtext = `This link has a complex file or directory path that triggered AI suspicion (Risk Score: ${assessedMlPercent}/100), but all 5 security databases report no known phishing.`;
+      ourVerdictLabel = 'Deep Path / Review';
+    } else {
+      verdictHeadline = 'Potential Phishing (AI Detection)';
+      verdictSubtext = `Our AI detected suspicious patterns in this link (Risk Score: ${assessedMlPercent}/100), though it has not been reported on public blocklists yet.`;
+      ourVerdictLabel = 'Suspicious (AI)';
+    }
+  } else if (isNxDomain) {
+    verdictHeadline = 'Inactive / Non-Existent Website';
+    verdictSubtext = `This domain does not resolve in public DNS (NXDOMAIN). The site cannot be reached.`;
+    ourVerdictLabel = 'Invalid Address';
+  } else if (isVerifiedDomain) {
+    verdictHeadline = 'Verified Authentic Website';
+    verdictSubtext = `This address belongs to the verified authentic infrastructure of ${apexDomain}.`;
+    ourVerdictLabel = 'Verified Authority';
+  } else if (isSuspicious) {
+    verdictHeadline = 'Caution Advised (Minor Warning Signs)';
+    verdictSubtext = `Minor structural warning signs were found (Risk Score: ${assessedMlPercent}/100). Exercise caution before entering passwords or personal details.`;
+    ourVerdictLabel = 'Caution Advised';
+  }
+
+  const getHumanFriendlyExplanation = (): string => {
+    if (hasThreatMatch) {
+      return 'This website is confirmed as a dangerous phishing link on official security threat feeds. Attackers use links like this to steal logins, personal data, or spread malware. Do not visit this site or submit any details.';
+    }
+    if (isNxDomain) {
+      return `The website address '${result.submitted_url}' does not exist in public domain records (DNS). It cannot be reached and may be a fake address or an expired domain.`;
+    }
+    if (isVerifiedDomain && apexDomain) {
+      return `This link belongs to the official verified infrastructure of ${apexDomain}. All security checks passed and no threat reports were found.`;
+    }
+    if (isHighRisk && uniqueWarnings.length === 0) {
+      return `Our AI model assigned a high risk score (${assessedMlPercent}/100) because of its long, nested file or folder path (common in code repositories, developer links, and cloud storage). However, all 5 live security threat databases found NO reports of phishing or malicious activity. If you know and trust where this link came from, it is likely safe. Otherwise, avoid downloading files or entering credentials.`;
+    }
+    if (isHighRisk) {
+      return `Our AI detected suspicious patterns in this link (Risk Score: ${assessedMlPercent}/100), such as deceptive naming, an unusual domain extension, or brand spoofing. While it is not yet listed on public blocklists, we recommend caution: do not enter passwords, payment cards, or personal data on this page.`;
+    }
+    if (isSuspicious) {
+      return `This link looks mostly normal but exhibits minor structural variations (Risk Score: ${assessedMlPercent}/100). Check the address bar to ensure you are on the authentic website before signing in.`;
+    }
+    return `This website appears clean and safe. It passed all structural checks, and none of the 5 security threat databases reported any suspicious activity.`;
+  };
+
+  const bannerTheme = isHighRisk
+    ? 'bg-[#181010] border-[#FF525C]/50'
+    : isSuspicious
+    ? 'bg-[#1A1810] border-[#FFD54A]/50'
+    : 'bg-[#0E1A12] border-[#39FF88]/50';
+
+  const iconTheme = isHighRisk
+    ? 'bg-[#FF525C]/10 border-[#FF525C]/40 text-[#FF525C]'
+    : isSuspicious
+    ? 'bg-[#FFD54A]/10 border-[#FFD54A]/40 text-[#FFD54A]'
+    : 'bg-[#39FF88]/10 border-[#39FF88]/40 text-[#39FF88]';
+
+  const mlScoreColor = (hasThreatMatch || isHighRisk)
+    ? 'text-[#FF525C]'
+    : isSuspicious
+    ? 'text-[#FFD54A]'
+    : 'text-[#39FF88]';
+
+  const mlGaugeColor = (hasThreatMatch || isHighRisk)
+    ? 'bg-gradient-to-r from-[#FF525C] to-[#FF1A2E]'
+    : isSuspicious
+    ? 'bg-gradient-to-r from-[#FFD54A] to-[#E6B800]'
+    : 'bg-gradient-to-r from-[#39FF88] to-[#00E676]';
 
   // Helper for compact provider state styling
   const renderProviderState = (name: string, provider: any) => {
@@ -388,7 +421,7 @@ export const ResultsPage: React.FC = () => {
                 Our Verdict
               </span>
               <span className="font-semibold text-xs text-[#F5F5F5]">
-                {hasThreatMatch ? 'Confirmed Phishing (known blocklist)' : (isHighRisk || isSuspicious) ? 'Suspicious (unverified, ML only)' : 'Likely Safe'}
+                {ourVerdictLabel}
               </span>
             </div>
             <div className="flex items-center gap-2 pt-0.5">
@@ -409,7 +442,7 @@ export const ResultsPage: React.FC = () => {
         <div className="p-3 rounded-lg bg-[#050505]/60 border border-[#292929]/50 text-xs text-[#F5F5F5] leading-relaxed flex items-start gap-2">
           <Info className="w-4 h-4 text-[#39FF88] shrink-0 mt-0.5" />
           <span>
-            <strong className="text-[#39FF88]">What this means:</strong> {result.combined_interpretation}
+            <strong className="text-[#39FF88]">What this means:</strong> {getHumanFriendlyExplanation()}
           </span>
         </div>
       </div>

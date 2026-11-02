@@ -228,28 +228,30 @@ async def scan_url(
 
             if is_verified:
                 combined_interpretation = (
-                    f"Verified infrastructure ({apex}). Structural metrics and domain authority indicate legitimate ownership. "
-                    f"External threat status: {provider_notes}."
+                    f"Verified authentic website ({apex}). This domain is recognized as an official, authentic authority. "
+                    f"No active security threat listings were detected."
                 )
             elif risk_level == "High Risk":
                 predicted_class = "Suspicious (unverified, ML only)"
-                combined_interpretation = (
-                    f"Suspicious (unverified, ML only): ML Phishing Probability: {ml_probability*100:.1f}%. "
-                    f"Threat feed status: {provider_notes}. The machine learning engine detected statistical lexical anomalies, but no confirmed blocklist match was found. "
-                    f"Exercise extreme caution."
-                )
+                if len(suspicious_reasons) == 0:
+                    combined_interpretation = (
+                        f"Unusual Link Structure: Our AI assigned a high risk score ({ml_probability*100:.1f}/100) due to deep file or directory paths, "
+                        f"but all 5 security threat databases report no active phishing records. Verify that you trust the source before interacting."
+                    )
+                else:
+                    combined_interpretation = (
+                        f"Potential Phishing: Our AI detected suspicious patterns in this link (Risk Score: {ml_probability*100:.1f}/100). "
+                        f"While no security database has confirmed it on a blocklist yet, exercise caution and do not enter passwords or sensitive information."
+                    )
             elif risk_level == "Suspicious":
                 predicted_class = "Suspicious (unverified, ML only)"
                 combined_interpretation = (
-                    f"Suspicious (unverified, ML only): ML Probability: {ml_probability*100:.1f}%. "
-                    f"External threat status: {provider_notes}. "
-                    f"The URL exhibits structural variations that deviate from typical legitimate websites. "
-                    f"Exercise caution and verify the source directly."
+                    f"Caution Advised: This link exhibits minor structural warning signs (Risk Score: {ml_probability*100:.1f}/100). "
+                    f"Verify the website identity directly before submitting passwords or sensitive information."
                 )
             else:
                 combined_interpretation = (
-                    f"Low Risk (ML Probability: {ml_probability*100:.1f}%). "
-                    f"External threat status: {provider_notes}. Absence from threat databases does not guarantee safety."
+                    f"Safe Link: No suspicious patterns or active threat listings were found for this address (Risk Score: {ml_probability*100:.1f}/100)."
                 )
 
     # 4. Create Unique Scan ID

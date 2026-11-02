@@ -31,7 +31,7 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({ type, value, size = 'm
           className={`inline-flex items-center font-medium rounded border bg-[#181010] text-[#FF525C] border-[#FF525C]/40 ${sizeClasses}`}
         >
           <ShieldAlert className="w-3.5 h-3.5" />
-          <span>{isLegacyPhish ? 'Confirmed Phishing (known blocklist)' : value}</span>
+          <span>Confirmed Threat</span>
         </span>
       );
     }
@@ -42,7 +42,7 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({ type, value, size = 'm
           className={`inline-flex items-center font-medium rounded border bg-[#1A170A] text-[#FFD54A] border-[#FFD54A]/40 ${sizeClasses}`}
         >
           <AlertTriangle className="w-3.5 h-3.5" />
-          <span>{value}</span>
+          <span>Potential Phishing (AI)</span>
         </span>
       );
     }
@@ -52,7 +52,7 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({ type, value, size = 'm
         className={`inline-flex items-center font-medium rounded border bg-[#0E1A12] text-[#39FF88] border-[#39FF88]/40 ${sizeClasses}`}
       >
         <ShieldCheck className="w-3.5 h-3.5" />
-        <span>{value}</span>
+        <span>Legitimate Website</span>
       </span>
     );
   }
