@@ -1,0 +1,24 @@
+{
+  "RandomForest (v5-RF)": {
+    "thresh": 0.6600000000000004,
+    "test_rec": 0.9512835472578763,
+    "test_fpr": 0.017521584560690705,
+    "longtail_fpr": 0.09351851851851851,
+    "longtail_fp": 101,
+    "sso_fpr": 0.3333333333333333,
+    "sso_fp": 10,
+    "hard_rec": 0.96,
+    "hard_tp": 576
+  },
+  "HistGradientBoosting (v5-HGB)": {
+    "thresh": 0.6600000000000004,
+    "test_rec": 0.956242707117853,
+    "test_fpr": 0.0170137125444388,
+    "longtail_fpr": 0.22777777777777777,
+    "longtail_fp": 246,
+    "sso_fpr": 0.4,
+    "sso_fp": 12,
+    "hard_rec": 0.9683333333333334,
+    "hard_tp": 581
+  }
+}

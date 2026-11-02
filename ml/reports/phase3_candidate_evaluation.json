@@ -1,0 +1,17 @@
+{
+  "candidate_model": "HistGradientBoosting",
+  "decision_threshold": 0.6600000000000004,
+  "test_accuracy": 0.9705403203909856,
+  "test_precision": 0.9799701046337818,
+  "test_recall": 0.956242707117853,
+  "test_fpr": 0.0170137125444388,
+  "test_f1": 0.967961021703824,
+  "test_roc_auc": 0.9934760372708132,
+  "longtail_fpr": 0.22777777777777777,
+  "longtail_fp_count": 246,
+  "sso_fpr": 0.4,
+  "sso_fp_count": 12,
+  "hard_phish_recall": 0.9683333333333334,
+  "hard_phish_tp_count": 581,
+  "replaces_model": false
+}

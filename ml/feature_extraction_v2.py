@@ -107,7 +107,7 @@ def normalize_url(raw_url: str) -> str:
     url = raw_url.strip()
     url = re.sub(r'[\r\n\t]', '', url)
     if not re.match(r'^[a-zA-Z][a-zA-Z0-9+.-]*://', url):
-        url = "http://" + url
+        url = "https://" + url
     return url
 
 
@@ -158,18 +158,104 @@ DISALLOWED_SHARED_PLATFORMS: set = {
     "netlify.app", "glitch.me", "herokuapp.com", "square.site"
 }
 
+HSTS_PRELOADED_TLDS: set = {
+    "app", "dev", "page", "bank", "insurance", "new", "how", "soy", "foo", "zip", "mov"
+}
 
-def is_high_reputation_domain(hostname: str) -> Tuple[bool, str]:
+HTTPS_MANDATORY_PLATFORMS: set = {
+    "vercel.app", "netlify.app", "pages.dev", "github.io", "web.app",
+    "firebaseapp.com", "railway.app", "onrender.com", "render.com", "fly.dev"
+}
+
+
+def is_hsts_enforced_domain(hostname: str) -> bool:
+    """
+    Checks if a domain is under mandatory HTTPS/HSTS transport.
+    Includes HSTS-preloaded TLDs (.app, .dev, etc.) and managed developer platforms (Vercel, Netlify, etc.)
+    where unencrypted HTTP cannot be served and browsers automatically enforce TLS.
+    """
+    if not hostname:
+        return False
+    clean = hostname.split(':')[0].strip('[]').lower().rstrip('.')
+    parts = clean.split('.')
+    if parts and parts[-1] in HSTS_PRELOADED_TLDS:
+        return True
+    apex = extract_apex_domain(clean)
+    if apex in HTTPS_MANDATORY_PLATFORMS:
+        return True
+    return False
+
+
+DISALLOWED_USER_CONTENT_HOSTS: set = {
+    "sites.google.com",
+    "drive.google.com",
+    "forms.google.com",
+    "forms.gle",
+    "script.google.com",
+    "storage.googleapis.com",
+    "onedrive.live.com",
+}
+
+TRUSTED_EXACT_HOSTS: set = {
+    # Alphabet / Google authoritative portals
+    "google.com", "www.google.com", "accounts.google.com",
+    "mail.google.com", "myaccount.google.com", "support.google.com",
+    "policies.google.com", "google.co.in", "www.google.co.in",
+    "google.co.uk", "www.google.co.uk", "google.de", "google.fr", "google.ca",
+    # Microsoft / Azure
+    "microsoft.com", "www.microsoft.com", "login.microsoftonline.com",
+    "office.com", "www.office.com", "azure.com", "bing.com",
+    # Apple
+    "apple.com", "www.apple.com", "appleid.apple.com", "icloud.com",
+    # PayPal / Financial
+    "paypal.com", "www.paypal.com", "developer.paypal.com",
+    "stripe.com", "www.stripe.com", "visa.com", "mastercard.com",
+    # Infrastructure & Developer Tools
+    "wikipedia.org", "www.wikipedia.org", "cloudflare.com", "www.cloudflare.com",
+    "chatgpt.com", "openai.com", "docker.com", "gitlab.com", "npmjs.com", "pypi.org",
+    "mozilla.org", "stackoverflow.com"
+}
+
+
+def is_high_reputation_domain(hostname: str, path: str = "") -> Tuple[bool, str]:
+    """
+    Host-level allowlist evaluation for high-reputation domain protection.
+    Prevents false-positive blanket allowlisting of user-generated content hosts
+    (e.g., Google Forms, Google Sites, user GitHub repositories).
+    """
     apex = extract_apex_domain(hostname)
     if not apex:
         return False, ""
     clean_host = hostname.lower().strip(".")
+    clean_path = (path or "").strip()
+
+    # 1. Shared PaaS/hosting platforms are strictly disallowed
     if any(plat in clean_host for plat in DISALLOWED_SHARED_PLATFORMS):
         return False, apex
-    if apex in HIGH_REPUTATION_DOMAINS:
+
+    # 2. User-content hosts (Google Sites, Google Drive, Forms, etc.) are strictly NOT verified
+    if clean_host in DISALLOWED_USER_CONTENT_HOSTS:
+        return False, apex
+
+    # 3. Google Docs forms (docs.google.com/forms/...) are user-content forms often abused for phishing
+    if clean_host == "docs.google.com" and clean_path.startswith("/forms"):
+        return False, apex
+
+    # 4. GitHub: trust ONLY root landing page / static marketing ("/", ""), NOT user repositories (github.com/<user>/<repo>)
+    if clean_host in ("github.com", "www.github.com"):
+        norm_path = clean_path.rstrip("/")
+        if norm_path in ("", "/"):
+            return True, apex
+        return False, apex
+
+    # 5. Check host-level allowlist
+    if clean_host in TRUSTED_EXACT_HOSTS:
         return True, apex
-    if apex.endswith((".gov", ".gov.in", ".gov.uk", ".edu", ".edu.in", ".ac.uk", ".mil")):
+
+    # 6. Authoritative government and academic roots (.gov, .edu, .mil)
+    if clean_host.endswith((".gov", ".gov.in", ".gov.uk", ".edu", ".edu.in", ".ac.uk", ".mil")):
         return True, apex
+
     return False, apex
 
 # ──── NEW feature helpers ────────────────────────────────────────────────
@@ -347,10 +433,27 @@ def extract_url_features(raw_url: str) -> Tuple[Dict[str, Any], List[str]]:
     specials = sum(not c.isalnum() and c not in "/;:." for c in normalized)
     subdomains = count_subdomains(hostname)
     ip_flag = is_valid_ip(hostname)
-    https_flag = 1 if scheme == "https" else 0
+    hsts_enforced = is_hsts_enforced_domain(hostname)
+    https_flag = 1 if (scheme == "https" or hsts_enforced) else 0
     url_lower = normalized.lower()
     found_keywords = [kw for kw in SUSPICIOUS_KEYWORDS if kw in url_lower]
-    keyword_flag = 1 if found_keywords else 0
+    # Phase 3: Condition keyword flag on contextual risk indicators to eliminate
+    # false positives on authentic login/SSO portals (e.g. portal.chase.com, accounts.google.com)
+    keyword_flag = 0
+    if found_keywords:
+        has_risk_context = (
+            get_tld_risk_score(hostname) >= 0.5
+            or check_brand_lookalike(hostname)
+            or check_brand_in_subdomain(hostname)
+            or ip_flag
+            or has_punycode(hostname)
+            or any(plat in hostname for plat in DISALLOWED_SHARED_PLATFORMS)
+            or hostname_entropy(hostname) >= 3.6
+            or scheme == "http"
+            or hostname.count("-") >= 2
+            or hostname.count(".") >= 3
+        )
+        keyword_flag = 1 if has_risk_context else 0
     digit_ratio = round(digits / max(url_length, 1), 6)
     special_char_ratio = round(specials / max(url_length, 1), 6)
 
@@ -365,7 +468,7 @@ def extract_url_features(raw_url: str) -> Tuple[Dict[str, Any], List[str]]:
         "digit_ratio": digit_ratio, "special_char_ratio": special_char_ratio,
         "apex_domain": extract_apex_domain(hostname),
         "raw_ml_score": None,
-        "is_verified_domain": is_high_reputation_domain(hostname)[0],
+        "is_verified_domain": is_high_reputation_domain(hostname, path)[0],
     }
 
     # Suspicious reasons (human-readable explanations)
@@ -384,7 +487,8 @@ def extract_url_features(raw_url: str) -> Tuple[Dict[str, Any], List[str]]:
         suspicious_reasons.append("Uses unencrypted HTTP protocol instead of HTTPS.")
     if found_keywords:
         suspicious_reasons.append(f"Contains sensitive keywords: {', '.join(found_keywords[:3])}.")
-    if any(shortener in hostname.lower() for shortener in KNOWN_SHORTENERS):
+    clean_h = hostname.lower().strip(".")
+    if clean_h in KNOWN_SHORTENERS or any(clean_h.endswith("." + s) for s in KNOWN_SHORTENERS):
         suspicious_reasons.append("Uses a known URL shortening service concealing the destination.")
     if special_char_ratio > 0.08:
         suspicious_reasons.append("Elevated proportion of non-alphanumeric special characters.")

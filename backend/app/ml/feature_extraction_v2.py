@@ -437,7 +437,23 @@ def extract_url_features(raw_url: str) -> Tuple[Dict[str, Any], List[str]]:
     https_flag = 1 if (scheme == "https" or hsts_enforced) else 0
     url_lower = normalized.lower()
     found_keywords = [kw for kw in SUSPICIOUS_KEYWORDS if kw in url_lower]
-    keyword_flag = 1 if found_keywords else 0
+    # Phase 3: Condition keyword flag on contextual risk indicators to eliminate
+    # false positives on authentic login/SSO portals (e.g. portal.chase.com, accounts.google.com)
+    keyword_flag = 0
+    if found_keywords:
+        has_risk_context = (
+            get_tld_risk_score(hostname) >= 0.5
+            or check_brand_lookalike(hostname)
+            or check_brand_in_subdomain(hostname)
+            or ip_flag
+            or has_punycode(hostname)
+            or any(plat in hostname for plat in DISALLOWED_SHARED_PLATFORMS)
+            or hostname_entropy(hostname) >= 3.6
+            or scheme == "http"
+            or hostname.count("-") >= 2
+            or hostname.count(".") >= 3
+        )
+        keyword_flag = 1 if has_risk_context else 0
     digit_ratio = round(digits / max(url_length, 1), 6)
     special_char_ratio = round(specials / max(url_length, 1), 6)
 

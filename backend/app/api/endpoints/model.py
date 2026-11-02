@@ -10,15 +10,15 @@ def get_model_info():
         meta = MLInferenceService.get_metadata() or {}
 
         eval_metrics = {
-            "accuracy": meta.get("test_accuracy", 0.9682),
-            "precision": meta.get("test_precision", 0.9761),
-            "recall": meta.get("test_recall", 0.9538),
-            "f1_score": meta.get("test_f1", 0.9648),
-            "roc_auc": meta.get("test_roc_auc", 0.9928),
-            "false_positive_rate": meta.get("test_fpr", 0.0196),
-            "false_negative_rate": round(1.0 - meta.get("test_recall", 0.9538), 4),
-            "long_tail_legit_fpr": 0.1306,
-            "hard_phishing_recall": 0.9667
+            "accuracy": meta.get("test_accuracy", 0.9680),
+            "precision": meta.get("test_precision", 0.9793),
+            "recall": meta.get("test_recall", 0.9513),
+            "f1_score": meta.get("test_f1", 0.9651),
+            "roc_auc": meta.get("test_roc_auc", 0.9930),
+            "false_positive_rate": meta.get("test_fpr", 0.0175),
+            "false_negative_rate": round(1.0 - meta.get("test_recall", 0.9513), 4),
+            "long_tail_legit_fpr": meta.get("long_tail_legit_fpr", 0.0935),
+            "hard_phishing_recall": meta.get("hard_phishing_recall", 0.9600)
         }
 
         feature_names = meta.get("feature_schema") or [
@@ -41,9 +41,9 @@ def get_model_info():
             "algorithm": meta.get("algorithm", "Random Forest (class_weight=balanced, isotonic calibrated, domain-isolated 3-split)"),
             "dataset_name": "Current curated 40,000-link training set",
             "training_date": meta.get("trained_date", "2026-10-26 10:27:28 UTC"),
-            "total_samples": 40000,
-            "train_samples": meta.get("training_samples", 23913),
-            "test_samples": meta.get("test_samples", 7118),
+            "total_samples": meta.get("training_samples", 23739) + meta.get("validation_samples", 8963) + meta.get("test_samples", 7366),
+            "train_samples": meta.get("training_samples", 23739),
+            "test_samples": meta.get("test_samples", 7366),
             "train_domains": 18384,
             "test_domains": 6128,
             "domain_leakage_count": 0,

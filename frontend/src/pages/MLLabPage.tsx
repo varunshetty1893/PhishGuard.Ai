@@ -227,7 +227,7 @@ export const MLLabPage: React.FC = () => {
               Hard Long-Tail Legitimate Stress Test (1,080 URLs)
             </h3>
             <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#181818] text-[#FFD54A]">
-              13.06% flagged incorrectly (141 of 1,080)
+              9.35% flagged incorrectly (101 of 1,080)
             </span>
           </div>
           <p className="text-xs text-[#A3A3A3] leading-relaxed">
@@ -244,7 +244,7 @@ export const MLLabPage: React.FC = () => {
             </div>
             <div className="flex justify-between py-1.5 border-b border-[#1A1A1A]">
               <span className="text-[#A3A3A3]">Authentic Login &amp; SSO Portals (Google, MS, MIT)</span>
-              <span className="font-mono text-[#FF525C] font-bold">46.67% FPR (14/30 FP)</span>
+              <span className="font-mono text-[#FF525C] font-bold">33.33% FPR (10/30 FP)</span>
             </div>
             <div className="flex justify-between py-1.5">
               <span className="text-[#A3A3A3]">Legitimate URLs with Security Keywords (/billing, /portal)</span>
@@ -260,7 +260,7 @@ export const MLLabPage: React.FC = () => {
               Hard Phishing Test Set (600 URLs, Live 2026 Feeds)
             </h3>
             <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#181818] text-[#39FF88]">
-              Flagged 580 of 600 known phishing links (96.67%)
+              Flagged 576 of 600 known phishing links (96.00%)
             </span>
           </div>
           <p className="text-xs text-[#A3A3A3] leading-relaxed">

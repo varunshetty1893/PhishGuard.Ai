@@ -1,35 +1,57 @@
 {
-  "model_version": "v4.1.0",
-  "algorithm": "Random Forest (class_weight=balanced, isotonic calibrated, domain-isolated 3-split)",
-  "trained_date": "2026-10-26 10:27:28 UTC",
-  "training_samples": 23913,
-  "validation_samples": 8969,
-  "test_samples": 7118,
-  "decision_threshold": 0.6400000000000003,
-  "test_accuracy": 0.9682,
-  "test_precision": 0.9761,
-  "test_recall": 0.9538,
-  "test_fpr": 0.0196,
-  "test_f1": 0.9648,
-  "test_roc_auc": 0.9928,
+  "model_version": "v5.0.0",
+  "algorithm": "Random Forest (class_weight=balanced, isotonic calibrated, hard-negative SSO augmented, domain-isolated 3-split)",
+  "trained_date": "2026-11-02 05:52:48 UTC",
+  "training_samples": 23739,
+  "validation_samples": 8963,
+  "test_samples": 7366,
+  "decision_threshold": 0.6600000000000004,
+  "optimal_threshold": 0.6600000000000004,
+  "test_accuracy": 0.968,
+  "test_precision": 0.9793,
+  "test_recall": 0.9513,
+  "test_fpr": 0.0175,
+  "test_f1": 0.9651,
+  "test_roc_auc": 0.993,
+  "long_tail_legit_fpr": 0.0935,
+  "sso_fpr": 0.3333,
+  "hard_phishing_recall": 0.96,
   "confusion_matrix": {
-    "tn": 3793,
-    "fp": 76,
-    "fn": 150,
-    "tp": 3099
+    "tn": 3869,
+    "fp": 69,
+    "fn": 167,
+    "tp": 3261
+  },
+  "feature_importances": {
+    "is_https": 0.2445,
+    "count_digits": 0.1923,
+    "hostname_length": 0.1035,
+    "digit_ratio": 0.1013,
+    "path_length": 0.0995,
+    "url_length": 0.0636,
+    "count_dots": 0.0529,
+    "count_slash": 0.0487,
+    "count_subdomains": 0.0303,
+    "has_ip": 0.0192,
+    "count_hyphens": 0.0169,
+    "special_char_ratio": 0.0136,
+    "count_equal": 0.0093,
+    "count_question": 0.0027,
+    "has_suspicious_keywords": 0.0008,
+    "count_at": 0.0007
   },
   "prevalence_analysis": {
     "1_percent": {
-      "precision": 0.3291,
-      "false_alerts_per_1k": 19.4
+      "precision": 0.3542,
+      "false_alerts_per_1k": 17.3
     },
     "5_percent": {
-      "precision": 0.7188,
-      "false_alerts_per_1k": 18.7
+      "precision": 0.7408,
+      "false_alerts_per_1k": 16.6
     },
     "10_percent": {
-      "precision": 0.8436,
-      "false_alerts_per_1k": 17.7
+      "precision": 0.8578,
+      "false_alerts_per_1k": 15.8
     }
   }
 }
