@@ -1,0 +1,39 @@
+{
+  "generated_at": "2026-11-02T07:08:34.296830+00:00",
+  "eval_date": "2026-11-02",
+  "seed": 42,
+  "model": {
+    "threshold": 0.6600000000000004,
+    "model_version": "v5.0.0",
+    "trained_at": "unknown",
+    "n_features": 16
+  },
+  "data_sources": {
+    "phishing": {
+      "openphish_count": 100,
+      "urlhaus_count": 0,
+      "total_after_dedup": 100,
+      "evaluated": 100,
+      "errors": 0
+    },
+    "legitimate": {
+      "source": "Tranco top-50k with realistic paths",
+      "total_built": 200,
+      "evaluated": 200,
+      "errors": 0
+    }
+  },
+  "metrics": {
+    "recall": 0.97,
+    "recall_ci_95_low": 0.936565,
+    "recall_ci_95_high": 1.0,
+    "true_positives": 97,
+    "false_negatives": 3,
+    "fpr": 0.195,
+    "fpr_ci_95_low": 0.140089,
+    "fpr_ci_95_high": 0.249911,
+    "false_positives": 39,
+    "true_negatives": 161
+  },
+  "inference_time_seconds": 0.61
+}

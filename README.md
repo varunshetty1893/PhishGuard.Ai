@@ -108,6 +108,31 @@ ACTUAL PHISHING   (3,249)             150 (FN)               3,099 (TP)
 
 See [ML_METHODOLOGY.md](ML_METHODOLOGY.md) for full empirical audit trail and known limitations.
 
+### Latest Live Evaluation
+
+The live evaluation script (`ml/live_eval.py`) fetches today's phishing URLs from
+[OpenPhish](https://openphish.com/) (and URLhaus when available), builds a natural mix
+of legitimate deep-link URLs from the Tranco top-50k, and runs **ML inference only**
+(no threat feeds) to measure real-world recall and false-positive rate with 95%
+Wilson confidence intervals.
+
+| Metric | Value | 95% CI |
+| :--- | :---: | :---: |
+| **Recall** | 97.0% | 93.7% - 100.0% |
+| **FPR** | 19.5% | 14.0% - 25.0% |
+
+> **Note:** FPR on synthetic deep-link URLs is higher than on the held-out test set
+> because all legit URLs carry paths/queries that trigger path-based features. The
+> held-out test FPR (1.96%) reflects the natural URL mix. See
+> [IMPROVEMENT_REPORT_2.md](IMPROVEMENT_REPORT_2.md) for details.
+
+Latest report: [`ml/reports/live_eval_2026-11-02.json`](ml/reports/live_eval_2026-11-02.json)
+
+Run it yourself:
+```bash
+python ml/live_eval.py --max-phish 300 --max-legit 300
+```
+
 ---
 
 ## 🔬 16-Dimensional Feature Attribution
