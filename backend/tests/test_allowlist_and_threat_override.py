@@ -5,9 +5,9 @@ Unit tests verifying Prompt 7:
 3. Phishing URLs on hosting platforms (firebaseapp, github.io, s3.amazonaws.com) are not whitelisted.
 """
 
-import pytest
 from contextlib import ExitStack, contextmanager
 from unittest.mock import AsyncMock, patch
+import pytest
 from app.ml.feature_extraction import is_high_reputation_domain
 from app.services.threat_intel import ThreatProviderResult
 from app.services.ml_inference import MLInferenceService
@@ -84,6 +84,7 @@ def test_allowlist_shared_hosting_and_platforms_strictly_disallowed():
         assert is_trusted is False, f"Critical security issue: {host} was improperly whitelisted as high-reputation!"
 
 
+@pytest.mark.requires_ml_model
 def test_ml_inference_hosting_domain_not_protected():
     """Phishing URL hosted on a cloud platform must not receive allowlist protection."""
     test_url = "https://phish-secure-verify.firebaseapp.com/login"
@@ -92,6 +93,7 @@ def test_ml_inference_hosting_domain_not_protected():
     assert result["apex_domain"] == "firebaseapp.com"
 
 
+@pytest.mark.requires_ml_model
 def test_threat_intel_overrides_high_reputation_allowlist(client):
     """
     Even if a URL belongs to a high-reputation domain (e.g. compromised or open redirect),
@@ -118,6 +120,7 @@ def test_threat_intel_overrides_high_reputation_allowlist(client):
         assert "Confirmed Phishing (known blocklist)" in data["combined_interpretation"]
 
 
+@pytest.mark.requires_ml_model
 def test_openphish_match_is_treated_as_harmful(client):
     openphish_match = ThreatProviderResult(
         status="Threat Reported",
@@ -142,6 +145,7 @@ def test_openphish_match_is_treated_as_harmful(client):
     assert "OpenPhish" in data["combined_interpretation"]
 
 
+@pytest.mark.requires_ml_model
 def test_user_content_hosts_and_repos_not_verified():
     """
     User-content hosts (Google Forms, Google Sites, Google Drive, user GitHub repos)

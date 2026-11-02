@@ -1,4 +1,4 @@
-﻿import csv
+import csv
 import io
 from fastapi import APIRouter, Depends
 from fastapi.responses import StreamingResponse

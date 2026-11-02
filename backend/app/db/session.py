@@ -1,4 +1,4 @@
-﻿from sqlalchemy import create_engine, text, inspect
+from sqlalchemy import create_engine, text, inspect
 from sqlalchemy.orm import declarative_base, sessionmaker
 from app.core.config import settings
 
@@ -31,7 +31,6 @@ Base = declarative_base()
 
 def init_db():
     """Initializes tables for all registered models with automatic schema migration."""
-    from app.models import scan, user  # ensure all models are imported
     Base.metadata.create_all(bind=engine)
 
     # In case scan_history already existed before user_id was introduced
@@ -43,7 +42,7 @@ def init_db():
                 with engine.begin() as conn:
                     conn.execute(text("ALTER TABLE scan_history ADD COLUMN user_id INTEGER REFERENCES users(id) ON DELETE CASCADE"))
                     conn.execute(text("CREATE INDEX IF NOT EXISTS ix_scan_history_user_id ON scan_history(user_id)"))
-    except Exception as e:
+    except Exception:
         # Table migration logged or handled gracefully
         pass
 

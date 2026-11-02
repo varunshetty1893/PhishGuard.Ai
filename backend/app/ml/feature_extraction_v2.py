@@ -11,7 +11,9 @@ New hard-to-fake features added on top of the 16-feature v1 schema:
 
 Total: 22 features
 """
-import re, math, ipaddress
+import re
+import math
+import ipaddress
 from typing import Dict, Any, List, Tuple
 from urllib.parse import urlparse
 
@@ -53,7 +55,7 @@ KNOWN_SHORTENERS: set = {
 }
 HIGH_REPUTATION_DOMAINS: set = {
     # Alphabet / Google
-    "google.com", "googleapis.com", "gstatic.com", 
+    "google.com", "googleapis.com", "gstatic.com",
     "youtube.com", "googlevideo.com", "android.com", "googleblog.com",
     "googlesyndication.com", "googletagmanager.com", "google.co.in",
     "google.co.uk", "google.de", "google.fr", "google.ca",
@@ -72,7 +74,7 @@ HIGH_REPUTATION_DOMAINS: set = {
     # Dev / Open Source
     "docker.com", "gitlab.com", "npmjs.com", "pypi.org",
     "mozilla.org", "wikipedia.org", "wikimedia.org", "chatgpt.com", "openai.com",
-     
+
     # Financial
     "paypal.com", "stripe.com", "visa.com", "mastercard.com",
     # Telecom / ISP

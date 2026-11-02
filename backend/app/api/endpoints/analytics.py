@@ -59,7 +59,7 @@ def get_analytics(
         # 2. Consolidated threat check query (single round-trip with join)
         threat_stats = (
             db.query(
-                func.count(case((ThreatCheckLog.threat_found == True, 1))).label("matches"),
+                func.count(case((ThreatCheckLog.threat_found.is_(True), 1))).label("matches"),
                 func.count(case((ThreatCheckLog.check_status == "Unavailable", 1))).label("failures"),
             )
             .join(ScanHistory, ThreatCheckLog.scan_id == ScanHistory.scan_id)

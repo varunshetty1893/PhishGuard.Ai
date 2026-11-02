@@ -69,6 +69,8 @@ Thumbs.db
 *.swo
 *.orig
 .snapshots/
+pyrefly.toml
+pyrightconfig.json
 
 # ------ Raw / Large Datasets (too big for GitHub without LFS) ------
 dataset/

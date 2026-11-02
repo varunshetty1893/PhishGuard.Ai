@@ -1,12 +1,12 @@
 import pytest
 from datetime import datetime, timezone, timedelta
-from unittest.mock import AsyncMock, patch, MagicMock
+from unittest.mock import AsyncMock, MagicMock
 import httpx
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from app.db.session import Base
-from app.models.scan import DomainAgeCache, utc_now
+from app.models.scan import DomainAgeCache
 from app.services.domain_age import DomainAgeService
 
 

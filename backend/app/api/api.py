@@ -1,4 +1,4 @@
-﻿from fastapi import APIRouter
+from fastapi import APIRouter
 from app.api.endpoints import health, model, export, scan, analytics, threat_intel, auth
 
 api_router = APIRouter()

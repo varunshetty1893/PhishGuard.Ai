@@ -1,4 +1,3 @@
-import os
 import pytest
 from app.ml.feature_extraction import (
     extract_url_features,
@@ -42,12 +41,12 @@ def test_count_subdomains():
 def test_feature_extraction_schema():
     url = "http://login.paypal.com.account-verify.xyz/signin?token=123"
     features, reasons = extract_url_features(url)
-    
+
     assert len(features) >= len(FEATURE_NAMES)
     for name in FEATURE_NAMES:
         assert name in features
         assert isinstance(features[name], (int, float))
-        
+
     assert features["count_dots"] >= 4
     assert features["has_suspicious_keywords"] == 1
     assert len(reasons) > 0
@@ -57,22 +56,23 @@ def test_features_to_vector_order():
     url = "https://example.edu/research"
     features, _ = extract_url_features(url)
     vector = features_to_vector(features)
-    
+
     assert len(vector) == len(FEATURE_NAMES)
     assert vector[FEATURE_NAMES.index("is_https")] == 1.0
 
 
+@pytest.mark.requires_ml_model
 def test_ml_model_prediction():
     MLInferenceService.load()
     assert MLInferenceService.is_loaded() is True
-    
+
     # Test high-risk phishing URL (ML-only must return Suspicious (unverified, ML only))
     phish_res = MLInferenceService.predict("http://login.paypal.com.account-verify.xyz/signin")
     assert phish_res["predicted_class"] == "Suspicious (unverified, ML only)"
     assert phish_res["risk_level"] in ("High Risk", "Suspicious")
     assert phish_res["model_score"] is not None
     assert len(phish_res["suspicious_reasons"]) > 0
-    
+
     # Test legitimate URL
     legit_res = MLInferenceService.predict("https://wikipedia.org/wiki/Computer_science")
     assert legit_res["predicted_class"] == "Legitimate"

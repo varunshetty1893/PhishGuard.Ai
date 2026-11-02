@@ -2,10 +2,9 @@ import logging
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
 
 from app.core.config import settings
-from app.db.session import engine, Base, SessionLocal, init_db
+from app.db.session import SessionLocal, init_db
 from app.api.api import api_router
 from app.services.ml_inference import MLInferenceService
 from app.services.local_threat_feeds import start_feed_refresh

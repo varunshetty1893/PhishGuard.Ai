@@ -14,7 +14,6 @@ from app.api.deps import get_current_user_and_session, extract_session_token, ve
 from app.core.config import settings
 from app.core.security import normalize_email
 from app.core.rate_limit import auth_rate_limiter
-from app.models.user import User, UserSession
 
 router = APIRouter()
 

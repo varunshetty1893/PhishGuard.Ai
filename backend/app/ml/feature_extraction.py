@@ -3,8 +3,6 @@ PhishGuard AI - Backend Feature Extraction (v2 enhanced signals)
 Wraps feature_extraction_v2.py: uses 16-feature schema for model inference
 but enriches suspicious_reasons with v2 signals (TLD risk, brand lookalike, etc.)
 """
-import sys
-from pathlib import Path
 # Import everything from the v2 module so it all works transparently
 from app.ml.feature_extraction_v2 import (  # noqa: F401
     FEATURE_NAMES,

@@ -1,4 +1,4 @@
-﻿import uuid
+import uuid
 import pytest
 from fastapi.testclient import TestClient
 from app.main import app
@@ -12,7 +12,7 @@ def client():
     with TestClient(app) as c:
         email = f"sec_test_{uuid.uuid4().hex[:8]}@example.com"
         pwd = "SecPassword123!"
-        reg = c.post("/api/v1/auth/register", json={
+        c.post("/api/v1/auth/register", json={
             "full_name": "Security Tester",
             "email": email,
             "password": pwd,

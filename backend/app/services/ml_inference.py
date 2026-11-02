@@ -11,11 +11,9 @@ from urllib.parse import urlparse
 import joblib
 
 from app.ml.feature_extraction import (
-    FEATURE_NAMES,
     extract_url_features,
     features_to_vector,
     normalize_url,
-    extract_apex_domain,
     is_high_reputation_domain,
     # P3 new signals
     get_tld_risk_score,

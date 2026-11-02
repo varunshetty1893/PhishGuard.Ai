@@ -22,6 +22,7 @@ def client():
         yield c
 
 
+@pytest.mark.requires_ml_model
 def test_health_endpoint(client):
     res = client.get("/api/v1/health")
     assert res.status_code == 200
@@ -43,6 +44,7 @@ def test_model_info_endpoint(client):
     assert "feature_importances" in data
 
 
+@pytest.mark.requires_ml_model
 def test_scan_url_endpoint(client):
     target = "http://login.paypal.com.verify-account.security-update.xyz/signin"
     res = client.post("/api/v1/scan", json={"url": target})
@@ -62,6 +64,7 @@ def test_scan_url_endpoint(client):
     assert detail_res.json()["scan_id"] == scan_id
 
 
+@pytest.mark.requires_ml_model
 def test_scan_list_and_filters(client):
     # Perform two scans with distinct classes
     client.post("/api/v1/scan", json={"url": "http://paypal.verify-login.xyz/test"})
@@ -81,6 +84,7 @@ def test_scan_list_and_filters(client):
         assert item["predicted_class"] in ("Suspicious (unverified, ML only)", "Confirmed Phishing (known blocklist)", "Phishing")
 
 
+@pytest.mark.requires_ml_model
 def test_analytics_endpoint(client):
     client.post("/api/v1/scan", json={"url": "https://example.com/analyticstest"})
     res = client.get("/api/v1/analytics")
@@ -93,6 +97,7 @@ def test_analytics_endpoint(client):
     assert len(data["classification_distribution"]) == 2
 
 
+@pytest.mark.requires_ml_model
 def test_export_csv_endpoint(client):
     client.post("/api/v1/scan", json={"url": "https://example.com/exporttest"})
     res = client.get("/api/v1/scans/export")
@@ -101,6 +106,7 @@ def test_export_csv_endpoint(client):
     assert "Scan ID,Submitted URL" in res.text
 
 
+@pytest.mark.requires_ml_model
 def test_delete_individual_and_clear_scans(client):
     # Scan a URL to delete
     res = client.post("/api/v1/scan", json={"url": "https://delete-me-test.org"})

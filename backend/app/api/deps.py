@@ -1,4 +1,4 @@
-﻿from typing import Optional, Tuple
+from typing import Optional, Tuple
 from fastapi import Depends, HTTPException, Request, status
 from sqlalchemy.orm import Session
 
@@ -67,7 +67,7 @@ def verify_csrf(
     """
     _, session_record = auth_data
     cookie_token = request.cookies.get(settings.SESSION_COOKIE_NAME)
-    
+
     # Only enforce CSRF if authenticated via browser cookie
     if cookie_token:
         csrf_header = request.headers.get("X-CSRF-Token")

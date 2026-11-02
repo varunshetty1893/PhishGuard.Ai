@@ -24,7 +24,7 @@ class ScanHistory(Base):
 
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     scan_id = Column(String(36), unique=True, index=True, nullable=False)
-    
+
     # Ownership: Every scan is strictly bound to the authenticated user's account
     user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), index=True, nullable=True)
 
@@ -33,11 +33,11 @@ class ScanHistory(Base):
     predicted_class = Column(String(60), nullable=False)  # Legitimate / Confirmed Phishing (known blocklist) / Suspicious (unverified, ML only)
     risk_level = Column(String(20), nullable=False)       # Low Risk / Suspicious / High Risk
     model_score = Column(Float, nullable=True)            # 0.0 - 1.0 probability
-    
+
     # JSON-encoded fields
     extracted_features_json = Column(Text, nullable=False)
     suspicious_reasons_json = Column(Text, nullable=True)
-    
+
     combined_interpretation = Column(Text, nullable=False)
     model_version = Column(String(20), nullable=False, default="2.1.0")
     created_at = Column(DateTime, default=utc_now, index=True, nullable=False)
@@ -109,7 +109,7 @@ class ModelMetadata(Base):
     total_samples = Column(Integer, nullable=False)
     train_samples = Column(Integer, nullable=False)
     test_samples = Column(Integer, nullable=False)
-    
+
     # JSON-encoded metrics
     evaluation_metrics_json = Column(Text, nullable=False)
     confusion_matrix_json = Column(Text, nullable=False)

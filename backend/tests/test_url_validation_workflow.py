@@ -1,6 +1,6 @@
-﻿import sys, os
+import sys
+import os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-import json
 from fastapi.testclient import TestClient
 from app.main import app
 from app.db.session import SessionLocal
@@ -68,7 +68,7 @@ def run_tests():
     for bad_url, description in rejection_cases:
         res = client.post("/api/v1/scan", json={"url": bad_url}, headers=headers)
         assert res.status_code == 422, f"Expected 422 for {bad_url} ({description}), got {res.status_code}: {res.text}"
-        error_detail = res.json()["detail"]
+        _ = res.json()["detail"]
         print(f" [PASS] Rejected: '{bad_url}' [{description}] -> 422 Unprocessable Entity")
 
     # 4. Test Legitimate External URL

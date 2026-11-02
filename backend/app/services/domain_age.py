@@ -16,7 +16,7 @@ CACHE_EXPIRY_DAYS = 7
 class DomainAgeService:
     """
     Asynchronous RDAP-based domain age verification service with SQLite caching.
-    
+
     Adheres strictly to the fail-open security principle:
     - Failures, timeouts, or unknown domains return age_days = None.
     - Unknown age NEVER raises the risk score or flags the URL as suspicious.
@@ -73,7 +73,7 @@ class DomainAgeService:
                     checked_at = cached.checked_at
                     if checked_at.tzinfo is None:
                         checked_at = checked_at.replace(tzinfo=timezone.utc)
-                    
+
                     if (now - checked_at).days < CACHE_EXPIRY_DAYS:
                         return cached.age_days, "cache_hit"
             except Exception as e:

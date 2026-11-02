@@ -1,4 +1,4 @@
-﻿import uuid
+import uuid
 import pytest
 from fastapi.testclient import TestClient
 from app.main import app
@@ -118,7 +118,7 @@ def test_session_restoration_and_logout(client):
     login_res = client.post("/api/v1/auth/login", json={"email": email, "password": pwd})
     assert login_res.status_code == 200
     csrf_token = login_res.json()["csrf_token"]
-    
+
     # Restore session via /auth/me
     me_res = client.get("/api/v1/auth/me")
     assert me_res.status_code == 200

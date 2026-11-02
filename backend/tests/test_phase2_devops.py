@@ -12,11 +12,8 @@ Tests:
    file on disk is a Git LFS pointer (unit-tested via direct function call).
 5. Metadata sync keys: model_metadata.json real keys are correctly mapped.
 """
-import os
 import pytest
 from unittest.mock import patch, MagicMock
-from fastapi.testclient import TestClient
-from app.main import app
 from app.services.ml_inference import MLInferenceService
 
 
@@ -77,6 +74,7 @@ def test_decision_threshold_key_takes_priority():
 
 # ── 3. Health endpoint — normal (model loaded) ────────────────────────────────
 
+@pytest.mark.requires_ml_model
 def test_health_endpoint_model_loaded(client):
     """
     /api/v1/health must return model_loaded=true when model is properly loaded.

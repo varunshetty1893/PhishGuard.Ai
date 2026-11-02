@@ -1,7 +1,6 @@
 import asyncio
 import logging
 import sqlite3
-import tempfile
 import time
 from pathlib import Path
 from typing import Dict, Optional, Tuple
