@@ -82,9 +82,10 @@ def test_health_endpoint_model_loaded(client):
     res = client.get("/api/v1/health")
     assert res.status_code == 200
     data = res.json()
-    assert data["model_loaded"] is True
-    assert "model_load_error" not in data
-    assert data["model_version"] != "unknown"
+    # new nested shape: data["ml_model"]["loaded"]
+    assert data["ml_model"]["loaded"] is True
+    assert "load_error" not in data["ml_model"]
+    assert data["ml_model"]["model_version"] != "unknown"
 
 
 # ── 4. Health endpoint — LFS pointer detected ─────────────────────────────────
@@ -113,12 +114,13 @@ def test_health_endpoint_lfs_pointer_reported(tmp_path):
     try:
         result = health_mod.get_health(db=mock_db)
 
-        assert "model_load_error" in result, (
-            f"Expected model_load_error in result: {result}"
+        # new nested shape: load_error lives inside ml_model
+        assert "load_error" in result["ml_model"], (
+            f"Expected ml_model.load_error in result: {result}"
         )
-        assert "git lfs pull" in result["model_load_error"].lower(), result
-        assert result["model_loaded"] is False, (
-            f"Expected model_loaded=False when LFS pointer detected, got: {result}"
+        assert "git lfs pull" in result["ml_model"]["load_error"].lower(), result
+        assert result["ml_model"]["loaded"] is False, (
+            f"Expected ml_model.loaded=False when LFS pointer detected, got: {result}"
         )
     finally:
         health_mod._MODEL_PATH = original_path

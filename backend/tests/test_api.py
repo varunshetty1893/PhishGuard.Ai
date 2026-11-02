@@ -28,9 +28,10 @@ def test_health_endpoint(client):
     assert res.status_code == 200
     data = res.json()
     assert data["status"] == "healthy"
-    assert data["database"] == "connected"
-    assert data["ml_model_loaded"] is True
-    assert "model_version" in data
+    # database is now a nested dict; check both new and legacy paths
+    assert data["database"]["status"] == "connected"
+    assert data["ml_model"]["ml_model_loaded"] is True
+    assert data["ml_model"]["model_version"] != "unknown"
 
 
 def test_model_info_endpoint(client):
