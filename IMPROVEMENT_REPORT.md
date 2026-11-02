@@ -118,3 +118,4 @@ All numbers measured from direct evaluation script executions (`ml/eval_baseline
 ## 5. Items Not Verified / Blocked
 
 - **None.** All requested phases (Security, DevOps & Reproducibility, Detection Quality) have been fully implemented, tested, measured, and committed to git.
+

@@ -74,3 +74,4 @@ for url, desc in test_cases:
     old_kw = 1 if any(kw in url.lower() for kw in SUSPICIOUS_KEYWORDS) else 0
     new_kw = conditional_keyword_flag(url)
     print(f"{desc:<25} | Old kw: {old_kw} | New kw: {new_kw} | URL: {url}")
+
