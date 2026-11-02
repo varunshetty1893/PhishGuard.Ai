@@ -18,12 +18,20 @@ from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_sc
 ROOT = Path(r"d:\git projects\phishing url detector")
 sys.path.insert(0, str(ROOT / "backend"))
 
-from app.ml.feature_extraction_v2 import (
-    FEATURE_NAMES, normalize_url, extract_apex_domain,
-    get_tld_risk_score, check_brand_lookalike, check_brand_in_subdomain,
-    has_punycode, hostname_entropy, is_valid_ip, is_hsts_enforced_domain,
-    count_subdomains, DISALLOWED_SHARED_PLATFORMS, SUSPICIOUS_KEYWORDS
-)
+try:
+    from backend.app.ml.feature_extraction_v2 import (
+        FEATURE_NAMES, normalize_url, extract_apex_domain,
+        get_tld_risk_score, check_brand_lookalike, check_brand_in_subdomain,
+        has_punycode, hostname_entropy, is_valid_ip, is_hsts_enforced_domain,
+        count_subdomains, DISALLOWED_SHARED_PLATFORMS, SUSPICIOUS_KEYWORDS
+    )
+except ImportError:
+    from app.ml.feature_extraction_v2 import (
+        FEATURE_NAMES, normalize_url, extract_apex_domain,
+        get_tld_risk_score, check_brand_lookalike, check_brand_in_subdomain,
+        has_punycode, hostname_entropy, is_valid_ip, is_hsts_enforced_domain,
+        count_subdomains, DISALLOWED_SHARED_PLATFORMS, SUSPICIOUS_KEYWORDS
+    )
 
 DATA_PATH = ROOT / "ml" / "data" / "dataset_v4_curated.csv"
 LONGTAIL_CSV = ROOT / "ml" / "reports" / "longtail_legit_eval_results.csv"
@@ -87,7 +95,10 @@ def extract_features_v5(raw_url: str):
         float(special_char_ratio)
     ]
 
-from train_v5_candidate import HARD_NEGATIVE_SSO
+try:
+    from ml.train_v5_candidate import HARD_NEGATIVE_SSO
+except ImportError:
+    from train_v5_candidate import HARD_NEGATIVE_SSO
 
 def main():
     df = pd.read_csv(DATA_PATH)
