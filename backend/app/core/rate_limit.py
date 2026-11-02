@@ -157,3 +157,48 @@ class AuthRateLimiter:
 
 auth_rate_limiter = AuthRateLimiter()
 
+
+class ScanRateLimiter:
+    """
+    Sliding-window rate limiter for the /api/v1/scan endpoint.
+    Prevents denial-of-service, CPU exhaustion, and socket starvation.
+    Default policy: 60 requests per 60-second window per client.
+    """
+    def __init__(self, max_requests: int = 60, window_seconds: int = 60):
+        self.max_requests = max_requests
+        self.window_seconds = window_seconds
+        self._lock = threading.Lock()
+        self._history: Dict[str, List[float]] = {}
+
+    def _cleanup_window(self, timestamps: List[float], now: float) -> List[float]:
+        cutoff = now - self.window_seconds
+        return [ts for ts in timestamps if ts > cutoff]
+
+    def check_scan_rate_limit(self, key: str, current_time: float = None) -> None:
+        now = current_time if current_time is not None else time.time()
+        clean_key = (key or "unknown").strip().lower()
+
+        with self._lock:
+            history = self._cleanup_window(self._history.get(clean_key, []), now)
+            self._history[clean_key] = history
+
+            if len(history) >= self.max_requests:
+                oldest_ts = history[0] if history else now
+                retry_after = max(1, int(self.window_seconds - (now - oldest_ts)))
+                raise HTTPException(
+                    status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+                    detail=f"Scan rate limit exceeded ({self.max_requests} req/{self.window_seconds}s). Retry after {retry_after} seconds.",
+                    headers={"Retry-After": str(retry_after)}
+                )
+
+            history.append(now)
+            self._history[clean_key] = history
+
+    def reset(self) -> None:
+        with self._lock:
+            self._history.clear()
+
+
+scan_rate_limiter = ScanRateLimiter()
+
+

@@ -1,3 +1,4 @@
+import ipaddress
 import logging
 from datetime import datetime, timezone
 from typing import Optional, Tuple, Dict, Any
@@ -22,6 +23,7 @@ class DomainAgeService:
     - Unknown age NEVER raises the risk score or flags the URL as suspicious.
     - Domains < 30 days old provide a strong suspicious signal.
     - Domains > 730 days (2 years) old provide reputation dampening (reduces suspicion).
+    - Enforces SSRF protection: never queries RDAP for IPs or internal/loopback hosts.
     """
 
     @staticmethod
@@ -58,11 +60,21 @@ class DomainAgeService:
         """
         Retrieves domain age in days.
         Returns: (age_days: Optional[int], status: str)
-        status: "cache_hit" | "live_lookup" | "not_found" | "timeout" | "error"
+        status: "cache_hit" | "live_lookup" | "not_found" | "timeout" | "error" | "invalid_domain"
         """
         clean_domain = domain.strip().lower().rstrip(".")
         if not clean_domain or "." not in clean_domain:
             return None, "invalid_domain"
+
+        # SSRF Protection: Reject IPs or internal/local domains from querying RDAP
+        if clean_domain == "localhost" or any(clean_domain.endswith(s) for s in (".local", ".internal", ".localhost", ".lan")):
+            return None, "invalid_domain"
+
+        try:
+            ipaddress.ip_address(clean_domain)
+            return None, "invalid_domain"
+        except ValueError:
+            pass
 
         # 1. Check SQLite 7-day cache
         if db is not None:

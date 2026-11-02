@@ -5,7 +5,7 @@ import socket
 import uuid
 from typing import Optional, Tuple
 from urllib.parse import urlparse
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 from sqlalchemy.orm import Session, selectinload
 from sqlalchemy import desc
 
@@ -24,6 +24,8 @@ from app.services.ml_inference import MLInferenceService
 from app.services.threat_intel import ThreatIntelAggregator
 from app.services.domain_age import DomainAgeService
 from app.api.deps import get_current_user, verify_csrf
+from app.core.security_validation import validate_url_security, is_prohibited_ip, INTERNAL_DOMAIN_SUFFIXES
+from app.core.rate_limit import scan_rate_limiter
 
 logger = logging.getLogger("phishguard.scan")
 router = APIRouter()
@@ -40,20 +42,35 @@ PROVIDER_LABELS = {
 async def check_domain_dns(hostname: str) -> Tuple[Optional[bool], Optional[str]]:
     """
     Asynchronously checks whether domain resolves via DNS.
+    Enforces SSRF prevention: validates that resolved IP is public.
     Returns (exists, detail).
-    True = resolved, False = NXDOMAIN / host not found, None = timeout / inconclusive.
+    True = resolved, False = NXDOMAIN or internal IP (SSRF blocked), None = timeout / inconclusive.
     """
     if not hostname:
         return True, "No hostname"
     clean = hostname.split(":")[0].strip().rstrip(".")
-    # If IPv4 address or localhost, DNS resolution is not applicable
-    if re.match(r"^\d{1,3}(\.\d{1,3}){3}$", clean) or clean in ("localhost", "127.0.0.1"):
-        return True, "IP address destination"
+
+    if clean.lower() == "localhost" or any(clean.lower().endswith(s) for s in INTERNAL_DOMAIN_SUFFIXES):
+        return False, "Destination targets internal/local infrastructure (SSRF prohibited)."
+
+    if is_prohibited_ip(clean):
+        return False, f"Destination IP '{clean}' is an internal/private address (SSRF prohibited)."
+
+    # If public raw IP address, DNS resolution is not applicable
     try:
-        await asyncio.wait_for(
+        socket.inet_aton(clean)
+        return True, "Public IP address destination"
+    except socket.error:
+        pass
+
+    try:
+        resolved_ip = await asyncio.wait_for(
             asyncio.to_thread(socket.gethostbyname, clean),
             timeout=1.5
         )
+        if is_prohibited_ip(resolved_ip):
+            logger.warning(f"SSRF Shield: Domain '{clean}' resolved to prohibited IP '{resolved_ip}'.")
+            return False, f"Domain resolves to private/internal IP address ({resolved_ip}) - blocked by SSRF policy."
         return True, "Domain resolves in public DNS."
     except socket.gaierror as e:
         return False, f"Domain does not resolve in public DNS (NXDOMAIN): {e}"
@@ -69,6 +86,7 @@ async def check_domain_dns(hostname: str) -> Tuple[Optional[bool], Optional[str]
 )
 async def scan_url(
     request: ScanRequest,
+    http_req: Request,
     current_user: User = Depends(get_current_user),
     _csrf: None = Depends(verify_csrf),
     db: Session = Depends(get_db)
@@ -80,6 +98,19 @@ async def scan_url(
     Never accepts trusted user_id from frontend.
     """
     raw_url = request.url
+
+    # 0. Enforce SSRF and Scheme Security Validation
+    is_safe, error_reason = validate_url_security(raw_url)
+    if not is_safe:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Security Policy Rejection: {error_reason}"
+        )
+
+    # 0.1 Enforce Rate Limiting
+    client_ip = http_req.client.host if http_req.client else "unknown"
+    rate_key = f"user:{current_user.id}" if current_user and hasattr(current_user, "id") else f"ip:{client_ip}"
+    scan_rate_limiter.check_scan_rate_limit(rate_key)
 
     # 1. Run Machine Learning Inference (Offline, in-memory, zero outbound crawl)
     try:
