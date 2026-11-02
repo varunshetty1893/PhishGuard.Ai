@@ -43,6 +43,14 @@ class MLInferenceService:
                 raise FileNotFoundError(
                     f"Machine learning model artifact not found at: {MODEL_PATH}."
                 )
+            # LFS pointer guard: detect un-pulled Git LFS pointers (133-byte stub)
+            with open(MODEL_PATH, "rb") as _fh:
+                _header = _fh.read(30)
+            if _header.startswith(b"version https://git-lfs"):
+                raise RuntimeError(
+                    "Model is a Git LFS pointer — run `git lfs pull` to download the "
+                    "actual model artifact before starting the server."
+                )
             loaded = joblib.load(MODEL_PATH)
             if isinstance(loaded, dict) and "model" in loaded:
                 cls._model = loaded["model"]
@@ -222,7 +230,17 @@ class MLInferenceService:
 
         else:
             is_verified_domain = False
-            threshold = float(cls.get_metadata().get("optimal_threshold", 0.64))
+            # Read decision_threshold from metadata (fall back to optimal_threshold for older artifacts)
+            threshold_raw = (
+                cls.get_metadata().get("decision_threshold")
+                or cls.get_metadata().get("optimal_threshold")
+            )
+            if threshold_raw is None:
+                raise RuntimeError(
+                    "model_metadata.json is missing both 'decision_threshold' and "
+                    "'optimal_threshold'. Cannot perform inference without a calibrated threshold."
+                )
+            threshold = float(threshold_raw)
             n_signals = len(suspicious_reasons)
 
             only_unencrypted_http = (

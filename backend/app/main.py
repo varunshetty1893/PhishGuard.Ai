@@ -35,6 +35,7 @@ async def lifespan(app: FastAPI):
         logger.info(f"ML Model loaded: {meta.get('algorithm', 'Random Forest')} (v{meta.get('model_version')})")
 
         # Sync metadata into database if not present
+        # Key mapping: model_metadata.json uses the keys below; old code used wrong keys.
         db = SessionLocal()
         try:
             existing = db.query(ModelMetadata).filter(ModelMetadata.model_version == meta.get("model_version", "1.0.0")).first()
@@ -43,11 +44,23 @@ async def lifespan(app: FastAPI):
                     model_version=meta.get("model_version", "1.0.0"),
                     algorithm=meta.get("algorithm", "Random Forest Classifier"),
                     dataset_name=meta.get("dataset_name", "PhishGuard Threat Intelligence Benchmark"),
-                    total_samples=meta.get("total_samples", 5000),
-                    train_samples=meta.get("train_samples", 4000),
-                    test_samples=meta.get("test_samples", 1000)
+                    # Use real keys from model_metadata.json (not the old wrong keys)
+                    total_samples=(
+                        meta.get("training_samples", 0)
+                        + meta.get("validation_samples", 0)
+                        + meta.get("test_samples", 0)
+                    ) or meta.get("total_samples", 0),
+                    train_samples=meta.get("training_samples", meta.get("train_samples", 0)),
+                    test_samples=meta.get("test_samples", 0)
                 )
-                record.evaluation_metrics = meta.get("evaluation_metrics", {})
+                # Build evaluation_metrics dict from top-level keys in metadata
+                record.evaluation_metrics = {
+                    k: meta[k]
+                    for k in ("test_accuracy", "test_precision", "test_recall",
+                              "test_fpr", "test_f1", "test_roc_auc",
+                              "decision_threshold")
+                    if k in meta
+                }
                 record.confusion_matrix = meta.get("confusion_matrix", {})
                 record.feature_schema = meta.get("feature_schema", [])
                 record.feature_importances = meta.get("feature_importances", {})

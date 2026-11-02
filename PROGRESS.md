@@ -7,7 +7,7 @@
 - **Technology Stack:**
   - Backend: Python 3.12, FastAPI, SQLite, SQLAlchemy, Scikit-learn, Pandas, NumPy, Joblib
   - Frontend: React 18 / Vite, TypeScript, Tailwind CSS, Lucide React, Recharts
-  - Testing: Pytest, Vitest / React Testing Library
+  - Testing: Pytest 8.3.5 (47 backend tests), Vitest + React Testing Library (frontend)
 - **UI Aesthetic:** Pure black/charcoal foundation (#050505, #0A0A0A, #111111) with vibrant green (#39FF88), yellow (#FFD54A), and red (#FF525C) accents. ZERO blue or purple allowed.
 
 ---
@@ -26,6 +26,8 @@
 | **Phase 8** | Scan History, Analytics, and CSV Export | **COMPLETED** | Dynamic SQLite aggregation, paginated audit table, search, filters, and RFC 4180 streaming CSV export. |
 | **Phase 9** | End-to-End Automated Testing & Security Hardening | **COMPLETED** | 22/22 Pytest tests passing. Verified SSRF immunity, XSS sanitization, 2,048 char limit, and secret isolation. |
 | **Phase 10** | Academic Viva Prep & Final Acceptance Verification | **COMPLETED** | 25 detailed MCA viva questions & answers in `docs/VIVA_QUESTIONS.md`. Browser verified. |
+| **Hardening Phase 1** | Security Hardening | **COMPLETED** | Host-level allowlist, rate limiting, session-token hashing at rest, SECRET_KEY enforcement, security headers middleware, production hardening, error leakage fix, privacy controls. **42 → 47 backend tests passing.** |
+| **Hardening Phase 2** | DevOps & Reproducibility | **COMPLETED** | LFS guard, Docker named volume + healthchecks + non-root user, metadata key fixes, CI workflow (`.github/workflows/ci.yml`), `React.lazy` code splitting, Vitest + RTL frontend tests. **47 backend tests + frontend tests.** |
 
 ---
 
@@ -48,3 +50,24 @@
 - **Ablation Study (Prompt 6):** Benchmarked feature subsets and model architectures (Random Forest vs Logistic Regression vs Gradient Boosting). Found keywords drive 40% of false positives on legitimate login portals, and tree ensembles vastly outperform linear models.
 - **Allowlist Hardening (Prompt 7):** Stripped shared-hosting and cloud platforms (`amazonaws.com`, `windows.net`, `googleusercontent.com`, `github.io`, `firebaseapp.com`, `web.app`, `azurewebsites.net`) from `HIGH_REPUTATION_DOMAINS`. Added unit tests proving threat intelligence feeds always override allowlists.
 - **Honest UI & Documentation (Prompt 8):** Updated `/api/v1/model/info`, ML Lab page, `ResultsPage.tsx`, `ML_METHODOLOGY.md`, and archived v3 reports.
+
+## Hardening Phase 1 — Security (November 2026)
+- **Host-level allowlist:** Replaced apex-domain trust (`google.com`, `github.com`) with host-level exact match (`accounts.google.com`, `www.google.com`, `www.paypal.com`, etc.). User-content hosts (`docs.google.com/forms`, `sites.google.com`, `*.github.io`) get no automatic trust and are fully ML-scored.
+- **Login rate limiting:** `AuthRateLimiter` class with 5-failure / 15-minute sliding window per IP+email. HTTP 429 with `Retry-After` header on breach.
+- **Session token hashing at rest:** SHA-256 (HMAC with SECRET_KEY) of raw token stored in `user_sessions` table. Raw token only in cookie. Alembic migration included.
+- **SECRET_KEY enforcement:** Startup raises `ValueError` in production if `SECRET_KEY` is missing.
+- **Security headers middleware:** CSP, X-Content-Type-Options, X-Frame-Options, Referrer-Policy, HSTS (when `COOKIE_SECURE=true`). Also added to nginx config in `frontend/Dockerfile`.
+- **Production hardening:** `/docs` and `/redoc` disabled when `ENVIRONMENT=production`. `COOKIE_SECURE` defaults to `true` in production. CSRF token required on `/auth/logout`.
+- **Error leakage fix:** `scan.py` no longer returns `str(e)` to clients. Server logs the full error with a UUID request ID; client receives only the request ID and a generic message.
+- **Privacy controls:** PhishDestroy receives only the hostname (not full URL). Google Safe Browsing strips query string and fragment. `ENABLE_THIRD_PARTY_LOOKUPS=false` disables all external feeds. `docs/PRIVACY.md` documents exactly what is sent to each service.
+- **Test count:** 42 → 47 backend tests (5 new tests for Phase 1 behaviors).
+
+## Hardening Phase 2 — DevOps & Reproducibility (November 2026)
+- **LFS guard:** `MLInferenceService.load()` detects Git LFS pointer stub and raises `RuntimeError("Model is a Git LFS pointer — run git lfs pull")`. `/api/v1/health` reports `model_loaded: false` with the reason.
+- **Docker:** Named volume `phishguard-db-data` replaces file bind-mount. Healthcheck on backend (10s interval). `depends_on: condition: service_healthy`. Non-root user `phishguard:phishguard` (uid 1001). `.dockerignore` excludes `*.db`, `.env`, `node_modules/`, `.git/`, test artifacts. All secrets env-driven (`SECRET_KEY`, `ENVIRONMENT`, `COOKIE_SECURE`, `ALLOWED_ORIGINS`, `DATABASE_URL`).
+- **Metadata bug fixes:** `ml_inference.py` now reads `decision_threshold` (falls back to `optimal_threshold`; raises `RuntimeError` if neither is present — no more hard-coded 0.64). `main.py` metadata sync uses real keys (`training_samples`, `validation_samples`, `test_samples`, `test_accuracy`, `test_f1`, `decision_threshold`, `confusion_matrix`).
+- **CI:** `.github/workflows/ci.yml` runs backend `ruff` lint + `pytest` (SQLite env override) and frontend `tsc` + `npm build` on every push/PR.
+- **Dataset docs:** `ml/data/PROVENANCE.md` updated to reflect that `dataset.csv` IS committed in LFS (consistent with `.gitattributes`).
+- **Frontend code splitting:** `App.tsx` uses `React.lazy()` + `<Suspense>` for all 9 page routes, eliminating the ~790 KB monolithic bundle warning.
+- **Frontend tests:** Vitest + React Testing Library added. Tests: `urlValidator.test.ts` (15 cases), `AuthContext.test.tsx` (5 cases), `ScannerPage.test.tsx` (6 cases).
+- **Backend test count:** 47 tests, all passing.

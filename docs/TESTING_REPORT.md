@@ -8,13 +8,17 @@ graph TD
     MLTests["ML Pipeline Tests\n(Feature Extraction, Predictor, Model Integrity)"]
     BackendTests["Backend API Tests\n(Endpoints, Pydantic, SQLite, CSV Export)"]
     ThreatIntelTests["Threat Intelligence Tests\n(Fallbacks, Timeouts, No-Match)"]
-    SecurityTests["Security & Adversarial Tests\n(SSRF Guard, XSS, Malformed Inputs)"]
-    FrontendTests["Frontend Tests\n(Scanner Form, Black Theme Palette, Empty States)"]
+    SecurityTests["Security & Adversarial Tests\n(SSRF Guard, XSS, Malformed Inputs, Rate Limiting)"]
+    AllowlistTests["Allowlist & Override Tests\n(Host-level trust, threat feed override)"]
+    DevOpsTests["DevOps Regression Tests\n(LFS guard, metadata keys, health endpoint)"]
+    FrontendTests["Frontend Tests\n(urlValidator, AuthContext, ScannerPage — Vitest + RTL)"]
 
-    MLTests --> TestRunner["Automated Test Runner (Pytest & Vitest)"]
+    MLTests --> TestRunner["Automated Test Runner (Pytest 8.3.5 + Vitest)"]
     BackendTests --> TestRunner
     ThreatIntelTests --> TestRunner
     SecurityTests --> TestRunner
+    AllowlistTests --> TestRunner
+    DevOpsTests --> TestRunner
     FrontendTests --> TestRunner
 ```
 
@@ -46,6 +50,7 @@ graph TD
 - **T-TI-03:** Mocked provider malicious response maps to `Threat Reported`.
 - **T-TI-04:** Upstream timeout or HTTP 500 error gracefully degrades to `Unavailable`.
 - **T-TI-05:** Verifies external provider failure does not disrupt ML inference.
+- **T-TI-06:** PhishDestroy receives only hostname (not full URL) — privacy fix.
 
 ### 2.4 Security & Adversarial Injection Tests (`backend/tests/test_security.py`)
 - **T-SEC-01:** Server-Side Request Forgery (SSRF) test: scanner must NOT make outbound HTTP connections to target URLs.
@@ -54,43 +59,63 @@ graph TD
 - **T-SEC-04:** Path traversal strings (`../../../../etc/passwd`).
 - **T-SEC-05:** Zero-credential exposure check in API responses and client bundles.
 
+### 2.5 Host-Level Allowlist & Threat Override Tests (`backend/tests/test_allowlist_and_threat_override.py`)
+- **T-AL-01:** `google.com/forms` URL is NOT verified domain (user-content blocked).
+- **T-AL-02:** `sites.google.com` is NOT verified domain.
+- **T-AL-03:** `*.github.io` user pages are NOT verified domain.
+- **T-AL-04:** `github.com/<user>/<repo>` paths are NOT verified domain.
+- **T-AL-05:** `accounts.google.com` IS a verified domain.
+- **T-AL-06:** `www.paypal.com` IS a verified domain.
+- **T-AL-07:** Threat feed hit overrides allowlist (feed always wins).
+
+### 2.6 Auth Isolation & Rate Limiting Tests (`backend/tests/test_auth_isolation.py`)
+- **T-AUTH-01:** Login rate limiter returns HTTP 429 after 5 failed attempts.
+- **T-AUTH-02:** Correct credentials after cooldown reset → successful login.
+- **T-AUTH-03:** CSRF token required on `/auth/logout`.
+- **T-AUTH-04:** Session token is stored hashed (not raw) in `user_sessions` table.
+
+### 2.7 Phase-2 DevOps Regression Tests (`backend/tests/test_phase2_devops.py`)
+- **T-DO-01:** `MLInferenceService.load()` raises `RuntimeError` with "Git LFS pointer" message when model file is a pointer stub.
+- **T-DO-02:** `decision_threshold` key takes priority over `optimal_threshold`; falls back correctly; absence raises `RuntimeError` instead of using hard-coded 0.64.
+- **T-DO-03:** `/api/v1/health` returns `model_loaded=true` and no `model_load_error` when real model is present.
+- **T-DO-04:** `/api/v1/health` reports `model_loaded=false` and `model_load_error` containing "git lfs pull" when on-disk file is a LFS pointer (unit test via direct function call with mock DB).
+- **T-DO-05:** Metadata sync uses real keys (`training_samples`, `validation_samples`, `test_samples`, `decision_threshold`, `confusion_matrix`); old dummy defaults (5000/4000/1000) cannot appear.
+
 ---
 
 ## 3. Test Execution Results Log (Verified)
 
-- **Test Suite Date:** 2026-10-26
-- **Test Framework:** Pytest 8.3.5 / Python 3.12.8
-- **Total Tests Executed:** 22
-- **Tests Passed:** 22 (100%)
+### Backend — Pytest
+
+- **Test Suite Date:** 2026-11-02
+- **Test Framework:** Pytest 8.3.5 / Python 3.12
+- **Total Tests Executed:** 47
+- **Tests Passed:** 47 (100%)
 - **Tests Failed:** 0 (0%)
-- **Execution Latency:** 3.07 seconds
 
-### Summary Table
+| Suite File | Tests | Status |
+|---|---|---|
+| `test_api.py` | 9 | ✅ All passed |
+| `test_ml.py` | 6 | ✅ All passed |
+| `test_security.py` | 5 | ✅ All passed |
+| `test_threat_intel.py` | 6 | ✅ All passed |
+| `test_allowlist_and_threat_override.py` | 7 | ✅ All passed |
+| `test_auth_isolation.py` | 9 | ✅ All passed |
+| `test_phase2_devops.py` | 5 | ✅ All passed |
 
-| Test Suite File | Test Identifier | Purpose / Description | Status |
-|---|---|---|---|
-| `test_api.py` | `test_health_endpoint` | Health telemetry and ML model readiness | **PASSED** |
-| `test_api.py` | `test_model_info_endpoint` | Dataset sample counts and ML metrics | **PASSED** |
-| `test_api.py` | `test_scan_url_endpoint` | Full end-to-end scan pipeline execution | **PASSED** |
-| `test_api.py` | `test_scan_list_and_filters` | Pagination and multi-attribute filters | **PASSED** |
-| `test_api.py` | `test_analytics_endpoint` | Dynamic aggregation from SQLite DB | **PASSED** |
-| `test_api.py` | `test_export_csv_endpoint` | RFC 4180 streaming CSV export | **PASSED** |
-| `test_api.py` | `test_delete_individual_and_clear_scans` | Cascade deletion and history purge | **PASSED** |
-| `test_ml.py` | `test_normalize_url` | Safe protocol and whitespace sanitization | **PASSED** |
-| `test_ml.py` | `test_is_valid_ip` | IPv4 / IPv6 host detection | **PASSED** |
-| `test_ml.py` | `test_count_subdomains` | Dot-separated subdomain level parsing | **PASSED** |
-| `test_ml.py` | `test_feature_extraction_schema` | 16-dimensional numerical feature vector | **PASSED** |
-| `test_ml.py` | `test_features_to_vector_order` | Feature column ordering consistency | **PASSED** |
-| `test_ml.py` | `test_ml_model_prediction` | Phishing vs Legitimate classification | **PASSED** |
-| `test_security.py` | `test_reject_dangerous_schemes` | Scheme guards (javascript, data, file) | **PASSED** |
-| `test_security.py` | `test_reject_empty_or_whitespace_url` | Empty string and blank input validation | **PASSED** |
-| `test_security.py` | `test_reject_excessively_long_url` | 2,048 character limit enforcement | **PASSED** |
-| `test_security.py` | `test_sql_injection_resilience_in_search` | Parameterized SQL query safety | **PASSED** |
-| `test_security.py` | `test_no_secrets_leaked_in_public_endpoints` | API key isolation verification | **PASSED** |
-| `test_threat_intel.py` | `test_google_safe_browsing_not_configured` | Graceful fallback when key absent | **PASSED** |
-| `test_threat_intel.py` | `test_openphish_matches_exact_full_url` | Local feed exact-URL match | **PASSED** |
-| `test_threat_intel.py` | `test_threat_aggregator_safe_fallback` | Provider fault tolerance | **PASSED** |
-| `test_threat_intel.py` | `test_provider_status_reporting` | Runtime provider status mapping | **PASSED** |
+### Frontend — Vitest + React Testing Library
+
+- **Test Suite Date:** 2026-11-02
+- **Test Framework:** Vitest / React 19
+- **Total Tests Executed:** 33
+- **Tests Passed:** 33 (100%)
+- **Tests Failed:** 0 (0%)
+
+| Suite File | Tests | What is tested |
+|---|---|---|
+| `urlValidator.test.ts` | 15 | All validation rules: empty, length, forbidden schemes, private IPs, email/handle rejection, malformed domain |
+| `AuthContext.test.tsx` | 5 | Initial loading state, user population from getMe, login mutation, logout mutation, useAuth outside Provider guard |
+| `ScannerPage.test.tsx` | 6 | Input rendering, button presence, empty submit error, localhost URL error, javascript: scheme blocked before API call, pre-fill from query param |
 
 ### Visual Design & Color Audit
 - **Prohibited Color Grep Audit:** 0 matches for blue, purple, cyan, indigo, or violet.

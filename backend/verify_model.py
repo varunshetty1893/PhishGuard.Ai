@@ -1,6 +1,20 @@
-﻿import sys, os
-sys.path.insert(0, r"D:\git projects\phishing url detector\backend")
-os.chdir(r"D:\git projects\phishing url detector\backend")
+import sys
+import os
+from pathlib import Path
+
+# Set up backend import path portably
+BACKEND_DIR = Path(__file__).resolve().parent
+sys.path.insert(0, str(BACKEND_DIR))
+os.chdir(str(BACKEND_DIR))
+
+MODEL_PATH = BACKEND_DIR / "app" / "ml" / "artifacts" / "phishguard_rf_model.joblib"
+
+# Check for Git LFS pointer
+if MODEL_PATH.exists():
+    with open(MODEL_PATH, "rb") as fh:
+        header = fh.read(30)
+    if header.startswith(b"version https://git-lfs"):
+        raise RuntimeError("Model is a Git LFS pointer — run `git lfs pull`.")
 
 from app.services.ml_inference import MLInferenceService
 MLInferenceService.load()
@@ -18,8 +32,15 @@ test_urls = [
 ]
 
 meta = MLInferenceService.get_metadata()
+total_samples = (
+    meta.get("training_samples", 0)
+    + meta.get("validation_samples", 0)
+    + meta.get("test_samples", 0)
+)
 print("Model version:", meta.get("model_version"))
-print("Total training samples:", meta.get("total_samples"))
+print("Total training samples:", meta.get("training_samples", meta.get("total_samples")))
+print("Total samples (train+val+test):", total_samples)
+print("Decision threshold:", meta.get("decision_threshold"))
 
 for u in test_urls:
     res = MLInferenceService.predict(u)

@@ -1,4 +1,9 @@
-﻿version: '3.8'
+version: '3.8'
+
+volumes:
+  # Named volume for SQLite database — avoids creating an empty directory
+  # when the file does not yet exist (which a bare bind-mount would do).
+  phishguard-db-data:
 
 services:
   backend:
@@ -9,13 +14,22 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - ENVIRONMENT=production
-      - COOKIE_SECURE=false
-      - DATABASE_URL=sqlite:///./phishguard.db
-      - URLHAUS_AUTH_KEY=${URLHAUS_AUTH_KEY:-}
+      - ENVIRONMENT=${ENVIRONMENT:-production}
+      - COOKIE_SECURE=${COOKIE_SECURE:-true}
+      - SECRET_KEY=${SECRET_KEY}
+      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS:-http://localhost:80}
+      - DATABASE_URL=${DATABASE_URL:-sqlite:////data/phishguard.db}
       - GOOGLE_SAFE_BROWSING_API_KEY=${GOOGLE_SAFE_BROWSING_API_KEY:-}
+      - URLHAUS_AUTH_KEY=${URLHAUS_AUTH_KEY:-}
+      - ENABLE_THIRD_PARTY_LOOKUPS=${ENABLE_THIRD_PARTY_LOOKUPS:-true}
     volumes:
-      - ./backend/phishguard.db:/app/phishguard.db
+      - phishguard-db-data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
     restart: unless-stopped
 
   frontend:
@@ -26,5 +40,6 @@ services:
     ports:
       - "80:80"
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
     restart: unless-stopped
