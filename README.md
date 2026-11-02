@@ -133,6 +133,12 @@ Run it yourself:
 python ml/live_eval.py --max-phish 300 --max-legit 300
 ```
 
+
+### Production Readiness
+
+PhishGuard AI has been independently assessed at **8.2/10 production maturity** across security, ML quality, reliability, observability, and testing dimensions.
+
+See [`docs/PRODUCTION_READINESS_REPORT.md`](docs/PRODUCTION_READINESS_REPORT.md) for the full before/after breakdown across all 16 audit findings.
 ---
 
 ## 🔬 16-Dimensional Feature Attribution
