@@ -6,8 +6,6 @@ import {
   AlertTriangle,
   ArrowLeft,
   RotateCcw,
-  Copy,
-  Check,
   Clock,
   Shield,
   CheckCircle2,
@@ -34,7 +32,6 @@ export const ResultsPage: React.FC = () => {
   );
   const [loading, setLoading] = useState<boolean>(!result && !!scanId);
   const [error, setError] = useState<string>('');
-  const [copied, setCopied] = useState<boolean>(false);
 
   useEffect(() => {
     if (!result && scanId) {
@@ -56,12 +53,6 @@ export const ResultsPage: React.FC = () => {
       setError('No scan ID provided in URL.');
     }
   }, [scanId, result]);
-
-  const handleCopy = () => {
-    navigator.clipboard.writeText(window.location.href);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
 
   if (loading) {
     return (
@@ -300,13 +291,6 @@ export const ResultsPage: React.FC = () => {
         </button>
 
         <div className="flex items-center gap-2">
-          <button
-            onClick={handleCopy}
-            className="px-2.5 py-1.5 rounded bg-[#111111] hover:bg-[#181818] border border-[#292929] hover:border-[#39FF88] text-xs text-[#F5F5F5] flex items-center gap-1.5 transition-colors"
-          >
-            {copied ? <Check className="w-3.5 h-3.5 text-[#39FF88]" /> : <Copy className="w-3.5 h-3.5" />}
-            <span>{copied ? 'Copied' : 'Share Report'}</span>
-          </button>
           <Link
             to="/scanner"
             className="px-3 py-1.5 rounded bg-[#39FF88] hover:bg-[#16C96A] text-[#050505] font-semibold text-xs flex items-center gap-1.5 transition-colors"

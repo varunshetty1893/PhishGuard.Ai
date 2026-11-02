@@ -7,7 +7,8 @@ import {
   Cpu,
   Key,
   CheckCircle2,
-  GraduationCap
+  GraduationCap,
+  AlertTriangle
 } from 'lucide-react';
 import { api } from '../services/api';
 import type { HealthData } from '../types';
@@ -15,6 +16,7 @@ import type { HealthData } from '../types';
 export const SettingsPage: React.FC = () => {
   const [health, setHealth] = useState<HealthData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
   useEffect(() => {
     api.getHealth()
@@ -23,9 +25,17 @@ export const SettingsPage: React.FC = () => {
         setLoading(false);
       })
       .catch(() => {
+        setError(true);
         setLoading(false);
       });
   }, []);
+
+  const dbStatus = health?.database?.status ?? 'Unknown';
+  const dbOk = dbStatus === 'connected';
+  const mlLoaded = health?.ml_model?.loaded ?? false;
+  const mlVersion = health?.ml_model?.model_version ?? '—';
+  const mlAlgorithm = health?.ml_model?.algorithm ?? 'Random Forest';
+  const mlError = health?.ml_model?.load_error;
 
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-10">
@@ -52,24 +62,29 @@ export const SettingsPage: React.FC = () => {
 
         {loading ? (
           <div className="py-6 text-center text-xs text-[#A3A3A3]">Checking service health...</div>
+        ) : error ? (
+          <div className="py-4 flex items-center gap-2 text-xs text-[#FFD54A]">
+            <AlertTriangle className="w-4 h-4 shrink-0" />
+            <span>Could not reach the backend. Make sure the server is running on port 8000.</span>
+          </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
-            {/* System Status */}
+            {/* FastAPI Backend */}
             <div className="p-4 rounded bg-[#0A0A0A] border border-[#181818] space-y-1">
               <span className="text-[10px] text-[#A3A3A3] uppercase">FastAPI Backend</span>
               <div className="flex items-center gap-2 font-bold text-[#F5F5F5]">
                 <CheckCircle2 className="w-4 h-4 text-[#39FF88]" />
-                <span className="capitalize">{health?.status || 'Active'}</span>
+                <span className="capitalize">{health?.status ?? 'Active'}</span>
               </div>
               <p className="text-[10px] text-[#A3A3A3]">Port 8000 (Local Uvicorn)</p>
             </div>
 
             {/* Database Status */}
             <div className="p-4 rounded bg-[#0A0A0A] border border-[#181818] space-y-1">
-              <span className="text-[10px] text-[#A3A3A3] uppercase">SQLite Persistence</span>
+              <span className="text-[10px] text-[#A3A3A3] uppercase">Database</span>
               <div className="flex items-center gap-2 font-bold text-[#F5F5F5]">
-                <Database className="w-4 h-4 text-[#39FF88]" />
-                <span className="capitalize">{health?.database || 'Connected'}</span>
+                <Database className={`w-4 h-4 ${dbOk ? 'text-[#39FF88]' : 'text-[#FFD54A]'}`} />
+                <span className="capitalize">{dbStatus}</span>
               </div>
               <p className="text-[10px] text-[#A3A3A3]">SQLAlchemy 2.0 ORM Engine</p>
             </div>
@@ -78,10 +93,12 @@ export const SettingsPage: React.FC = () => {
             <div className="p-4 rounded bg-[#0A0A0A] border border-[#181818] space-y-1">
               <span className="text-[10px] text-[#A3A3A3] uppercase">ML Model Engine</span>
               <div className="flex items-center gap-2 font-bold text-[#F5F5F5]">
-                <Cpu className="w-4 h-4 text-[#39FF88]" />
-                <span>Loaded (v{health?.model_version || '1.0.0'})</span>
+                <Cpu className={`w-4 h-4 ${mlLoaded ? 'text-[#39FF88]' : 'text-[#FFD54A]'}`} />
+                <span>{mlLoaded ? `Loaded (v${mlVersion})` : 'Not Loaded'}</span>
               </div>
-              <p className="text-[10px] text-[#39FF88]">Random Forest Active</p>
+              <p className={`text-[10px] ${mlLoaded ? 'text-[#39FF88]' : 'text-[#A3A3A3]'}`}>
+                {mlLoaded ? mlAlgorithm : (mlError ?? 'Model artifact unavailable')}
+              </p>
             </div>
           </div>
         )}

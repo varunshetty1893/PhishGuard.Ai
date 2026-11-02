@@ -11,10 +11,9 @@ import time
 router = APIRouter()
 
 _MODEL_PATH = os.path.join(
-    os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
     "ml", "artifacts", "phishguard_rf_model.joblib"
 )
-
 # Module-level startup timestamp for uptime calculation
 _START_TIME = time.monotonic()
 

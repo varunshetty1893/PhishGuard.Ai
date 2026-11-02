@@ -37,3 +37,4 @@ def downgrade() -> None:
 
     with op.batch_alter_table('user_sessions') as batch_op:
         batch_op.alter_column('user_agent', existing_type=sa.String(500), type_=sa.String(255), existing_nullable=True)
+

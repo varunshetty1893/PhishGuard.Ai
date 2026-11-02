@@ -1,4 +1,4 @@
-export interface ExtractedFeatures {
+﻿export interface ExtractedFeatures {
   url_length: number;
   hostname_length: number;
   path_length: number;
@@ -151,11 +151,24 @@ export interface ModelMetadata {
 
 export interface HealthData {
   status: string;
-  database: string;
-  ml_model_loaded: boolean;
-  model_version: string;
-  threat_providers?: Record<string, string>;
+  uptime_seconds?: number;
   timestamp: string;
+  database: {
+    status: string;
+    latency_ms?: number | null;
+  };
+  ml_model: {
+    loaded: boolean;
+    model_version: string;
+    algorithm?: string;
+    decision_threshold?: number | null;
+    feature_count?: number | null;
+    load_error?: string;
+  };
+  threat_intel?: {
+    providers?: Record<string, string>;
+    circuit_breakers?: Record<string, unknown>;
+  };
 }
 
 export interface User {

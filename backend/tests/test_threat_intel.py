@@ -11,6 +11,20 @@ from app.services.threat_intel import (
     ThreatIntelAggregator,
 )
 
+@pytest.fixture(autouse=True)
+def reset_phishdestroy_breaker():
+    """Reset PhishDestroy circuit breaker before/after every test in this module.
+
+    Prevents circuit-breaker state from real-network-call failures in one test
+    from blocking mocked tests that run afterwards.
+    """
+    PhishDestroyAdapter._breaker.state = "CLOSED"
+    PhishDestroyAdapter._breaker.failure_count = 0
+    PhishDestroyAdapter._breaker.last_failure_time = 0.0
+    PhishDestroyAdapter._breaker.last_state_change = time.time()
+    yield
+    PhishDestroyAdapter._breaker.state = "CLOSED"
+    PhishDestroyAdapter._breaker.failure_count = 0
 
 @pytest.mark.anyio
 async def test_google_safe_browsing_not_configured(monkeypatch):

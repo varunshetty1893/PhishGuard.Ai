@@ -220,12 +220,6 @@ async def scan_url(
                     if ml_probability < 0.40 and risk_level == "Suspicious" and len(suspicious_reasons) <= 1:
                         risk_level = "Low Risk"
 
-            provider_states = [
-                f"{PROVIDER_LABELS[key]}: {result.status}"
-                for key, result in threat_results.items()
-            ]
-            provider_notes = "; ".join(provider_states)
-
             if is_verified:
                 combined_interpretation = (
                     f"Verified authentic website ({apex}). This domain is recognized as an official, authentic authority. "

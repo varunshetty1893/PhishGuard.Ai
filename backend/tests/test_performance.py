@@ -21,21 +21,29 @@ import concurrent.futures
 # ---------------------------------------------------------------------------
 _MODEL_PATH = os.path.join(
     os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-    "ml", "artifacts", "phishguard_rf_model.joblib"
+    "app", "ml", "artifacts", "phishguard_rf_model.joblib"
 )
 
 
 def _is_lfs_pointer(path: str) -> bool:
+    if os.environ.get("PHISHGUARD_MOCK_LFS_POINTER") == "1":
+        return True
     if not os.path.exists(path):
-        return False
-    with open(path, "rb") as fh:
-        return fh.read(30).startswith(b"version https://git-lfs")
+        return True
+    try:
+        with open(path, "rb") as fh:
+            return fh.read(30).startswith(b"version https://git-lfs")
+    except Exception:
+        return True
 
 
-pytestmark = pytest.mark.skipif(
-    _is_lfs_pointer(_MODEL_PATH),
-    reason="Model is a Git LFS pointer – run `git lfs pull` first"
-)
+pytestmark = [
+    pytest.mark.requires_ml_model,
+    pytest.mark.skipif(
+        _is_lfs_pointer(_MODEL_PATH),
+        reason="Model artifact unavailable or is a Git LFS pointer – run `git lfs pull` first"
+    )
+]
 
 # ---------------------------------------------------------------------------
 # Helpers

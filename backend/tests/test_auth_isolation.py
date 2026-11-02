@@ -1,5 +1,6 @@
 import uuid
 import pytest
+from unittest.mock import patch
 from fastapi.testclient import TestClient
 from app.main import app
 
@@ -154,89 +155,109 @@ def test_strict_user_data_isolation():
     """
     CRITICAL TEST: Verifies that User B cannot view, search, export, delete,
     or calculate analytics on User A's private scans.
+
+    ML inference is mocked so this test is independent of the model artifact.
+    All user-isolation assertions are fully preserved.
     """
-    # 1. Setup User A
-    user_a_client = TestClient(app)
-    user_a_email = f"user_a_{uuid.uuid4().hex[:8]}@cybersec.org"
-    user_a_client.post("/api/v1/auth/register", json={
-        "full_name": "User Alpha",
-        "email": user_a_email,
-        "password": "AlphaPassword123!",
-        "confirm_password": "AlphaPassword123!"
-    })
-    login_a = user_a_client.post("/api/v1/auth/login", json={
-        "email": user_a_email,
-        "password": "AlphaPassword123!"
-    })
-    csrf_a = login_a.json()["csrf_token"]
+    _mock_prediction = {
+        "submitted_url": "http://malicious-phishing-target-alpha.xyz/login",
+        "normalized_url": "http://malicious-phishing-target-alpha.xyz/login",
+        "predicted_class": "Phishing",
+        "risk_level": "High Risk",
+        "model_score": 0.95,
+        "raw_ml_score": 0.95,
+        "is_verified_domain": False,
+        "apex_domain": "malicious-phishing-target-alpha.xyz",
+        "extracted_features": {},
+        "suspicious_reasons": ["Suspicious domain pattern"],
+        "combined_interpretation": "Potential phishing detected.",
+        "recommended_precautions": ["Do not enter credentials."],
+        "model_version": "v5.0.0",
+    }
 
-    # User A performs a scan
-    scan_target = "http://malicious-phishing-target-alpha.xyz/login"
-    scan_a_res = user_a_client.post(
-        "/api/v1/scan",
-        json={"url": scan_target},
-        headers={"X-CSRF-Token": csrf_a}
-    )
-    assert scan_a_res.status_code == 200
-    scan_a_id = scan_a_res.json()["scan_id"]
+    with patch("app.services.ml_inference.MLInferenceService.predict", return_value=_mock_prediction):
+        # 1. Setup User A
+        user_a_client = TestClient(app)
+        user_a_email = f"user_a_{uuid.uuid4().hex[:8]}@cybersec.org"
+        user_a_client.post("/api/v1/auth/register", json={
+            "full_name": "User Alpha",
+            "email": user_a_email,
+            "password": "AlphaPassword123!",
+            "confirm_password": "AlphaPassword123!"
+        })
+        login_a = user_a_client.post("/api/v1/auth/login", json={
+            "email": user_a_email,
+            "password": "AlphaPassword123!"
+        })
+        csrf_a = login_a.json()["csrf_token"]
 
-    # User A verifies their scan is in their history
-    list_a = user_a_client.get("/api/v1/scans").json()
-    assert any(s["scan_id"] == scan_a_id for s in list_a["items"])
+        # User A performs a scan
+        scan_target = "http://malicious-phishing-target-alpha.xyz/login"
+        scan_a_res = user_a_client.post(
+            "/api/v1/scan",
+            json={"url": scan_target},
+            headers={"X-CSRF-Token": csrf_a}
+        )
+        assert scan_a_res.status_code == 200
+        scan_a_id = scan_a_res.json()["scan_id"]
 
-    # User A analytics shows at least 1 scan
-    analytics_a = user_a_client.get("/api/v1/analytics").json()
-    assert analytics_a["total_scans"] >= 1
+        # User A verifies their scan is in their history
+        list_a = user_a_client.get("/api/v1/scans").json()
+        assert any(s["scan_id"] == scan_a_id for s in list_a["items"])
 
-    # 2. Setup User B
-    user_b_client = TestClient(app)
-    user_b_email = f"user_b_{uuid.uuid4().hex[:8]}@cybersec.org"
-    user_b_client.post("/api/v1/auth/register", json={
-        "full_name": "User Beta",
-        "email": user_b_email,
-        "password": "BetaPassword123!",
-        "confirm_password": "BetaPassword123!"
-    })
-    login_b = user_b_client.post("/api/v1/auth/login", json={
-        "email": user_b_email,
-        "password": "BetaPassword123!"
-    })
-    csrf_b = login_b.json()["csrf_token"]
+        # User A analytics shows at least 1 scan
+        analytics_a = user_a_client.get("/api/v1/analytics").json()
+        assert analytics_a["total_scans"] >= 1
 
-    # User B list history -> MUST NOT see User A's scan
-    list_b = user_b_client.get("/api/v1/scans").json()
-    assert not any(s["scan_id"] == scan_a_id for s in list_b["items"])
-    assert list_b["total_records"] == 0
+        # 2. Setup User B
+        user_b_client = TestClient(app)
+        user_b_email = f"user_b_{uuid.uuid4().hex[:8]}@cybersec.org"
+        user_b_client.post("/api/v1/auth/register", json={
+            "full_name": "User Beta",
+            "email": user_b_email,
+            "password": "BetaPassword123!",
+            "confirm_password": "BetaPassword123!"
+        })
+        login_b = user_b_client.post("/api/v1/auth/login", json={
+            "email": user_b_email,
+            "password": "BetaPassword123!"
+        })
+        csrf_b = login_b.json()["csrf_token"]
 
-    # User B analytics -> MUST NOT count User A's scans
-    analytics_b = user_b_client.get("/api/v1/analytics").json()
-    assert analytics_b["total_scans"] == 0
-    assert analytics_b["phishing_count"] == 0
+        # User B list history -> MUST NOT see User A's scan
+        list_b = user_b_client.get("/api/v1/scans").json()
+        assert not any(s["scan_id"] == scan_a_id for s in list_b["items"])
+        assert list_b["total_records"] == 0
 
-    # User B direct IDOR attempt to view User A's scan report -> MUST BE 404/DENIED
-    idor_get = user_b_client.get(f"/api/v1/scans/{scan_a_id}")
-    assert idor_get.status_code == 404
+        # User B analytics -> MUST NOT count User A's scans
+        analytics_b = user_b_client.get("/api/v1/analytics").json()
+        assert analytics_b["total_scans"] == 0
+        assert analytics_b["phishing_count"] == 0
 
-    # User B direct IDOR attempt to delete User A's scan -> MUST BE 404/DENIED
-    idor_del = user_b_client.delete(
-        f"/api/v1/scans/{scan_a_id}",
-        headers={"X-CSRF-Token": csrf_b}
-    )
-    assert idor_del.status_code == 404
+        # User B direct IDOR attempt to view User A's scan report -> MUST BE 404/DENIED
+        idor_get = user_b_client.get(f"/api/v1/scans/{scan_a_id}")
+        assert idor_get.status_code == 404
 
-    # User B attempts to export CSV -> User A's URL must NOT be present in export
-    export_b = user_b_client.get("/api/v1/scans/export")
-    assert export_b.status_code == 200
-    assert scan_target not in export_b.text
+        # User B direct IDOR attempt to delete User A's scan -> MUST BE 404/DENIED
+        idor_del = user_b_client.delete(
+            f"/api/v1/scans/{scan_a_id}",
+            headers={"X-CSRF-Token": csrf_b}
+        )
+        assert idor_del.status_code == 404
 
-    # User B clears their history -> User A's scan must remain intact
-    clear_b = user_b_client.delete(
-        "/api/v1/scans",
-        headers={"X-CSRF-Token": csrf_b}
-    )
-    assert clear_b.status_code == 200
+        # User B attempts to export CSV -> User A's URL must NOT be present in export
+        export_b = user_b_client.get("/api/v1/scans/export")
+        assert export_b.status_code == 200
+        assert scan_target not in export_b.text
 
-    # User A verifies their scan still exists unharmed
-    detail_a = user_a_client.get(f"/api/v1/scans/{scan_a_id}")
-    assert detail_a.status_code == 200
-    assert detail_a.json()["scan_id"] == scan_a_id
+        # User B clears their history -> User A's scan must remain intact
+        clear_b = user_b_client.delete(
+            "/api/v1/scans",
+            headers={"X-CSRF-Token": csrf_b}
+        )
+        assert clear_b.status_code == 200
+
+        # User A verifies their scan still exists unharmed
+        detail_a = user_a_client.get(f"/api/v1/scans/{scan_a_id}")
+        assert detail_a.status_code == 200
+        assert detail_a.json()["scan_id"] == scan_a_id
