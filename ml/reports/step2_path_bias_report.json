@@ -1,0 +1,12 @@
+{
+  "candidate_version": "v6.0.0-candidate",
+  "optimal_threshold": 0.5800000000000003,
+  "test_accuracy": 0.9595221526327998,
+  "test_recall": 0.9308932684924495,
+  "long_tail_legit_fpr": 0.07314814814814814,
+  "path_fpr": 0.19814241486068113,
+  "nopath_fpr": 0.019815059445178335,
+  "sso_fpr": 0.2833333333333333,
+  "hard_phishing_recall": 0.925,
+  "gates_passed": false
+}
