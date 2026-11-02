@@ -15,7 +15,6 @@ import time
 import pytest
 import statistics
 import concurrent.futures
-from unittest.mock import patch, MagicMock
 
 # ---------------------------------------------------------------------------
 # Skip when the model artifact is a Git LFS pointer

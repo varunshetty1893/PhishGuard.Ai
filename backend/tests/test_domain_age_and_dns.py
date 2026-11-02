@@ -10,9 +10,7 @@ Tests:
 from __future__ import annotations
 
 import pytest
-import pytest_asyncio
-from datetime import datetime, timezone
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock
 
 from app.services.domain_age import DomainAgeService
 
