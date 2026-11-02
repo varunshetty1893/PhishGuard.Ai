@@ -32,13 +32,14 @@ from backend.app.ml.feature_extraction_v2 import (
     FEATURE_NAMES, normalize_url, extract_apex_domain,
     get_tld_risk_score, check_brand_lookalike, check_brand_in_subdomain,
     has_punycode, hostname_entropy, is_valid_ip, is_hsts_enforced_domain,
-    count_subdomains, DISALLOWED_SHARED_PLATFORMS, SUSPICIOUS_KEYWORDS
+    count_subdomains, DISALLOWED_SHARED_PLATFORMS, SUSPICIOUS_KEYWORDS,
+    extract_url_features, features_to_vector
 )
 
 from ml.train_v5_candidate import HARD_NEGATIVE_SSO
 
 DATA_PATH = ROOT / "ml" / "data" / "dataset_v4_curated.csv"
-DEEP_LINKS_PATH = ROOT / "ml" / "data" / "legit_deep_links_3500.csv"
+DEEP_LINKS_PATH = ROOT / "ml" / "data" / "legit_deep_links_6000.csv"
 SSO_PATH = ROOT / "ml" / "data" / "sso_eval_100.csv"
 LONGTAIL_CSV = ROOT / "ml" / "reports" / "longtail_legit_eval_results.csv"
 HARD_PHISH_CSV = ROOT / "ml" / "reports" / "hard_phishing_eval_results.csv"
@@ -48,58 +49,8 @@ BACKEND_ART = ROOT / "backend" / "app" / "ml" / "artifacts"
 
 
 def extract_features_v6(raw_url: str):
-    normalized = normalize_url(raw_url)
-    parsed = urlparse(normalized)
-    hostname = (parsed.hostname or "").lower()
-    path = parsed.path or ""
-    scheme = (parsed.scheme or "").lower()
-
-    url_length = len(normalized)
-    hostname_length = len(hostname)
-    path_length = len(path)
-    count_dots = normalized.count(".")
-    count_hyphens = normalized.count("-")
-    count_at = normalized.count("@")
-    count_question = normalized.count("?")
-    count_equal = normalized.count("=")
-    count_slash = normalized.count("/")
-    digits = sum(c.isdigit() for c in normalized)
-    specials = sum(not c.isalnum() and c not in "/;:." for c in normalized)
-    subdomains = count_subdomains(hostname)
-    ip_flag = is_valid_ip(hostname)
-    hsts_enforced = is_hsts_enforced_domain(hostname)
-    https_flag = 1 if (scheme == "https" or hsts_enforced) else 0
-
-    url_lower = normalized.lower()
-    found_keywords = [kw for kw in SUSPICIOUS_KEYWORDS if kw in url_lower]
-
-    keyword_flag = 0
-    if found_keywords:
-        has_risk_context = (
-            get_tld_risk_score(hostname) >= 0.5
-            or check_brand_lookalike(hostname)
-            or check_brand_in_subdomain(hostname)
-            or ip_flag
-            or has_punycode(hostname)
-            or any(plat in hostname for plat in DISALLOWED_SHARED_PLATFORMS)
-            or hostname_entropy(hostname) >= 3.6
-            or scheme == "http"
-            or hostname.count("-") >= 2
-            or hostname.count(".") >= 3
-        )
-        keyword_flag = 1 if has_risk_context else 0
-
-    digit_ratio = round(digits / max(url_length, 1), 6)
-    special_char_ratio = round(specials / max(url_length, 1), 6)
-
-    return [
-        float(url_length), float(hostname_length), float(path_length),
-        float(count_dots), float(count_hyphens), float(count_at),
-        float(count_question), float(count_equal), float(count_slash),
-        float(digits), float(subdomains), float(ip_flag),
-        float(https_flag), float(keyword_flag), float(digit_ratio),
-        float(special_char_ratio)
-    ]
+    features, _ = extract_url_features(raw_url)
+    return features_to_vector(features)
 
 
 def main():
