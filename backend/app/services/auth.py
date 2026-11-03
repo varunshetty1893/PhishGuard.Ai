@@ -156,11 +156,15 @@ class AuthService:
             db.commit()
             return None
 
+        user_id = session_record.user_id
         # Update last active timestamp
         session_record.last_active_at = now
-        db.commit()
+        try:
+            db.commit()
+        except Exception:
+            db.rollback()
 
-        user = db.query(User).filter(User.id == session_record.user_id).first()
+        user = db.query(User).filter(User.id == user_id).first()
         if not user or user.account_status != "active":
             return None
 

@@ -7,12 +7,23 @@ engine_kwargs: Dict[str, Any] = {}
 
 if settings.IS_POSTGRES:
     # Neon Serverless PostgreSQL optimizations
+    connect_args = {
+        "sslmode": "require",
+        "connect_timeout": 10,
+        "keepalives": 1,
+        "keepalives_idle": 30,
+        "keepalives_interval": 10,
+        "keepalives_count": 5,
+    }
+    if "sslmode" in settings.DATABASE_URL:
+        connect_args.pop("sslmode", None)
+
     engine_kwargs.update({
         "pool_pre_ping": True,
         "pool_size": 10,
         "max_overflow": 20,
-        "pool_recycle": 300,
-        "connect_args": {"sslmode": "require"} if "sslmode" not in settings.DATABASE_URL else {}
+        "pool_recycle": 120,
+        "connect_args": connect_args
     })
 else:
     # SQLite configuration for local dev & testing with WAL mode & busy timeout
@@ -36,7 +47,7 @@ if not settings.IS_POSTGRES:
         cursor.execute("PRAGMA synchronous=NORMAL")
         cursor.close()
 
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, expire_on_commit=False, bind=engine)
 
 Base = declarative_base()
 

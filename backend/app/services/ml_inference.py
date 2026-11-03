@@ -6,6 +6,7 @@ and v2 enhanced signals: TLD risk, brand lookalike, punycode, hostname entropy.
 """
 import json
 import os
+import warnings
 from typing import Dict, Any, List
 from urllib.parse import urlparse
 import joblib
@@ -49,7 +50,14 @@ class MLInferenceService:
                     "Model is a Git LFS pointer — run `git lfs pull` to download the "
                     "actual model artifact before starting the server."
                 )
-            loaded = joblib.load(MODEL_PATH)
+            with warnings.catch_warnings():
+                warnings.filterwarnings("ignore", category=UserWarning)
+                try:
+                    from sklearn.exceptions import InconsistentVersionWarning
+                    warnings.filterwarnings("ignore", category=InconsistentVersionWarning)
+                except ImportError:
+                    pass
+                loaded = joblib.load(MODEL_PATH)
             if isinstance(loaded, dict) and "model" in loaded:
                 cls._model = loaded["model"]
             else:
