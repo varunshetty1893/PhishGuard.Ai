@@ -1,5 +1,5 @@
 ﻿import React from 'react';
-import { Shield, Lock, Terminal, FileText, Database, BookOpen } from 'lucide-react';
+import { Shield, Lock, Terminal, FileText, Database } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export const Footer: React.FC = () => {
@@ -56,9 +56,8 @@ export const Footer: React.FC = () => {
                 </Link>
               </li>
               <li>
-                <Link to="/about" className="hover:text-[#39FF88] transition-colors flex items-center gap-1.5">
-                  <BookOpen className="w-3 h-3 text-[#FFD54A]" />
-                  <span className="text-[#FFD54A]">How It Works (Plain English)</span>
+                <Link to="/about" className="hover:text-[#39FF88] transition-colors">
+                  How It Works
                 </Link>
               </li>
               <li>
